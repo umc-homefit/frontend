@@ -119,6 +119,6 @@ Home
 
 ---
 
-## 📚 Docs
+## 📏 Convention
 
-- [Convention.md](./Convention.md)
+- [GIT_CONVENTION.md](./GIT_CONVENTION.md)
