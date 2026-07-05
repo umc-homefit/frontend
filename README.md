@@ -26,10 +26,10 @@ HomeFit은 사용자가 공공 청년주택 공고를 조회하고, 자신의 �
 
 | 이름 | GitHub |
 |---|---|
-|  |  |
-|  |  |
-|  |  |
-|  |  |
+| 릴리/김혜민 |  |
+| 제이/박유진 |  |
+| 양고/전서영 |  |
+| 리비/홍지원 |  |
 
 ---
 
@@ -73,22 +73,22 @@ git clone https://github.com/[org이름]/homefit-android.git
 
 | 화면 이름 | 스크린 ID | 진입 경로 | 담당자 |
 |---|---|---|---|
-| 홈 | HomeScreen | 앱 최초 진입 | |
-| 공고 목록 | RecruitmentListScreen | 하단 탭 → 공고 | |
-| 공고 필터 | RecruitmentFilterScreen | 공고 목록 → 필터 | |
-| 공고 상세 | RecruitmentDetailScreen | 공고 목록 → 공고 선택 | |
-| 경쟁률 정보 | CompetitionScreen | 공고 상세 → 경쟁률 보기 | |
-| 입주 분석 | AnalysisScreen | 하단 탭 → 분석 | |
-| 금융 정보 입력 | FinancialInfoScreen | 입주 분석 → 금융 정보 입력 | |
-| 입주 가능성 결과 | AnalysisResultScreen | 금융 정보 입력 → 분석 완료 | |
-| 예상 보증금/월세 | EstimatedCostScreen | 입주 가능성 결과 → 상세 보기 | |
-| 금융 상품 | FinanceScreen | 하단 탭 → 금융 | |
-| 추천 상품 목록 | RecommendedProductScreen | 금융 상품 → 추천 상품 전체 보기 | |
-| 상품 상세 | ProductDetailScreen | 추천 상품 목록 → 상품 선택 | |
-| 마이페이지 | MyPageScreen | 하단 탭 → 마이 | |
-| 저장 공고 관리 | SavedRecruitmentScreen | 마이페이지 → 저장 공고 | |
-| 알림 설정 | NotificationSettingScreen | 마이페이지 → 알림 설정 | |
-| 내 금융 정보 관리 | MyFinanceScreen | 마이페이지 → 내 금융 정보 | |
+| 홈 | HomeScreen | 앱 최초 진입 | 제이/박유진 |
+| 공고 목록 | RecruitmentListScreen | 하단 탭 → 공고 | 릴리/김혜민 |
+| 공고 필터 | RecruitmentFilterScreen | 공고 목록 → 필터 | 릴리/김혜민 |
+| 공고 상세 | RecruitmentDetailScreen | 공고 목록 → 공고 선택 | 릴리/김혜민 |
+| 경쟁률 정보 | CompetitionScreen | 공고 상세 → 경쟁률 보기 | 릴리/김혜민 |
+| 입주 분석 | AnalysisScreen | 하단 탭 → 분석 | 리비/홍지원 |
+| 금융 정보 입력 | FinancialInfoScreen | 입주 분석 → 금융 정보 입력 | 리비/홍지원 |
+| 입주 가능성 결과 | AnalysisResultScreen | 금융 정보 입력 → 분석 완료 | 리비/홍지원 |
+| 예상 보증금/월세 | EstimatedCostScreen | 입주 가능성 결과 → 상세 보기 | 리비/홍지원 |
+| 금융 상품 | FinanceScreen | 하단 탭 → 금융 | 제이/박유진 |
+| 추천 상품 목록 | RecommendedProductScreen | 금융 상품 → 추천 상품 전체 보기 | 제이/박유진 |
+| 상품 상세 | ProductDetailScreen | 추천 상품 목록 → 상품 선택 | 제이/박유진 |
+| 마이페이지 | MyPageScreen | 하단 탭 → 마이 | 양고/전서영 |
+| 저장 공고 관리 | SavedRecruitmentScreen | 마이페이지 → 저장 공고 | 양고/전서영 |
+| 알림 설정 | NotificationSettingScreen | 마이페이지 → 알림 설정 | 양고/전서영 |
+| 내 금융 정보 관리 | MyFinanceScreen | 마이페이지 → 내 금융 정보 | 양고/전서영 |
 
 ---
 
@@ -121,6 +121,4 @@ Home
 
 ## 📚 Docs
 
-- [Convention.md](./docs/Convention.md)
-- [PR_TEMPLATE.md](./docs/PR_TEMPLATE.md)
-- [Issue_Template.md](./docs/Issue_Template.md)
+- [Convention.md](./Convention.md)
