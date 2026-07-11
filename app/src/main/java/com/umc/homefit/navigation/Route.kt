@@ -1,0 +1,58 @@
+package com.umc.homefit.navigation
+
+import kotlinx.serialization.Serializable
+
+sealed interface Route {
+    @Serializable
+    data object Main : Route
+
+    @Serializable
+    data object RecruitmentFilter : Route
+
+    @Serializable
+    data class RecruitmentDetail(val recruitmentId: String) : Route
+
+    @Serializable
+    data class Competition(val recruitmentId: String) : Route
+
+    @Serializable
+    data object FinancialInfo : Route
+
+    @Serializable
+    data class AnalysisResult(val analysisId: String) : Route
+
+    @Serializable
+    data class EstimatedCost(val resultId: String) : Route
+
+    @Serializable
+    data object RecommendedProduct : Route
+
+    @Serializable
+    data class ProductDetail(val productId: String) : Route
+
+    @Serializable
+    data object SavedRecruitment : Route
+
+    @Serializable
+    data object NotificationSetting : Route
+
+    @Serializable
+    data object MyFinance : Route
+}
+
+sealed interface TabRoute {
+    @Serializable
+    data object Home : TabRoute
+
+    @Serializable
+    data object RecruitmentList : TabRoute
+
+    @Serializable
+    data object Analysis : TabRoute
+
+    @Serializable
+    data object Finance : TabRoute
+
+    @Serializable
+    data object MyPage : TabRoute
+}
