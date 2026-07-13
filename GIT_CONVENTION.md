@@ -75,9 +75,9 @@ git push origin feature/12-home-screen
 
 예시
 ```
-Feat: 홈 화면 UI 구현
-Fix: 공고 목록 크래시 수정
-Rename: HomeViewModel 파일 이동
+feat: 홈 화면 UI 구현
+fix: 공고 목록 크래시 수정
+rename: HomeViewModel 파일 이동
 ```
 
 ---
