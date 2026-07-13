@@ -25,7 +25,7 @@ fun FinancialInfoScreenRoute(
         uiState = uiState,
         onBack = onBack,
         onNavigateToResult = onNavigateToResult,
-        
+
         modifier = modifier
     )
 }
@@ -35,7 +35,7 @@ fun FinancialInfoScreen(
     uiState: FinancialInfoScreenUiState,
     onBack: () -> Unit,
     onNavigateToResult: (String) -> Unit,
-    
+
     modifier: Modifier = Modifier
 ) {
     Column(
