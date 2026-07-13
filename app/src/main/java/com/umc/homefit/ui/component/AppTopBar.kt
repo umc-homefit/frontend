@@ -1,8 +1,8 @@
 package com.umc.homefit.ui.component
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.foundation.layout.size
+import com.umc.homefit.R
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,7 +46,7 @@ fun AppTopBar(
             title?.let {
                 Text(
                     text = it,
-                    fontSize = 24.sp,
+                    fontSize = if (showBackButton) 18.sp else 24.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -56,8 +57,10 @@ fun AppTopBar(
         if (showBackButton) {
             IconButton(onClick = onBackClick) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back"
+                    painter = painterResource(id = R.drawable.ic_top_arrow_back),
+                    contentDescription = "Back",
+                    modifier = Modifier.size(18.dp),
+                    tint = Color(0xFF919AA4)
                 )
             }
         }
