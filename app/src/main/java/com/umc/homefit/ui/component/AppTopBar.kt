@@ -1,9 +1,11 @@
 package com.umc.homefit.ui.component
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
+import com.umc.homefit.R
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -13,7 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 data class TopBarAction(
@@ -27,17 +31,25 @@ data class TopBarAction(
 fun AppTopBar(
     modifier: Modifier = Modifier,
     title: String? = null,
+    titleContent: (@Composable () -> Unit)? = null,
     showBackButton: Boolean = false,
     onBackClick: () -> Unit = {},
-    actions: List<TopBarAction> = emptyList()
+    actions: List<TopBarAction> = emptyList(),
+    showDivider: Boolean = false
 ) {
+    val dividerColor = Color(0xFFF0F4F9)
+
     val titleComposable: @Composable () -> Unit = {
-        title?.let {
-            Text(
-                text = it,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
+        if (titleContent != null) {
+            titleContent()
+        } else {
+            title?.let {
+                Text(
+                    text = it,
+                    fontSize = if (showBackButton) 18.sp else 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 
@@ -45,8 +57,10 @@ fun AppTopBar(
         if (showBackButton) {
             IconButton(onClick = onBackClick) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back"
+                    painter = painterResource(id = R.drawable.ic_top_arrow_back),
+                    contentDescription = "Back",
+                    modifier = Modifier.size(18.dp),
+                    tint = Color(0xFF919AA4)
                 )
             }
         }
@@ -67,21 +81,28 @@ fun AppTopBar(
         containerColor = Color.Transparent
     )
 
-    if (showBackButton) {
-        CenterAlignedTopAppBar(
-            title = titleComposable,
-            navigationIcon = navigationIconComposable,
-            actions = { actionsComposable() },
-            colors = colors,
-            modifier = modifier
-        )
-    } else {
-        TopAppBar(
-            title = titleComposable,
-            navigationIcon = navigationIconComposable,
-            actions = { actionsComposable() },
-            colors = colors,
-            modifier = modifier
-        )
+    Column (modifier = modifier) {
+        if (showBackButton) {
+            CenterAlignedTopAppBar(
+                title = titleComposable,
+                navigationIcon = navigationIconComposable,
+                actions = { actionsComposable() },
+                colors = colors
+            )
+        } else {
+            TopAppBar(
+                title = titleComposable,
+                navigationIcon = navigationIconComposable,
+                actions = { actionsComposable() },
+                colors = colors
+            )
+        }
+
+        if (showDivider) {
+            HorizontalDivider(
+                color = dividerColor,
+                thickness = 2.dp
+            )
+        }
     }
 }
