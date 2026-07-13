@@ -1,9 +1,11 @@
 package com.umc.homefit.ui.component
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -14,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 data class TopBarAction(
@@ -27,17 +30,25 @@ data class TopBarAction(
 fun AppTopBar(
     modifier: Modifier = Modifier,
     title: String? = null,
+    titleContent: (@Composable () -> Unit)? = null,
     showBackButton: Boolean = false,
     onBackClick: () -> Unit = {},
-    actions: List<TopBarAction> = emptyList()
+    actions: List<TopBarAction> = emptyList(),
+    showDivider: Boolean = true
 ) {
+    val dividerColor = Color(0xFFF0F4F9)
+
     val titleComposable: @Composable () -> Unit = {
-        title?.let {
-            Text(
-                text = it,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
+        if (titleContent != null) {
+            titleContent()
+        } else {
+            title?.let {
+                Text(
+                    text = it,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 
@@ -67,21 +78,28 @@ fun AppTopBar(
         containerColor = Color.Transparent
     )
 
-    if (showBackButton) {
-        CenterAlignedTopAppBar(
-            title = titleComposable,
-            navigationIcon = navigationIconComposable,
-            actions = { actionsComposable() },
-            colors = colors,
-            modifier = modifier
-        )
-    } else {
-        TopAppBar(
-            title = titleComposable,
-            navigationIcon = navigationIconComposable,
-            actions = { actionsComposable() },
-            colors = colors,
-            modifier = modifier
-        )
+    Column (modifier = modifier) {
+        if (showBackButton) {
+            CenterAlignedTopAppBar(
+                title = titleComposable,
+                navigationIcon = navigationIconComposable,
+                actions = { actionsComposable() },
+                colors = colors
+            )
+        } else {
+            TopAppBar(
+                title = titleComposable,
+                navigationIcon = navigationIconComposable,
+                actions = { actionsComposable() },
+                colors = colors
+            )
+        }
+
+        if (showDivider) {
+            HorizontalDivider(
+                color = dividerColor,
+                thickness = 2.dp
+            )
+        }
     }
 }
