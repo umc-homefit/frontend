@@ -15,8 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.foundation.Image
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -167,9 +166,8 @@ private fun ProfileCard(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
-            .border(BorderStroke(1.dp, CardBorderColor), RoundedCornerShape(12.dp))
+            .background(Color.White, RoundedCornerShape(12.dp))
+            .border(BorderStroke(1.5.dp, CardBorderColor), RoundedCornerShape(12.dp))
             .padding(20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -184,10 +182,12 @@ private fun ProfileCard(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Filled.Person,
+            Image(
+                painter = painterResource(id = R.drawable.ic_mypage_profileimg),
                 contentDescription = null,
-                tint = Color.White
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
             )
         }
 

@@ -38,9 +38,8 @@ fun MyPageMenuItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
-            .border(BorderStroke(1.dp, CardBorderColor), RoundedCornerShape(8.dp))
+            .background(Color.White, RoundedCornerShape(12.dp))
+            .border(BorderStroke(1.5.dp, CardBorderColor), RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 25.dp, vertical = 20.dp),
         verticalAlignment = Alignment.CenterVertically
