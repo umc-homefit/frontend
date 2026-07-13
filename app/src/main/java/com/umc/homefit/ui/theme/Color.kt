@@ -34,3 +34,22 @@ val BackgroundDark = Color(0xFF0F172A)
 val OnBackgroundDark = Color(0xFFF8FAFC)
 val SurfaceDark = Color(0xFF1E293B)
 val OnSurfaceDark = Color(0xFFF8FAFC)
+
+// Recruitment 화면 Figma 색상
+val RecruitmentAccent = Color(0xFF3C45F3)
+val RecruitmentBorder = Color(0xFFD2D9E2)
+val RecruitmentTextGray = Color(0xFF919AA4)
+val SearchFieldBackground = Color(0xFFF0F4F9)
+
+val StatusRecruitingBackground = Color(0xFFF1F0FF)
+val StatusRecruitingText = Color(0xFF3C45F3)
+val StatusScheduledBackground = Color(0xFFF0F4F9)
+val StatusScheduledText = Color(0xFF4A4F55)
+val StatusClosingSoonBackground = Color(0xFFFFF6F6)
+val StatusClosingSoonText = Color(0xFFFF5659)
+
+val CompetitionRateBackground = Color(0xFFF0F4F9)
+val CompetitionRateText = Color(0xFF4A4F55)
+
+val BookmarkActive = Color(0xFFFF5659)
+val BookmarkInactive = Color(0xFFD2D9E2)

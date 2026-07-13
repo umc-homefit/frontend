@@ -2,6 +2,7 @@ package com.umc.homefit.data.repository
 
 import com.umc.homefit.data.datasource.local.UserPreferencesDataSource
 import com.umc.homefit.data.dto.RecruitmentDto
+import com.umc.homefit.data.dto.RecruitmentStatus
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -19,7 +20,13 @@ class HomeRepositoryImpl @Inject constructor(
                 rentType = "행복주택",
                 deposit = 50000000L,
                 monthlyRent = 150000L,
-                announcementDate = "2026-07-11"
+                announcementDate = "2026-07-11",
+                announcementNumber = "2026-마포-003",
+                area = 39.87,
+                applicationStartDate = "2026-07-12",
+                applicationEndDate = "2026-07-16",
+                status = RecruitmentStatus.RECRUITING,
+                competitionRate = "8.2:1"
             )
         )
     }

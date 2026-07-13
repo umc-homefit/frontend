@@ -1,6 +1,11 @@
-﻿package com.umc.homefit.data.dto
+package com.umc.homefit.data.dto
 
 import kotlinx.serialization.Serializable
+
+@Serializable
+enum class RecruitmentStatus {
+    RECRUITING, SCHEDULED, CLOSING_SOON
+}
 
 @Serializable
 data class RecruitmentDto(
@@ -11,5 +16,12 @@ data class RecruitmentDto(
     val rentType: String,
     val deposit: Long,
     val monthlyRent: Long,
-    val announcementDate: String
+    val announcementDate: String,
+    val announcementNumber: String,
+    val area: Double,
+    val applicationStartDate: String,
+    val applicationEndDate: String,
+    val status: RecruitmentStatus,
+    val competitionRate: String,
+    val isBookmarked: Boolean = false
 )
