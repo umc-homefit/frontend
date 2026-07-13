@@ -34,7 +34,7 @@ fun AppTopBar(
     showBackButton: Boolean = false,
     onBackClick: () -> Unit = {},
     actions: List<TopBarAction> = emptyList(),
-    showDivider: Boolean = true
+    showDivider: Boolean = false
 ) {
     val dividerColor = Color(0xFFF0F4F9)
 
