@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -63,7 +65,6 @@ fun RecruitmentListScreenRoute(
         onNavigateToDetail = onNavigateToDetail,
         onNavigateToFilter = onNavigateToFilter,
         onToggleBookmark = viewModel::toggleBookmark,
-
         modifier = modifier
     )
 }
@@ -184,7 +185,9 @@ fun RecruitmentListScreen(
                         Icon(
                             painter = painterResource(id = R.drawable.ic_recruit_filter),
                             contentDescription = "필터",
-                            modifier = Modifier.size(26.dp)
+                            modifier = Modifier
+                                .width(17.47.dp)
+                                .height(19.66.dp)
                         )
                     }
                 }

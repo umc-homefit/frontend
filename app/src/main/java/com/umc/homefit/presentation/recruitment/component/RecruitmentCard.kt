@@ -97,7 +97,7 @@ fun RecruitmentCard(
                     )
                 }
                 Text(
-                    text = "접수기간 | ${recruitment.applicationStartDate} ~ ${recruitment.applicationEndDate}",
+                    text = "청약접수 ${recruitment.applicationStartDate} ~ ${recruitment.applicationEndDate}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = RecruitmentTextGray
                 )
@@ -121,21 +121,21 @@ private fun StatusBadge(status: RecruitmentStatus) {
         RecruitmentStatus.SCHEDULED -> Triple(StatusScheduledBackground, StatusScheduledText, "예정")
         RecruitmentStatus.CLOSING_SOON -> Triple(StatusClosingSoonBackground, StatusClosingSoonText, "마감임박")
     }
-    Surface(color = background, shape = RoundedCornerShape(4.dp)) {
+    Surface(color = background, shape = RoundedCornerShape(percent = 50)) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
             color = text,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+            modifier = Modifier.padding(horizontal = 10.92.dp, vertical = 5.46.dp)
         )
     }
 }
 
 @Composable
 private fun CompetitionRateBadge(competitionRate: String) {
-    Surface(color = CompetitionRateBackground, shape = RoundedCornerShape(4.dp)) {
+    Surface(color = CompetitionRateBackground, shape = RoundedCornerShape(percent = 50)) {
         Text(
-            text = "🔥 경쟁률 $competitionRate",
+            text = "🔥경쟁률 $competitionRate",
             style = MaterialTheme.typography.labelSmall,
             color = CompetitionRateText,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
