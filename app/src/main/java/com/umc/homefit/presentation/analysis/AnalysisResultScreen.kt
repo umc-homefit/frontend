@@ -148,7 +148,7 @@ private fun SuccessContent(data: AnalysisResultData) {
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        // 1. 입주 가능성 카드 영역
+        // 입주 가능성 카드 영역
         Column {
             Text("입주 가능성", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(12.dp))
@@ -193,7 +193,7 @@ private fun SuccessContent(data: AnalysisResultData) {
             }
         }
 
-        // 2. 예상 비용 카드 영역
+        // 예상 비용 카드 영역
         Column {
             Text("예상 비용", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(12.dp))
@@ -238,7 +238,7 @@ private fun SuccessContent(data: AnalysisResultData) {
             }
         }
 
-        // 3. 조건 충족 현황 리스트 영역
+        // 조건 충족 현황 리스트 영역
         Column {
             Text("조건 충족 현황", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(12.dp))
@@ -271,7 +271,7 @@ private fun SuccessContent(data: AnalysisResultData) {
             }
         }
 
-        // 4. 분석 기준 보기 아코디언 드롭다운 영역
+        // 분석 기준 보기 아코디언 드롭다운 영역
         Card(
             modifier = Modifier.fillMaxWidth().clickable { isAccordionExpanded = !isAccordionExpanded },
             shape = RoundedCornerShape(12.dp),
@@ -299,7 +299,7 @@ private fun SuccessContent(data: AnalysisResultData) {
             }
         }
 
-        // 5. 유의사항 영역
+        // 유의사항 영역
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
@@ -323,26 +323,3 @@ private fun SuccessContent(data: AnalysisResultData) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun AnalysisResultScreenPreview() {
-    val dummyData = AnalysisResultData(
-        probabilityGrade = "높음",
-        percentileText = "상위 20~30%",
-        score = 72,
-        expectedDeposit = "3,200만 원",
-        expectedMonthlyRent = "42만 원",
-        infoTags = listOf("전용 36m² · 2순위 기준 추정", "보증금 1,000만 원 전환 기준"),
-        criteriaStatus = listOf(
-            CriteriaItem("소득 기준", "적합", true),
-            CriteriaItem("자산 기준", "적합", true),
-            CriteriaItem("거주 지역", "적합", true),
-            CriteriaItem("청약 자격", "확인 필요", false)
-        )
-    )
-    AnalysisResultScreen(
-        uiState = AnalysisResultScreenUiState.Success(dummyData),
-        onBack = {},
-        onNavigateToEstimatedCost = {}
-    )
-}
