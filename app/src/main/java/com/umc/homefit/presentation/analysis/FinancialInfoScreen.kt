@@ -1,6 +1,8 @@
 ﻿package com.umc.homefit.presentation.analysis
 
+import com.umc.homefit.R
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +34,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
@@ -290,11 +293,7 @@ fun FinancialInputField(
 ) {
     val dividerColor = Color(0xFFD2D9E2)
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = 24.dp)
-    ) {
+    Column(modifier = modifier.fillMaxWidth()) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(bottom = 8.dp)
@@ -676,7 +675,33 @@ fun CompleteStep(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            // 추후 캐릭터나 일러스트 애니메이션이 들어갈 자리
+            // 가운데 캐릭터
+            Image(
+                painter = painterResource(id = R.drawable.ic_analysis_result),
+                contentDescription = null,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(180.dp)
+            )
+            // 흩어진 별들
+            val starOffsets = listOf(
+                80.dp to (-165).dp,   // 우상단
+                (-70).dp to (-240).dp,      // 좌상단
+                (-140).dp to 60.dp,      // 좌하단
+                140.dp to 100.dp,        // 우하단
+                (-20).dp to 260.dp,      // 버튼 위
+            )
+
+            starOffsets.forEach { (x, y) ->
+                Image(
+                    painter = painterResource(id = R.drawable.ic_analysis_star),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .offset(x = x, y = y)
+                        .size(40.dp)
+                )
+            }
         }
     }
 }
