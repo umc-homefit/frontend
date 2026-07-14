@@ -96,6 +96,7 @@ fun FinancialInfoScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding)
         ) {
             LinearProgressIndicator(
                 progress = { progress },
@@ -182,9 +183,11 @@ fun StepBaseLayout(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+                .weight(1f)
+                .padding(top = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(48.dp)
         ) {
+
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge,
@@ -282,11 +285,16 @@ fun FinancialInputField(
     value: String,
     onValueChange: (String) -> Unit,
     onQuickAmountClick: (Long) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showHelpIcon: Boolean = true,
 ) {
     val dividerColor = Color(0xFFD2D9E2)
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 24.dp)
+    ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(bottom = 8.dp)
@@ -297,18 +305,20 @@ fun FinancialInputField(
                 fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = Modifier.weight(1f))
-            Surface(
-                shape = RoundedCornerShape(50),
-                color = Color(0xFFEEF1F6),
-                modifier = Modifier.size(16.dp)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = "?",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color(0xFF9EA4AA),
-                        fontWeight = FontWeight.Bold
-                    )
+            if (showHelpIcon) {
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = Color(0xFFEEF1F6),
+                    modifier = Modifier.size(16.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "?",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFF9EA4AA),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }
@@ -377,7 +387,8 @@ fun IncomeStep(
             onQuickAmountClick = { amount ->
                 val current = annualIncomeText.toLongOrNull() ?: 0L
                 annualIncomeText = (current + amount).toString()
-            }
+            },
+            showHelpIcon = false,
         )
 
         // 소득 유형 드롭다운 메뉴
@@ -386,7 +397,7 @@ fun IncomeStep(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp)
+                    .padding(bottom = 16.dp)
             ) {
                 Text(
                     text = "소득 유형",
