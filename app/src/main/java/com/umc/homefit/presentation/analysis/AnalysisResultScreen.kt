@@ -18,11 +18,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.umc.homefit.R
 import com.umc.homefit.ui.component.AppTopBar
 import com.umc.homefit.ui.component.TopBarAction
+
+private val BorderColor = Color(0xFFD2D9E2)
 
 @Composable
 fun AnalysisResultScreenRoute(
@@ -148,52 +149,130 @@ private fun SuccessContent(data: AnalysisResultData) {
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        // 입주 가능성 카드 영역
+        // 입주 가능성 카드
         Column {
             Text("입주 가능성", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(12.dp))
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFECEEFF))
+                border = BorderStroke(1.dp, BorderColor),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+                )
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(24.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+
+                    // 좌하단 장식
+                    Icon(
+                        painter = painterResource(R.drawable.ic_analysis_cloud_bottom),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier.align(Alignment.BottomStart)
+                    )
+
+                    // 우상단 장식
+                    Icon(
+                        painter = painterResource(R.drawable.ic_analysis_cloud_top),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier.align(Alignment.TopEnd)
+                    )
+
+                    // 큰 원
+                    Icon(
+                        painter = painterResource(R.drawable.ic_analysis_dot_large),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .offset(x = (-24).dp, y = (-2).dp)
+                    )
+
+                    // 작은 원
+                    Icon(
+                        painter = painterResource(R.drawable.ic_analysis_dot_small),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .offset(x = 100.dp, y = 32.dp)
+                    )
+
+                    Icon(
+                        painter = painterResource(R.drawable.ic_analysis_dot_small),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .offset(x = (-35).dp, y = 24.dp)
+                            .size(7.dp) // 큰 원보다 더 작게 하고 싶으면 사이즈 지정, 필요 없으면 이 줄 삭제
+                    )
+
+                    // 왼쪽 텍스트
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .padding(start = 28.dp)
+                    ) {
+
                         Surface(
-                            shape = RoundedCornerShape(20.dp),
-                            color = Color.White.copy(alpha = 0.6f)
+                            shape = RoundedCornerShape(999.dp),
+                            color = Color(0xFFF3F2FF)
                         ) {
                             Text(
                                 text = data.percentileText,
-                                style = MaterialTheme.typography.labelSmall,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp), // 18/8 → 16/6, 뱃지가 이미지보다 좀 두꺼워 보임
                                 color = Color(0xFF3C45F3),
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.SemiBold,
+                                style = MaterialTheme.typography.labelLarge
                             )
                         }
-                        Text(text = data.probabilityGrade, style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = Color(0xFF3C45F3))
+
+                        Spacer(modifier = Modifier.height(8.dp)) // 16 → 10, 뱃지와 "높음" 사이 간격이 이미지에선 더 촘촘함
+
+                        Text(
+                            text = data.probabilityGrade,
+                            style = MaterialTheme.typography.displayMedium,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color(0xFF3C45F3)
+                        )
                     }
-                    Surface(
-                        shape = RoundedCornerShape(16.dp),
-                        color = Color(0xFF3C45F3)
+
+                    // 집
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(end = 20.dp)      // 28 → 20, 집이 이미지에서 카드 오른쪽 끝에 더 붙어있음
+                            .offset(x = 16.dp, y = 8.dp) // 20 → 16
                     ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_analysis_house),
+                            contentDescription = null,
+                            tint = Color.Unspecified,
+                            modifier = Modifier.size(width = 220.dp, height = 138.dp) // 미세 축소
+                        )
+
                         Text(
                             text = "${data.score}점",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .offset(y = 6.dp), // 이미지 보면 점수 텍스트가 중앙보다 살짝 아래쪽
+                            style = MaterialTheme.typography.displayMedium,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.White
                         )
                     }
                 }
             }
         }
 
-        // 예상 비용 카드 영역
+        // 예상 비용 카드
         Column {
             Text("예상 비용", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(12.dp))
@@ -201,7 +280,7 @@ private fun SuccessContent(data: AnalysisResultData) {
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
-                border = BorderStroke(1.dp, Color(0xFFE2E8F0))
+                border = BorderStroke(1.dp, BorderColor)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(20.dp),
@@ -212,7 +291,7 @@ private fun SuccessContent(data: AnalysisResultData) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(data.expectedDeposit, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color(0xFF4A4F55))
                     }
-                    VerticalDivider(modifier = Modifier.height(40.dp), color = Color(0xFFE2E8F0))
+                    VerticalDivider(modifier = Modifier.height(40.dp), color = BorderColor)
                     Column(modifier = Modifier.weight(1f).padding(start = 20.dp)) {
                         Text("월세", style = MaterialTheme.typography.labelMedium, color = Color.Gray)
                         Spacer(modifier = Modifier.height(4.dp))
@@ -221,24 +300,52 @@ private fun SuccessContent(data: AnalysisResultData) {
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                data.infoTags.forEach { tag ->
-                    Surface(
-                        shape = RoundedCornerShape(4.dp),
-                        color = Color(0xFFF0F4F9)
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                color = Color(0xFFF0F4F9)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = tag,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color(0xFF718096),
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            text = data.infoTags.getOrElse(0) { "" },
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color(0xFF919AA4),
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    VerticalDivider(
+                        modifier = Modifier.height(16.dp),
+                        thickness = 1.dp,
+                        color = BorderColor
+                    )
+
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = data.infoTags.getOrElse(1) { "" },
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color(0xFF919AA4),
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
             }
         }
 
-        // 조건 충족 현황 리스트 영역
+        // 조건 충족 현황 리스트
         Column {
             Text("조건 충족 현황", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(12.dp))
@@ -246,7 +353,7 @@ private fun SuccessContent(data: AnalysisResultData) {
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
-                border = BorderStroke(1.dp, Color(0xFFE2E8F0))
+                border = BorderStroke(1.dp, BorderColor)
             ) {
                 Column {
                     data.criteriaStatus.forEachIndexed { index, item ->
@@ -264,19 +371,19 @@ private fun SuccessContent(data: AnalysisResultData) {
                             )
                         }
                         if (index != data.criteriaStatus.lastIndex) {
-                            HorizontalDivider(color = Color(0xFFE2E8F0))
+                            HorizontalDivider(color = BorderColor)
                         }
                     }
                 }
             }
         }
 
-        // 분석 기준 보기 아코디언 드롭다운 영역
+        // 분석 기준 보기 아코디언 드롭다운
         Card(
             modifier = Modifier.fillMaxWidth().clickable { isAccordionExpanded = !isAccordionExpanded },
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
-            border = BorderStroke(1.dp, Color(0xFFE2E8F0))
+            border = BorderStroke(1.dp, BorderColor)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -286,7 +393,8 @@ private fun SuccessContent(data: AnalysisResultData) {
                 Text("분석 기준 보기", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                 Icon(
                     imageVector = if (isAccordionExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = Color(0xFF4A4F55)
                 )
             }
             if (isAccordionExpanded) {
@@ -322,4 +430,3 @@ private fun SuccessContent(data: AnalysisResultData) {
         }
     }
 }
-
