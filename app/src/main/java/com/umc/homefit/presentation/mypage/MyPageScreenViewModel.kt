@@ -13,8 +13,13 @@ class MyPageScreenViewModel @Inject constructor() : ViewModel() {
     val uiState: StateFlow<MyPageScreenUiState> = _uiState.asStateFlow()
 
     init {
-        // Initialize with success default state
-        _uiState.value = MyPageScreenUiState.Success("Data initialized for MyPageScreen")
+        // TODO: 실제 사용자 프로필 API 연동
+        _uiState.value = MyPageScreenUiState.Success(
+            MyPageProfile(
+                nickname = "홍길동",
+                email = "honggildong@email.com"
+            )
+        )
     }
 }
 
