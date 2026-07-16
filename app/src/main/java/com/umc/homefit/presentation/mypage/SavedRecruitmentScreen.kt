@@ -1,5 +1,10 @@
 ﻿package com.umc.homefit.presentation.mypage
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,9 +25,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -31,6 +37,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,14 +51,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.ui.component.AppScaffold
+import kotlinx.coroutines.delay
+import androidx.compose.ui.draw.clip
 
-// TODO: Figma 색상 토큰 확정되면 Color.kt로 이동
 private val CardBorderColor = Color(0xFFD2D9E2)
-private val ScheduledChipColor = Color(0xFFF0F4F9)
+private val GrayChipColor = Color(0xFFF0F4F9)
+private val GrayChipTextColor = Color(0xFF6B7280)
 private val RecruitingChipColor = Color(0xFFE3F2FD)
 private val RecruitingTextColor = Color(0xFF1E88E5)
-private val CompetitionChipColor = Color(0xFFFFF0E6)
-private val CompetitionTextColor = Color(0xFFE8792B)
 
 @Composable
 fun SavedRecruitmentScreenRoute(
@@ -76,6 +83,15 @@ fun SavedRecruitmentScreen(
     onRemoveClick: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    var showRemovedMessage by remember { mutableStateOf(false) }
+
+    LaunchedEffect(showRemovedMessage) {
+        if (showRemovedMessage) {
+            delay(2000)
+            showRemovedMessage = false
+        }
+    }
+
     AppScaffold(
         title = "관심 공고 관리",
         showBackButton = true,
@@ -85,23 +101,59 @@ fun SavedRecruitmentScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.Center
+                .padding(innerPadding)
         ) {
             when (uiState) {
-                is SavedRecruitmentScreenUiState.Loading -> CircularProgressIndicator()
+                is SavedRecruitmentScreenUiState.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
                 is SavedRecruitmentScreenUiState.Success -> {
                     SavedRecruitmentContent(
                         items = uiState.items,
                         sortOption = uiState.sortOption,
                         onSortOptionSelected = onSortOptionSelected,
-                        onRemoveClick = onRemoveClick,
+                        onRemoveClick = { id ->
+                            onRemoveClick(id)
+                            showRemovedMessage = true
+                        },
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-                is SavedRecruitmentScreenUiState.Error -> Text(text = "Error: ${uiState.message}")
+                is SavedRecruitmentScreenUiState.Error -> {
+                    Text(text = "Error: ${uiState.message}", modifier = Modifier.align(Alignment.Center))
+                }
+            }
+
+            AnimatedVisibility(
+                visible = showRemovedMessage,
+                enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
+                exit = fadeOut() + slideOutVertically(targetOffsetY = { it }),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(horizontal = 20.dp, vertical = 24.dp)
+            ) {
+                RemovedSnackbar(message = "관심 공고에서 삭제되었습니다")
             }
         }
+    }
+}
+
+@Composable
+private fun RemovedSnackbar(message: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF4A4F55), RoundedCornerShape(10.dp))
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = message, fontSize = 14.sp, color = Color.White)
+        Icon(
+            imageVector = Icons.Filled.Check,
+            contentDescription = null,
+            tint = Color(0xFF34A853)
+        )
     }
 }
 
@@ -158,18 +210,26 @@ private fun SortDropdown(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Icon(
-            imageVector = Icons.Filled.ArrowDropDown,
+            imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(18.dp)
         )
 
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            containerColor = Color.White,
+            tonalElevation = 0.dp
         ) {
             SortOption.values().forEach { option ->
                 DropdownMenuItem(
-                    text = { Text(option.label) },
+                    text = {
+                        Text(
+                            text = option.label,
+                            fontWeight = if (option == selectedOption) FontWeight.Bold else FontWeight.Normal
+                        )
+                    },
                     onClick = {
                         onOptionSelected(option)
                         expanded = false
@@ -189,8 +249,8 @@ private fun SavedRecruitmentCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.White, RoundedCornerShape(12.dp))
-            .border(BorderStroke(1.dp, CardBorderColor), RoundedCornerShape(12.dp))
+            .background(Color.White, RoundedCornerShape(8.dp))
+            .border(BorderStroke(1.dp, CardBorderColor), RoundedCornerShape(8.dp))
             .padding(16.dp)
     ) {
         Row(
@@ -241,24 +301,19 @@ private fun SavedRecruitmentCard(
 
             Spacer(modifier = Modifier.width(6.dp))
 
-            Row(
+            Box(
                 modifier = Modifier
-                    .background(CompetitionChipColor, RoundedCornerShape(6.dp))
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .height(24.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(GrayChipColor)
+                    .padding(horizontal = 10.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Warning,
-                    contentDescription = null,
-                    tint = CompetitionTextColor,
-                    modifier = Modifier.size(12.dp)
-                )
-                Spacer(modifier = Modifier.width(2.dp))
                 Text(
-                    text = "경쟁률 ${item.competitionRate}",
-                    fontSize = 11.sp,
+                    text = "\uD83D\uDD25경쟁률 ${item.competitionRate}",
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
-                    color = CompetitionTextColor
+                    color = GrayChipTextColor
                 )
             }
         }
@@ -268,23 +323,29 @@ private fun SavedRecruitmentCard(
 @Composable
 private fun StatusChip(status: RecruitmentStatus) {
     val backgroundColor = when (status) {
-        RecruitmentStatus.SCHEDULED -> ScheduledChipColor
+        RecruitmentStatus.SCHEDULED -> GrayChipColor
         RecruitmentStatus.RECRUITING -> RecruitingChipColor
     }
     val textColor = when (status) {
-        RecruitmentStatus.SCHEDULED -> MaterialTheme.colorScheme.onSurfaceVariant
+        RecruitmentStatus.SCHEDULED -> GrayChipTextColor
         RecruitmentStatus.RECRUITING -> RecruitingTextColor
     }
 
-    Text(
-        text = status.label,
-        fontSize = 11.sp,
-        fontWeight = FontWeight.Medium,
-        color = textColor,
+    Box(
         modifier = Modifier
-            .background(backgroundColor, RoundedCornerShape(6.dp))
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-    )
+            .height(24.dp)
+            .clip(RoundedCornerShape(50))
+            .background(backgroundColor)
+            .padding(horizontal = 10.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = status.label,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            color = textColor
+        )
+    }
 }
 
 @Preview(showBackground = true)
