@@ -21,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.umc.homefit.ui.component.AppScaffold
 import androidx.compose.runtime.setValue
@@ -38,6 +37,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.Dp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 enum class FinancialInfoStep {
     INCOME,   // 소득
@@ -655,7 +666,6 @@ private fun HouseOptionRow(
     }
 }
 
-// 금융정보 입력 완료
 @Composable
 fun CompleteStep(
     onNavigateToResult: () -> Unit,
@@ -683,35 +693,107 @@ fun CompleteStep(
                     .align(Alignment.Center)
                     .size(180.dp)
             )
-            // 흩어진 별들
-            val starOffsets = listOf(
-                80.dp to (-165).dp,   // 우상단
-                (-70).dp to (-240).dp,      // 좌상단
-                (-140).dp to 60.dp,      // 좌하단
-                140.dp to 100.dp,        // 우하단
-                (-20).dp to 260.dp,      // 버튼 위
+
+            // 흩어진 별들 (목표 위치)
+            val starTargets = listOf(
+                80.dp to (-165).dp,     // 우상단
+                (-70).dp to (-240).dp,  // 좌상단
+                (-140).dp to 60.dp,     // 좌하단
+                140.dp to 100.dp,       // 우하단
+                (-20).dp to 260.dp,     // 버튼 위
             )
 
-            starOffsets.forEach { (x, y) ->
-                Image(
-                    painter = painterResource(id = R.drawable.ic_analysis_star),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .offset(x = x, y = y)
-                        .size(40.dp)
+            // 별이 튀어나오는 출발 지점
+            val startPoint = 0.dp to 320.dp
+
+            starTargets.forEachIndexed { index, target ->
+                FireworkStar(
+                    startOffset = startPoint,
+                    targetOffset = target,
+                    delayMillis = index * 150,
                 )
             }
         }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun FinancialInfoScreenPreview() {
-    FinancialInfoScreen(
-        uiState = FinancialInfoScreenUiState.Success("Preview of FinancialInfoScreen"),
-        onBack = {},
-        onNavigateToResult = {}
+private fun BoxScope.FireworkStar(
+    startOffset: Pair<Dp, Dp>,
+    targetOffset: Pair<Dp, Dp>,
+    delayMillis: Int,
+) {
+    val offsetX = remember { Animatable(startOffset.first.value) }
+    val offsetY = remember { Animatable(startOffset.second.value) }
+    val alpha = remember { Animatable(0f) }
+    val scale = remember { Animatable(0.3f) }
+
+    LaunchedEffect(Unit) {
+        delay(delayMillis.toLong())
+        while (true) {
+            // 1) 아래에서 위로 튀어오르며 목표 위치까지 이동
+            launch {
+                offsetX.animateTo(
+                    targetOffset.first.value,
+                    animationSpec = tween(durationMillis = 550, easing = FastOutSlowInEasing)
+                )
+            }
+            launch {
+                offsetY.animateTo(
+                    targetOffset.second.value,
+                    animationSpec = tween(durationMillis = 550, easing = FastOutSlowInEasing)
+                )
+            }
+            launch {
+                alpha.animateTo(1f, animationSpec = tween(durationMillis = 300))
+            }
+            scale.animateTo(
+                1f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+
+            // 2) 잠시 머무르기
+            delay(1200)
+
+            // 3) 다시 버튼 쪽(아래)으로 사라지기
+            launch {
+                offsetX.animateTo(
+                    startOffset.first.value,
+                    animationSpec = tween(durationMillis = 450, easing = FastOutSlowInEasing)
+                )
+            }
+            launch {
+                offsetY.animateTo(
+                    startOffset.second.value,
+                    animationSpec = tween(durationMillis = 450, easing = FastOutSlowInEasing)
+                )
+            }
+            launch {
+                scale.animateTo(0.3f, animationSpec = tween(durationMillis = 450))
+            }
+            alpha.animateTo(0f, animationSpec = tween(durationMillis = 400))
+
+            // 4) 잠깐 쉬었다가 반복
+            delay(400)
+        }
+    }
+
+    Image(
+        painter = painterResource(id = R.drawable.ic_analysis_star),
+        contentDescription = null,
+        contentScale = ContentScale.Fit,
+        modifier = Modifier
+            .align(Alignment.Center)
+            .size(40.dp)
+            .graphicsLayer {
+                translationX = offsetX.value.dp.toPx()
+                translationY = offsetY.value.dp.toPx()
+                this.alpha = alpha.value
+                scaleX = scale.value
+                scaleY = scale.value
+            }
     )
 }
