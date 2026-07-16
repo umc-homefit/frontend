@@ -97,11 +97,10 @@ fun SavedRecruitmentScreen(
         showBackButton = true,
         onBackClick = onBack,
         modifier = modifier
-    ) { innerPadding ->
+    ) { _ ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
         ) {
             when (uiState) {
                 is SavedRecruitmentScreenUiState.Loading -> {
