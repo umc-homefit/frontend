@@ -53,12 +53,14 @@ import androidx.compose.ui.unit.sp
 import com.umc.homefit.ui.component.AppScaffold
 import kotlinx.coroutines.delay
 import androidx.compose.ui.draw.clip
-
+import androidx.compose.ui.text.style.TextAlign
 private val CardBorderColor = Color(0xFFD2D9E2)
 private val GrayChipColor = Color(0xFFF0F4F9)
 private val GrayChipTextColor = Color(0xFF6B7280)
 private val RecruitingChipColor = Color(0xFFE3F2FD)
 private val RecruitingTextColor = Color(0xFF1E88E5)
+private val MutedTextColor = Color(0xFF919AA4)
+private val SelectedTextColor = Color(0xFF4A4F55)
 
 @Composable
 fun SavedRecruitmentScreenRoute(
@@ -96,6 +98,7 @@ fun SavedRecruitmentScreen(
         title = "관심 공고 관리",
         showBackButton = true,
         onBackClick = onBack,
+        showDivider = true,
         modifier = modifier
     ) { _ ->
         Box(
@@ -206,12 +209,12 @@ private fun SortDropdown(
             text = selectedOption.label,
             fontSize = 13.sp,
             fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MutedTextColor
         )
         Icon(
             imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = MutedTextColor,
             modifier = Modifier.size(18.dp)
         )
 
@@ -226,6 +229,9 @@ private fun SortDropdown(
                     text = {
                         Text(
                             text = option.label,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                            color = if (option == selectedOption) SelectedTextColor else MutedTextColor,
                             fontWeight = if (option == selectedOption) FontWeight.Bold else FontWeight.Normal
                         )
                     },
@@ -270,7 +276,7 @@ private fun SavedRecruitmentCard(
                 Icon(
                     imageVector = Icons.Filled.Close,
                     contentDescription = "관심 공고 해제",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MutedTextColor
                 )
             }
         }
