@@ -76,13 +76,15 @@ fun AnalysisResultScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color.White)
-                        .padding(horizontal = 24.dp, vertical = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        .padding(horizontal = 16.dp, vertical = 21.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedButton(
                         onClick = onBack,
-                        modifier = Modifier.weight(1f).height(52.dp),
-                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp),
+                        shape = RoundedCornerShape(4.dp),
                         border = BorderStroke(1.dp, Color(0xFF3C45F3)),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF3C45F3))
                     ) {
@@ -92,8 +94,8 @@ fun AnalysisResultScreen(
                     Button(
                         onClick = { onNavigateToEstimatedCost("cost_abc") },
                         modifier = Modifier
-                            .weight(2f)
-                            .height(52.dp)
+                            .weight(1.7f)
+                            .height(48.dp)
                             .background(
                                 brush = Brush.linearGradient(
                                     colors = listOf(
@@ -101,9 +103,9 @@ fun AnalysisResultScreen(
                                         Color(0xFF3C45F3).copy(alpha = 0.5f)
                                     )
                                 ),
-                                shape = RoundedCornerShape(12.dp)
+                                shape = RoundedCornerShape(4.dp)
                             ),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(4.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                         elevation = ButtonDefaults.buttonElevation(
                             defaultElevation = 0.dp,
@@ -125,10 +127,17 @@ fun AnalysisResultScreen(
         ) {
             when (uiState) {
                 is AnalysisResultScreenUiState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = Color(0xFF3C45F3))
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                        color = Color(0xFF3C45F3)
+                    )
                 }
                 is AnalysisResultScreenUiState.Error -> {
-                    Text(text = "Error: ${uiState.message}", modifier = Modifier.align(Alignment.Center), color = Color.Red)
+                    Text(
+                        text = "Error: ${uiState.message}",
+                        modifier = Modifier.align(Alignment.Center),
+                        color = Color.Red
+                    )
                 }
                 is AnalysisResultScreenUiState.Success -> {
                     SuccessContent(data = uiState.data)
@@ -146,16 +155,15 @@ private fun SuccessContent(data: AnalysisResultData) {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+            .padding(start = 16.dp, top = 20.dp, end = 16.dp, bottom = 8.dp)
     ) {
         // 입주 가능성 카드
         Column {
             Text("입주 가능성", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(17.dp))
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(4.dp),
                 border = BorderStroke(1.dp, BorderColor),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
@@ -164,9 +172,8 @@ private fun SuccessContent(data: AnalysisResultData) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(180.dp)
+                        .height(164.dp)
                 ) {
-
                     // 좌하단 장식
                     Icon(
                         painter = painterResource(R.drawable.ic_analysis_cloud_bottom),
@@ -200,7 +207,7 @@ private fun SuccessContent(data: AnalysisResultData) {
                         tint = Color.Unspecified,
                         modifier = Modifier
                             .align(Alignment.TopCenter)
-                            .offset(x = 100.dp, y = 32.dp)
+                            .offset(x = 108.dp, y = 32.dp)
                     )
 
                     Icon(
@@ -210,7 +217,7 @@ private fun SuccessContent(data: AnalysisResultData) {
                         modifier = Modifier
                             .align(Alignment.Center)
                             .offset(x = (-35).dp, y = 24.dp)
-                            .size(7.dp) // 큰 원보다 더 작게 하고 싶으면 사이즈 지정, 필요 없으면 이 줄 삭제
+                            .size(7.dp)
                     )
 
                     // 왼쪽 텍스트
@@ -220,21 +227,20 @@ private fun SuccessContent(data: AnalysisResultData) {
                             .align(Alignment.CenterStart)
                             .padding(start = 28.dp)
                     ) {
-
                         Surface(
-                            shape = RoundedCornerShape(999.dp),
-                            color = Color(0xFFF3F2FF)
+                            shape = RoundedCornerShape(200.dp),
+                            color = Color(0xFFF1F0FF)
                         ) {
                             Text(
                                 text = data.percentileText,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp), // 18/8 → 16/6, 뱃지가 이미지보다 좀 두꺼워 보임
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                                 color = Color(0xFF3C45F3),
                                 fontWeight = FontWeight.SemiBold,
                                 style = MaterialTheme.typography.labelLarge
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(8.dp)) // 16 → 10, 뱃지와 "높음" 사이 간격이 이미지에선 더 촘촘함
+                        Spacer(modifier = Modifier.height(5.dp))
 
                         Text(
                             text = data.probabilityGrade,
@@ -248,8 +254,8 @@ private fun SuccessContent(data: AnalysisResultData) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
-                            .padding(end = 20.dp)      // 28 → 20, 집이 이미지에서 카드 오른쪽 끝에 더 붙어있음
-                            .offset(x = 16.dp, y = 8.dp) // 20 → 16
+                            .padding(end = 20.dp)
+                            .offset(x = 16.dp, y = 8.dp)
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_analysis_house),
@@ -262,7 +268,7 @@ private fun SuccessContent(data: AnalysisResultData) {
                             text = "${data.score}점",
                             modifier = Modifier
                                 .align(Alignment.Center)
-                                .offset(y = 6.dp), // 이미지 보면 점수 텍스트가 중앙보다 살짝 아래쪽
+                                .offset(y = 6.dp),
                             style = MaterialTheme.typography.displayMedium,
                             fontWeight = FontWeight.ExtraBold,
                             color = Color.White
@@ -272,38 +278,76 @@ private fun SuccessContent(data: AnalysisResultData) {
             }
         }
 
+        Spacer(modifier = Modifier.height(36.dp))
+
         // 예상 비용 카드
         Column {
             Text("예상 비용", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(17.dp))
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(84.dp),
+                shape = RoundedCornerShape(4.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 border = BorderStroke(1.dp, BorderColor)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(20.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("보증금", style = MaterialTheme.typography.labelMedium, color = Color.Gray)
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "보증금",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color.Gray
+                        )
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(data.expectedDeposit, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color(0xFF4A4F55))
+                        Text(
+                            text = data.expectedDeposit,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF4A4F55)
+                        )
                     }
-                    VerticalDivider(modifier = Modifier.height(40.dp), color = BorderColor)
-                    Column(modifier = Modifier.weight(1f).padding(start = 20.dp)) {
-                        Text("월세", style = MaterialTheme.typography.labelMedium, color = Color.Gray)
+
+                    VerticalDivider(
+                        modifier = Modifier
+                            .height(30.dp)
+                            .padding(horizontal = 20.dp),
+                        color = BorderColor
+                    )
+
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "월세",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color.Gray
+                        )
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(data.expectedMonthlyRent, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color(0xFF4A4F55))
+                        Text(
+                            text = data.expectedMonthlyRent,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF4A4F55)
+                        )
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
+
+            Spacer(modifier = Modifier.height(13.dp))
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(2.dp),
                 color = Color(0xFFF0F4F9)
             ) {
                 Row(
@@ -345,20 +389,24 @@ private fun SuccessContent(data: AnalysisResultData) {
             }
         }
 
+        Spacer(modifier = Modifier.height(32.dp))
+
         // 조건 충족 현황 리스트
         Column {
             Text("조건 충족 현황", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(17.dp))
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(4.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 border = BorderStroke(1.dp, BorderColor)
             ) {
                 Column {
                     data.criteriaStatus.forEachIndexed { index, item ->
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -378,34 +426,78 @@ private fun SuccessContent(data: AnalysisResultData) {
             }
         }
 
+        Spacer(modifier = Modifier.height(34.dp))
+
         // 분석 기준 보기 아코디언 드롭다운
         Card(
-            modifier = Modifier.fillMaxWidth().clickable { isAccordionExpanded = !isAccordionExpanded },
-            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { isAccordionExpanded = !isAccordionExpanded },
+            shape = RoundedCornerShape(4.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             border = BorderStroke(1.dp, BorderColor)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("분석 기준 보기", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                Text("입주 분석 기준", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium, color = Color(0xFF919AA4))
                 Icon(
                     imageVector = if (isAccordionExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
-                    tint = Color(0xFF4A4F55)
+                    tint = Color(0xFF919AA4)
                 )
             }
             if (isAccordionExpanded) {
-                Text(
-                    text = "여기에 분석 세부 기준 내용이 들어갑니다.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                )
+                HorizontalDivider(color = BorderColor)
+
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "입력 정보",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF4A4F55)
+                    )
+
+                    Spacer(modifier = Modifier.height(25.dp))
+
+                    AnalysisInfoRow("연간 총소득", "3,840만 원")
+                    AnalysisInfoRow("총 보유 자산", "8,000만 원")
+                    AnalysisInfoRow("금융 자산", "2,500만 원")
+                    AnalysisInfoRow("총 부채", "1,500만 원")
+                    AnalysisInfoRow("월 상환액", "35만 원")
+                    AnalysisInfoRow("주택 보유 여부", "무주택")
+
+                    Spacer(modifier = Modifier.height(26.dp))
+
+                    HorizontalDivider(color = BorderColor)
+
+                    Spacer(modifier = Modifier.height(26.dp))
+
+                    Text(
+                        text = "산정 기준",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF4A4F55)
+                    )
+
+                    Spacer(modifier = Modifier.height(25.dp))
+
+                    AnalysisInfoRow("적용 기준일", "2025.06")
+                    AnalysisInfoRow("공급 유형", "청년안심주택")
+                    AnalysisInfoRow("신청 유형", "특별 공급")
+                    AnalysisInfoRow("전용 면적", "36m²")
+                    AnalysisInfoRow("신청 순위", "2순위")
+                    AnalysisInfoRow("비교 공고", "12개")
+                    AnalysisInfoRow("전환 이율", "연 4.5%")
+                }
             }
         }
+
+        Spacer(modifier = Modifier.height(14.dp))
 
         // 유의사항 영역
         Card(
@@ -413,7 +505,10 @@ private fun SuccessContent(data: AnalysisResultData) {
             shape = RoundedCornerShape(8.dp),
             colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF5F5))
         ) {
-            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(
+                modifier = Modifier.padding(vertical = 18.dp, horizontal = 21.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 Text(
                     text = "*유의사항",
                     style = MaterialTheme.typography.labelMedium,
@@ -428,5 +523,32 @@ private fun SuccessContent(data: AnalysisResultData) {
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun AnalysisInfoRow(
+    title: String,
+    value: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 5.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF4A4F55)
+        )
+
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF919AA4),
+            fontWeight = FontWeight.Medium
+        )
     }
 }
