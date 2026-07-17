@@ -34,7 +34,9 @@ import com.umc.homefit.presentation.finance.*
 import com.umc.homefit.presentation.home.*
 import com.umc.homefit.presentation.mypage.*
 import com.umc.homefit.presentation.recruitment.*
+import com.umc.homefit.R
 import com.umc.homefit.ui.component.AppScaffold
+import com.umc.homefit.ui.component.TopBarAction
 
 @Composable
 fun RootNavGraph(
@@ -51,10 +53,23 @@ fun RootNavGraph(
         }
 
         composable<Route.RecruitmentFilter> {
-            RecruitmentFilterScreenRoute(
-                viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() }
-            )
+            AppScaffold(
+                title = "공고 필터링",
+                showBackButton = false,
+                actions = listOf(
+                    TopBarAction(
+                        icon = painterResource(id = R.drawable.ic_filter_close),
+                        contentDescription = "닫기",
+                        onClick = { navController.popBackStack() }
+                    )
+                )
+            ) { innerPadding ->
+                RecruitmentFilterScreenRoute(
+                    viewModel = hiltViewModel(),
+                    onApply = { navController.popBackStack() },
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
         }
 
         composable<Route.RecruitmentDetail> {

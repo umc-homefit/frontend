@@ -1,0 +1,216 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
+package com.umc.homefit.presentation.recruitment.component
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.RangeSlider
+import androidx.compose.material3.RangeSliderState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.ParentDataModifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+private val TrackActiveColor = Color(0xFF4A4F55)
+private val TrackInactiveColor = Color(0xFFD2D9E2)
+private val SegmentActiveColor = Color(0xFF4A4F55)
+private val SegmentInactiveColor = Color(0xFF919AA4)
+private val TickLabelColor = Color(0xFF4A4F55)
+private val TickMarkColor = Color(0xFF919AA4)
+
+private val TrackThickness = 3.28.dp
+private val ThumbSize = 25.12.dp
+private val ThumbBorder = 1.09.dp
+private val ThumbRadius = ThumbSize / 2
+private val TickMarkThickness = 1.09.dp
+private val TickMarkLength = 8.74.dp
+
+data class FilterRangeSegment(
+    val label: String,
+    val range: ClosedFloatingPointRange<Float>,
+    val positionFraction: Float? = null
+)
+data class FilterRangeTick(val value: Float, val label: String)
+
+private enum class TickAlign { Start, Center, End }
+
+@Composable
+fun FilterRangeSlider(
+    value: ClosedFloatingPointRange<Float>,
+    onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
+    valueRange: ClosedFloatingPointRange<Float>,
+    ticks: List<FilterRangeTick>,
+    modifier: Modifier = Modifier,
+    segments: List<FilterRangeSegment> = emptyList()
+) {
+    Column(modifier = modifier) {
+        if (segments.isNotEmpty()) {
+            FractionRow(modifier = Modifier.fillMaxWidth()) {
+                segments.forEach { segment ->
+                    val isActive = value.start < segment.range.endInclusive && value.endInclusive > segment.range.start
+                    val center = (segment.range.start + segment.range.endInclusive) / 2f
+                    val position = segment.positionFraction ?: fractionOf(center, valueRange)
+                    Text(
+                        text = segment.label,
+                        fontSize = 13.10.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = if (isActive) SegmentActiveColor else SegmentInactiveColor,
+                        modifier = Modifier.fraction(position, TickAlign.Center)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        RangeSlider(
+            value = value,
+            onValueChange = onValueChange,
+            valueRange = valueRange,
+            startThumb = { FilterRangeThumb() },
+            endThumb = { FilterRangeThumb() },
+            track = { sliderState -> FilterRangeTrack(sliderState) },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val trackWidth = maxWidth - (ThumbRadius * 2)
+            ticks.forEach { tick ->
+                val fraction = fractionOf(tick.value, valueRange)
+                val xOffset = ThumbRadius + (trackWidth * fraction)
+                Box(
+                    modifier = Modifier
+                        .offset(x = xOffset - (TickMarkThickness / 2))
+                        .width(TickMarkThickness)
+                        .height(TickMarkLength)
+                        .background(TickMarkColor)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        FractionRow(modifier = Modifier.fillMaxWidth()) {
+            ticks.forEachIndexed { index, tick ->
+                val align = when (index) {
+                    0 -> TickAlign.Start
+                    ticks.lastIndex -> TickAlign.End
+                    else -> TickAlign.Center
+                }
+                Text(
+                    text = tick.label,
+                    fontSize = 13.10.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = TickLabelColor,
+                    modifier = Modifier.fraction(fractionOf(tick.value, valueRange), align)
+                )
+            }
+        }
+    }
+}
+
+private fun fractionOf(value: Float, valueRange: ClosedFloatingPointRange<Float>): Float {
+    val span = valueRange.endInclusive - valueRange.start
+    return if (span == 0f) 0f else (value - valueRange.start) / span
+}
+
+@Composable
+private fun FilterRangeThumb() {
+    Box(
+        modifier = Modifier
+            .size(ThumbSize)
+            .background(Color.White, CircleShape)
+            .border(BorderStroke(ThumbBorder, TrackActiveColor), CircleShape)
+    )
+}
+
+@Composable
+private fun FilterRangeTrack(sliderState: RangeSliderState) {
+    val valueRange = sliderState.valueRange
+    val startFraction = fractionOf(sliderState.activeRangeStart, valueRange)
+    val endFraction = fractionOf(sliderState.activeRangeEnd, valueRange)
+
+    Canvas(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(ThumbSize)
+    ) {
+        val centerY = size.height / 2f
+        val strokeWidthPx = TrackThickness.toPx()
+        drawLine(
+            color = TrackInactiveColor,
+            start = Offset(0f, centerY),
+            end = Offset(size.width, centerY),
+            strokeWidth = strokeWidthPx,
+            cap = StrokeCap.Round
+        )
+        drawLine(
+            color = TrackActiveColor,
+            start = Offset(size.width * startFraction, centerY),
+            end = Offset(size.width * endFraction, centerY),
+            strokeWidth = strokeWidthPx,
+            cap = StrokeCap.Round
+        )
+    }
+}
+
+private data class FractionParentData(val fraction: Float, val align: TickAlign)
+
+private class FractionParentDataModifier(
+    private val fraction: Float,
+    private val align: TickAlign
+) : ParentDataModifier {
+    override fun Density.modifyParentData(parentData: Any?): Any = FractionParentData(fraction, align)
+}
+
+private fun Modifier.fraction(fraction: Float, align: TickAlign): Modifier =
+    this.then(FractionParentDataModifier(fraction, align))
+
+@Composable
+private fun FractionRow(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Layout(content = content, modifier = modifier) { measurables, constraints ->
+        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+        val placeables = measurables.map { it.measure(looseConstraints) }
+        val width = constraints.maxWidth
+        val height = placeables.maxOfOrNull { it.height } ?: 0
+
+        layout(width, height) {
+            placeables.forEachIndexed { index, placeable ->
+                val data = measurables[index].parentData as? FractionParentData
+                    ?: FractionParentData(0f, TickAlign.Start)
+                val rawX = when (data.align) {
+                    TickAlign.Start -> width * data.fraction
+                    TickAlign.Center -> width * data.fraction - placeable.width / 2f
+                    TickAlign.End -> width * data.fraction - placeable.width
+                }
+                val x = rawX.toInt().coerceIn(0, (width - placeable.width).coerceAtLeast(0))
+                placeable.placeRelative(x, 0)
+            }
+        }
+    }
+}

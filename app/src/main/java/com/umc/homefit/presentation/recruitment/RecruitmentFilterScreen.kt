@@ -1,8 +1,19 @@
-﻿package com.umc.homefit.presentation.recruitment
+package com.umc.homefit.presentation.recruitment
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -10,17 +21,66 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.umc.homefit.presentation.recruitment.component.DistrictDropdownField
+import com.umc.homefit.presentation.recruitment.component.FilterRangeSegment
+import com.umc.homefit.presentation.recruitment.component.FilterRangeSlider
+import com.umc.homefit.presentation.recruitment.component.FilterRangeTick
+import kotlin.math.roundToInt
+
+// TODO: Figma 색상 토큰 확정되면 Color.kt로 이동
+private val TitleColor = Color(0xFF161616)
+private val ValueColor = Color(0xFF3C45F3)
+private val UnitColor = Color(0xFF919AA4)
+private val ResetButtonBackground = Color(0xFFF0F4F9)
+private val ResetButtonTextColor = Color(0xFF919AA4)
+private val ApplyGradientStart = Color(0xFF3C45F3)
+private val ApplyGradientEnd = Color(0xFF3C45F3).copy(alpha = 0.5f)
+
+private val AreaSegments = listOf(
+    FilterRangeSegment("원룸", 0f..20f, positionFraction = 0.16f),
+    FilterRangeSegment("1.5룸", 20f..40f, positionFraction = 0.46f),
+    FilterRangeSegment("2룸", 40f..59f, positionFraction = 0.76f)
+)
+
+private val AreaTicks = listOf(
+    FilterRangeTick(0f, "0m²"),
+    FilterRangeTick(20f, "20m²"),
+    FilterRangeTick(40f, "40m²"),
+    FilterRangeTick(59f, "59m²")
+)
+
+private val DepositTicks = listOf(
+    FilterRangeTick(0f, "0"),
+    FilterRangeTick(2500f, "2.5천"),
+    FilterRangeTick(5000f, "5천"),
+    FilterRangeTick(7500f, "7.5천"),
+    FilterRangeTick(10000f, "1억")
+)
 
 @Composable
 fun RecruitmentFilterScreenRoute(
     viewModel: RecruitmentFilterScreenViewModel,
-    onBack: () -> Unit, modifier: Modifier = Modifier
+    onApply: (FilterState) -> Unit, modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val districts by viewModel.districts.collectAsState()
+
     RecruitmentFilterScreen(
         uiState = uiState,
-        onBack = onBack,
+        districts = districts,
+        onDistrictSelected = viewModel::updateDistrict,
+        onAreaChange = viewModel::updateArea,
+        onDepositChange = viewModel::updateDeposit,
+        onReset = viewModel::resetFilter,
+        onApply = onApply,
         modifier = modifier
     )
 }
@@ -28,23 +88,204 @@ fun RecruitmentFilterScreenRoute(
 @Composable
 fun RecruitmentFilterScreen(
     uiState: RecruitmentFilterScreenUiState,
-    onBack: () -> Unit,
+    districts: List<String>,
+    onDistrictSelected: (String) -> Unit,
+    onAreaChange: (Float, Float) -> Unit,
+    onDepositChange: (Float, Float) -> Unit,
+    onReset: () -> Unit,
+    onApply: (FilterState) -> Unit,
 
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .padding(top = 40.dp)
     ) {
         when (uiState) {
-            is RecruitmentFilterScreenUiState.Loading -> CircularProgressIndicator()
+            is RecruitmentFilterScreenUiState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
             is RecruitmentFilterScreenUiState.Success -> {
-                Text(text = "RecruitmentFilterScreen: ${uiState.data}")
-            androidx.compose.material3.Button(onClick = onBack) { Text("Go Back") }
+                RecruitmentFilterContent(
+                    filterState = uiState.data,
+                    districts = districts,
+                    onDistrictSelected = onDistrictSelected,
+                    onAreaChange = onAreaChange,
+                    onDepositChange = onDepositChange,
+                    onReset = onReset,
+                    onApply = onApply,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
             is RecruitmentFilterScreenUiState.Error -> Text(text = "Error: ${uiState.message}")
         }
+    }
+}
+
+@Composable
+private fun RecruitmentFilterContent(
+    filterState: FilterState,
+    districts: List<String>,
+    onDistrictSelected: (String) -> Unit,
+    onAreaChange: (Float, Float) -> Unit,
+    onDepositChange: (Float, Float) -> Unit,
+    onReset: () -> Unit,
+    onApply: (FilterState) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+            Text(
+                text = "지역",
+                fontSize = 17.47.sp,
+                fontWeight = FontWeight.Bold,
+                color = TitleColor
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            DistrictDropdownField(
+                districts = districts,
+                selectedDistrict = filterState.selectedDistrict,
+                onDistrictSelected = onDistrictSelected,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(58.dp))
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "전용 면적",
+                    fontSize = 17.47.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TitleColor
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = formatAreaLabel(filterState.minArea, filterState.maxArea),
+                    fontSize = 17.47.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = ValueColor,
+                    textAlign = TextAlign.Right
+                )
+            }
+            Spacer(modifier = Modifier.height(27.30.dp))
+            FilterRangeSlider(
+                value = filterState.minArea..filterState.maxArea,
+                onValueChange = { range -> onAreaChange(range.start, range.endInclusive) },
+                valueRange = 0f..59f,
+                segments = AreaSegments,
+                ticks = AreaTicks,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(57.88.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "보증금",
+                    fontSize = 17.47.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TitleColor
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "(만 원)",
+                    fontSize = 13.10.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = UnitColor
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = formatDepositLabel(filterState.minDeposit, filterState.maxDeposit),
+                    fontSize = 17.47.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = ValueColor,
+                    textAlign = TextAlign.Right
+                )
+            }
+            Spacer(modifier = Modifier.height(27.30.dp))
+            FilterRangeSlider(
+                value = filterState.minDeposit..filterState.maxDeposit,
+                onValueChange = { range -> onDepositChange(range.start, range.endInclusive) },
+                valueRange = 0f..10000f,
+                ticks = DepositTicks,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 24.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(128.86.dp)
+                    .height(52.42.dp)
+                    .clip(RoundedCornerShape(4.37.dp))
+                    .background(ResetButtonBackground)
+                    .clickable(onClick = onReset),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "필터 초기화",
+                    fontSize = 17.47.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = ResetButtonTextColor,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .width(220.60.dp)
+                    .height(52.42.dp)
+                    .clip(RoundedCornerShape(4.37.dp))
+                    .background(Brush.horizontalGradient(colors = listOf(ApplyGradientStart, ApplyGradientEnd)))
+                    .clickable { onApply(filterState) },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "적용하기",
+                    fontSize = 17.47.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+private fun formatAreaLabel(minArea: Float, maxArea: Float): String {
+    return "${minArea.roundToInt()}~${maxArea.roundToInt()}㎡"
+}
+
+private fun formatDepositLabel(minDeposit: Float, maxDeposit: Float): String {
+    return "${formatDepositValue(minDeposit)}~${formatDepositValue(maxDeposit)}"
+}
+
+private fun formatDepositValue(value: Float): String {
+    return when {
+        value >= 10000f -> "1억"
+        value >= 1000f -> {
+            val thousands = value / 1000f
+            if (thousands == thousands.toInt().toFloat()) {
+                "${thousands.toInt()}천"
+            } else {
+                "${"%.1f".format(thousands)}천"
+            }
+        }
+        else -> "${value.toInt()}"
     }
 }
 
@@ -52,6 +293,14 @@ fun RecruitmentFilterScreen(
 @Composable
 fun RecruitmentFilterScreenPreview() {
     RecruitmentFilterScreen(
-        uiState = RecruitmentFilterScreenUiState.Success("Preview of RecruitmentFilterScreen"), onBack = {}
+        uiState = RecruitmentFilterScreenUiState.Success(
+            FilterState(maxArea = 20f, maxDeposit = 7500f)
+        ),
+        districts = listOf("전체", "강남구", "강동구", "서초구"),
+        onDistrictSelected = {},
+        onAreaChange = { _, _ -> },
+        onDepositChange = { _, _ -> },
+        onReset = {},
+        onApply = {}
     )
 }
