@@ -32,7 +32,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.data.dto.RecommendedProductDto
@@ -211,9 +210,9 @@ private fun FinanceHeaderSection(
                 bottom = 22.dp
             )
     ) {
-        Spacer(
+        /* Spacer(
             modifier = Modifier.height(130.dp)
-        )
+        ) */
 
         Text(
             text = "*내 소득 · 자산 조건 기준 추천 결과입니다",
@@ -399,20 +398,4 @@ private fun RecommendedProductsButton(
             fontWeight = FontWeight.Bold
         )
     }
-}
-
-@Preview(
-    showBackground = true,
-    widthDp = 390,
-    heightDp = 844
-)
-
-@Composable
-private fun FinanceScreenPreview() {
-    FinanceScreen(
-        uiState = FinanceScreenUiState.Success(
-            data = "Preview of FinanceScreen"
-        ),
-        onNavigateToRecommendedProducts = {}
-    )
 }
