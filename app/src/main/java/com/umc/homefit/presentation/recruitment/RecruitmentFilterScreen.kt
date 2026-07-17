@@ -45,9 +45,9 @@ private val ApplyGradientStart = Color(0xFF3C45F3)
 private val ApplyGradientEnd = Color(0xFF3C45F3).copy(alpha = 0.5f)
 
 private val AreaSegments = listOf(
-    FilterRangeSegment("원룸", 0f..20f, positionFraction = 0.16f),
-    FilterRangeSegment("1.5룸", 20f..40f, positionFraction = 0.46f),
-    FilterRangeSegment("2룸", 40f..59f, positionFraction = 0.76f)
+    FilterRangeSegment("원룸", 0f..20f),
+    FilterRangeSegment("1.5룸", 20f..40f),
+    FilterRangeSegment("2룸", 40f..59f)
 )
 
 private val AreaTicks = listOf(
@@ -101,7 +101,7 @@ fun RecruitmentFilterScreen(
         modifier = modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(top = 40.dp)
+            .padding(top = 36.64.dp)
     ) {
         when (uiState) {
             is RecruitmentFilterScreenUiState.Loading -> {
@@ -138,14 +138,14 @@ private fun RecruitmentFilterContent(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             Text(
                 text = "지역",
-                fontSize = 17.47.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = TitleColor
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.99.dp))
             DistrictDropdownField(
                 districts = districts,
                 selectedDistrict = filterState.selectedDistrict,
@@ -153,25 +153,25 @@ private fun RecruitmentFilterContent(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(58.dp))
+            Spacer(modifier = Modifier.height(53.13.dp))
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = "전용 면적",
-                    fontSize = 17.47.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = TitleColor
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = formatAreaLabel(filterState.minArea, filterState.maxArea),
-                    fontSize = 17.47.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = ValueColor,
                     textAlign = TextAlign.Right
                 )
             }
-            Spacer(modifier = Modifier.height(27.30.dp))
+            Spacer(modifier = Modifier.height(25.01.dp))
             FilterRangeSlider(
                 value = filterState.minArea..filterState.maxArea,
                 onValueChange = { range -> onAreaChange(range.start, range.endInclusive) },
@@ -181,7 +181,7 @@ private fun RecruitmentFilterContent(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(57.88.dp))
+            Spacer(modifier = Modifier.height(53.02.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -189,27 +189,27 @@ private fun RecruitmentFilterContent(
             ) {
                 Text(
                     text = "보증금",
-                    fontSize = 17.47.sp,
+                    fontSize = 16.00.sp,
                     fontWeight = FontWeight.Bold,
                     color = TitleColor
                 )
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(3.66.dp))
                 Text(
                     text = "(만 원)",
-                    fontSize = 13.10.sp,
+                    fontSize = 12.00.sp,
                     fontWeight = FontWeight.Medium,
                     color = UnitColor
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = formatDepositLabel(filterState.minDeposit, filterState.maxDeposit),
-                    fontSize = 17.47.sp,
+                    fontSize = 16.00.sp,
                     fontWeight = FontWeight.Medium,
                     color = ValueColor,
                     textAlign = TextAlign.Right
                 )
             }
-            Spacer(modifier = Modifier.height(27.30.dp))
+            Spacer(modifier = Modifier.height(25.01.dp))
             FilterRangeSlider(
                 value = filterState.minDeposit..filterState.maxDeposit,
                 onValueChange = { range -> onDepositChange(range.start, range.endInclusive) },
@@ -224,21 +224,21 @@ private fun RecruitmentFilterContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 24.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(horizontal = 16.dp, vertical = 21.98.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .width(128.86.dp)
-                    .height(52.42.dp)
-                    .clip(RoundedCornerShape(4.37.dp))
+                    .width(130.dp)
+                    .height(48.dp)
+                    .clip(RoundedCornerShape(4.00.dp))
                     .background(ResetButtonBackground)
                     .clickable(onClick = onReset),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "필터 초기화",
-                    fontSize = 17.47.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = ResetButtonTextColor,
                     textAlign = TextAlign.Center
@@ -247,16 +247,16 @@ private fun RecruitmentFilterContent(
 
             Box(
                 modifier = Modifier
-                    .width(220.60.dp)
-                    .height(52.42.dp)
-                    .clip(RoundedCornerShape(4.37.dp))
+                    .weight(1f)
+                    .height(48.dp)
+                    .clip(RoundedCornerShape(4.00.dp))
                     .background(Brush.horizontalGradient(colors = listOf(ApplyGradientStart, ApplyGradientEnd)))
                     .clickable { onApply(filterState) },
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "적용하기",
-                    fontSize = 17.47.sp,
+                    fontSize = 16.00.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
                     textAlign = TextAlign.Center

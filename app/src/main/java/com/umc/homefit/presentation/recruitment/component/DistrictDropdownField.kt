@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenuItem
@@ -51,17 +52,19 @@ fun DistrictDropdownField(
             modifier = Modifier
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
-                .height(52.42.dp)
-                .clip(RoundedCornerShape(4.37.dp))
+                .height(48.02.dp)
+                .clip(RoundedCornerShape(4.00.dp))
                 .background(Color.White)
-                .border(BorderStroke(1.09.dp, FieldBorderColor), RoundedCornerShape(4.37.dp))
+                .border(BorderStroke(1.00.dp, FieldBorderColor), RoundedCornerShape(4.00.dp))
         ) {
             Text(
                 text = selectedDistrict ?: "전체",
-                fontSize = 15.29.sp,
+                fontSize = 14.01.sp,
                 fontWeight = FontWeight.Medium,
                 color = PlaceholderColor,
-                modifier = Modifier.padding(top = 17.47.dp, start = 10.92.dp)
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 10.00.dp)
             )
             Icon(
                 painter = painterResource(id = R.drawable.ic_filter_dropdown_arrow),
@@ -69,16 +72,17 @@ fun DistrictDropdownField(
                 tint = Color.Unspecified,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .padding(end = 14.dp)
+                    .padding(end = 12.82.dp)
             )
         }
 
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            containerColor = Color.White
+            containerColor = Color.White,
+            modifier = Modifier.heightIn(max = 240.dp)
         ) {
-            districts.forEach { district ->
+            districts.filterNot { it == "전체" }.forEach { district ->
                 DropdownMenuItem(
                     text = { Text(district) },
                     onClick = {
