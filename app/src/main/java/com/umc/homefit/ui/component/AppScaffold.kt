@@ -37,7 +37,7 @@ fun AppScaffold(
             }
         },
         bottomBar = bottomBar,
-        contentWindowInsets = WindowInsets.systemBars,
+        // contentWindowInsets = WindowInsets.systemBars,
         modifier = modifier.fillMaxSize()
     ) { innerPadding ->
         Box(
