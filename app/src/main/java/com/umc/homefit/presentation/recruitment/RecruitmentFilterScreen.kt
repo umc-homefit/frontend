@@ -21,7 +21,6 @@ fun RecruitmentFilterScreenRoute(
     RecruitmentFilterScreen(
         uiState = uiState,
         onBack = onBack,
-
         modifier = modifier
     )
 }

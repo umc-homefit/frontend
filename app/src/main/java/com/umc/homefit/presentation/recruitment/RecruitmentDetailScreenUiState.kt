@@ -1,7 +1,9 @@
-﻿package com.umc.homefit.presentation.recruitment
+package com.umc.homefit.presentation.recruitment
+
+import com.umc.homefit.data.dto.RecruitmentDto
 
 sealed interface RecruitmentDetailScreenUiState {
     object Loading : RecruitmentDetailScreenUiState
-    data class Success(val data: String) : RecruitmentDetailScreenUiState
+    data class Success(val recruitment: RecruitmentDto) : RecruitmentDetailScreenUiState
     data class Error(val message: String) : RecruitmentDetailScreenUiState
 }
