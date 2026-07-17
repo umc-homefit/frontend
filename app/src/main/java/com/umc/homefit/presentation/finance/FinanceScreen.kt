@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.data.dto.RecommendedProductDto
 import androidx.compose.foundation.Image
-
+import androidx.compose.ui.tooling.preview.Preview
 
 
 private val sampleRecommendedProducts = listOf(
@@ -398,4 +398,20 @@ private fun RecommendedProductsButton(
             fontWeight = FontWeight.Bold
         )
     }
+}
+
+@Preview(
+    showBackground = true,
+    widthDp = 390,
+    heightDp = 844
+)
+
+@Composable
+private fun FinanceScreenPreview() {
+    FinanceScreen(
+        uiState = FinanceScreenUiState.Success(
+            data = "Preview of FinanceScreen"
+        ),
+        onNavigateToRecommendedProducts = {}
+    )
 }
