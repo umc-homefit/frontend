@@ -32,12 +32,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.data.dto.RecommendedProductDto
 import androidx.compose.foundation.Image
-
+import androidx.compose.ui.tooling.preview.Preview
 
 
 private val sampleRecommendedProducts = listOf(
@@ -211,9 +210,9 @@ private fun FinanceHeaderSection(
                 bottom = 22.dp
             )
     ) {
-        Spacer(
+        /* Spacer(
             modifier = Modifier.height(130.dp)
-        )
+        ) */
 
         Text(
             text = "*내 소득 · 자산 조건 기준 추천 결과입니다",
