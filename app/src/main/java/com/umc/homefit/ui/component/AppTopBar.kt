@@ -71,7 +71,8 @@ fun AppTopBar(
             IconButton(onClick = action.onClick) {
                 Icon(
                     painter = action.icon,
-                    contentDescription = action.contentDescription
+                    contentDescription = action.contentDescription,
+                    tint = Color.Unspecified // 벡터 XML에 지정된 원래 색을 그대로 사용
                 )
             }
         }
