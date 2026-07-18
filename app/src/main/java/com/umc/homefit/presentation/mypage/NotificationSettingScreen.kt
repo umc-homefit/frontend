@@ -121,25 +121,25 @@ private fun NotificationSettingContent(
     Column(
         modifier = modifier.verticalScroll(rememberScrollState())
     ) {
-        Spacer(modifier = Modifier.height(45.dp))
+        Spacer(modifier = Modifier.height(42.dp))
 
         NotificationToggleCard(
             label = "PUSH 알림",
             checked = pushEnabled,
             onCheckedChange = onTogglePush,
-            modifier = Modifier.padding(horizontal = 20.dp)
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         NotificationToggleCard(
             label = "SMS 알림",
             checked = smsEnabled,
             onCheckedChange = onToggleSms,
-            modifier = Modifier.padding(horizontal = 20.dp)
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(27.dp))
 
         Box(
             modifier = Modifier
@@ -148,24 +148,24 @@ private fun NotificationSettingContent(
                 .background(SectionDividerColor)
         )
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(27.dp))
 
         Text(
             text = "알림 수신 내용",
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 20.dp)
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(27.dp))
 
         notificationInfoItems.forEachIndexed { index, item ->
             NotificationInfoCard(
                 item = item,
-                modifier = Modifier.padding(horizontal = 20.dp)
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
             if (index != notificationInfoItems.lastIndex) {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
             }
         }
 
@@ -184,9 +184,9 @@ private fun NotificationToggleCard(
         modifier = modifier
             .fillMaxWidth()
             .height(64.dp)
-            .background(Color.White, RoundedCornerShape(8.dp))
-            .border(BorderStroke(1.dp, CardBorderColor), RoundedCornerShape(8.dp))
-            .padding(horizontal = 20.dp),
+            .background(Color.White, RoundedCornerShape(4.dp))
+            .border(BorderStroke(1.dp, CardBorderColor), RoundedCornerShape(4.dp))
+            .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -198,7 +198,7 @@ private fun NotificationToggleCard(
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            modifier = Modifier.scale(scaleX = 0.85f, scaleY = 0.77f),
+            modifier = Modifier.scale(scaleX = 0.84f, scaleY = 0.75f),
             colors = SwitchDefaults.colors(
                 checkedTrackColor = ToggleOnColor,
                 checkedThumbColor = Color.White,
@@ -220,9 +220,9 @@ private fun NotificationInfoCard(
         modifier = modifier
             .fillMaxWidth()
             .height(64.dp)
-            .background(Color.White, RoundedCornerShape(8.dp))
-            .border(BorderStroke(1.dp, CardBorderColor), RoundedCornerShape(8.dp))
-            .padding(horizontal = 20.dp),
+            .background(Color.White, RoundedCornerShape(4.dp))
+            .border(BorderStroke(1.dp, CardBorderColor), RoundedCornerShape(4.dp))
+            .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
