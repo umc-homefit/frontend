@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
+import com.umc.homefit.data.mock.FinanceMockData
 
 @HiltViewModel
 class RecommendedProductScreenViewModel @Inject constructor() : ViewModel() {
@@ -13,8 +14,10 @@ class RecommendedProductScreenViewModel @Inject constructor() : ViewModel() {
     val uiState: StateFlow<RecommendedProductScreenUiState> = _uiState.asStateFlow()
 
     init {
-        // Initialize with success default state
-        _uiState.value = RecommendedProductScreenUiState.Success("Data initialized for RecommendedProductScreen")
+        _uiState.value =
+            RecommendedProductScreenUiState.Success(
+                products = FinanceMockData.recommendedProducts
+            )
     }
 }
 

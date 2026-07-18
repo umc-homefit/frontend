@@ -37,50 +37,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.data.dto.RecommendedProductDto
 import androidx.compose.foundation.Image
+import com.umc.homefit.data.mock.FinanceMockData
+import com.umc.homefit.presentation.finance.component.RecommendedProductCard
 
 
+private val sampleRecommendedProducts =
+    FinanceMockData.recommendedProducts.take(3)
 
-private val sampleRecommendedProducts = listOf(
-    RecommendedProductDto(
-        id = "1",
-        title = "디딤돌 대출",
-        iconRes = R.drawable.img_kookmin_logo,
-        productType = "정부지원",
-        interestRate = "연 2.15% ~ 3.00%",
-        amountDescription = "대출한도 | 2억 5천만 원",
-        targetDescription = "연소득 | 6천만 원 이하",
-        tags = listOf(
-            "무주택자",
-            "생애최초"
-        )
-    ),
-    RecommendedProductDto(
-        id = "2",
-        title = "버팀목 전세대출",
-        iconRes = R.drawable.img_hana_logo,
-        productType = "정부지원",
-        interestRate = "연 2.15% ~ 3.00%",
-        amountDescription = "대출한도 | 1억 2천만 원",
-        targetDescription = "연소득 | 5천만 원 이하",
-        tags = listOf(
-            "무주택자",
-            "청년"
-        )
-    ),
-    RecommendedProductDto(
-        id = "3",
-        title = "주택청약종합저축",
-        iconRes = R.drawable.img_shinhan_logo,
-        productType = "정부지원",
-        interestRate = "연 2.00%",
-        amountDescription = "월 납입 | 2만 원 ~ 50만 원",
-        targetDescription = "가입대상 | 무주택 청년",
-        tags = listOf(
-            "청약",
-            "소득공제"
-        )
-    )
-)
 @Composable
 fun FinanceScreenRoute(
     viewModel: FinanceScreenViewModel,
