@@ -207,7 +207,7 @@ private fun SortDropdown(
     ) {
         Text(
             text = selectedOption.label,
-            fontSize = 13.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
             color = MutedTextColor
         )
@@ -231,6 +231,7 @@ private fun SortDropdown(
                             text = option.label,
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center,
+                            fontSize = 14.sp,
                             color = if (option == selectedOption) SelectedTextColor else MutedTextColor,
                             fontWeight = if (option == selectedOption) FontWeight.Bold else FontWeight.Normal
                         )
@@ -265,7 +266,7 @@ private fun SavedRecruitmentCard(
         ) {
             Text(
                 text = item.title,
-                fontSize = 15.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f)
             )

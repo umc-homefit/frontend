@@ -48,7 +48,7 @@ fun MyPageMenuItem(
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = label,
-            fontSize = 15.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.weight(1f)
         )

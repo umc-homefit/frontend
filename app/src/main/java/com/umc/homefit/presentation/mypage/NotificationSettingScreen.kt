@@ -35,9 +35,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.ui.component.AppScaffold
 import com.umc.homefit.R
+import androidx.compose.ui.draw.scale
 
 private val CardBorderColor = Color(0xFFD2D9E2)
-private val ToggleOnColor = Color(0xFF34C759)
+private val SectionDividerColor = Color(0xFFF0F4F9)
+private val ToggleOnColor = Color(0xFF6DC07A)
+private val ToggleOffColor = Color(0xFF939AA3)
 
 private data class NotificationInfoItem(
     val label: String,
@@ -114,7 +117,7 @@ private fun NotificationSettingContent(
     Column(
         modifier = modifier.verticalScroll(rememberScrollState())
     ) {
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(45.dp))
 
         NotificationToggleCard(
             label = "PUSH 알림",
@@ -132,7 +135,16 @@ private fun NotificationSettingContent(
             modifier = Modifier.padding(horizontal = 20.dp)
         )
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(9.dp)
+                .background(SectionDividerColor)
+        )
+
+        Spacer(modifier = Modifier.height(30.dp))
 
         Text(
             text = "알림 수신 내용",
@@ -141,7 +153,7 @@ private fun NotificationSettingContent(
             modifier = Modifier.padding(horizontal = 20.dp)
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
         notificationInfoItems.forEachIndexed { index, item ->
             NotificationInfoCard(
@@ -167,23 +179,29 @@ private fun NotificationToggleCard(
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .height(64.dp)
             .background(Color.White, RoundedCornerShape(8.dp))
             .border(BorderStroke(1.dp, CardBorderColor), RoundedCornerShape(8.dp))
-            .padding(horizontal = 20.dp, vertical = 14.dp),
+            .padding(horizontal = 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = label,
-            fontSize = 15.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Medium
         )
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
+            modifier = Modifier.scale(scaleX = 0.95f, scaleY = 0.87f),
             colors = SwitchDefaults.colors(
                 checkedTrackColor = ToggleOnColor,
-                checkedThumbColor = Color.White
+                checkedThumbColor = Color.White,
+                checkedBorderColor = ToggleOnColor,
+                uncheckedTrackColor = ToggleOffColor,
+                uncheckedThumbColor = Color.White,
+                uncheckedBorderColor = ToggleOffColor
             )
         )
     }
@@ -197,16 +215,17 @@ private fun NotificationInfoCard(
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .height(64.dp)
             .background(Color.White, RoundedCornerShape(8.dp))
             .border(BorderStroke(1.dp, CardBorderColor), RoundedCornerShape(8.dp))
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+            .padding(horizontal = 20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             painter = painterResource(id = item.iconRes),
             contentDescription = null,
             tint = Color.Unspecified,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(24.dp)
         )
         Spacer(modifier = Modifier.width(12.dp))
         Text(

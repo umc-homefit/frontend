@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.sp
 import com.umc.homefit.R
 import com.umc.homefit.presentation.mypage.component.MyPageMenuItem
 
-// TODO: Figma 색상 토큰 확정되면 Color.kt로 이동
 private val CardBorderColor = Color(0xFFD2D9E2)
 private val SectionDividerColor = Color(0xFFF0F4F9)
 
@@ -107,7 +106,7 @@ private fun MyPageContent(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(10.dp)
+                .height(9.dp)
                 .background(SectionDividerColor)
         )
 
@@ -196,12 +195,12 @@ private fun ProfileCard(
         Column {
             Text(
                 text = profile.nickname,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = profile.email,
-                fontSize = 13.sp,
+                fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
