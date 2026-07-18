@@ -35,7 +35,7 @@ fun AppScaffold(
             }
         },
         bottomBar = bottomBar,
-        // contentWindowInsets = WindowInsets.systemBars,
+        contentWindowInsets = WindowInsets.systemBars,
         modifier = modifier.fillMaxSize()
     ) { innerPadding ->
         // Box에서 padding을 먼저 적용하지 않고, innerPadding을 그대로 content에 넘겨서
