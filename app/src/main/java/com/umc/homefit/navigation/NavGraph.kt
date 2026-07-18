@@ -234,7 +234,7 @@ fun MainScreen(
             startDestination = TabRoute.Home,
             modifier = Modifier
                 .fillMaxSize()
-                // .padding(innerPadding)
+                .padding(innerPadding)
         ) {
             composable<TabRoute.Home> {
                 HomeScreenRoute(

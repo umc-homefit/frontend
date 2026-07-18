@@ -83,8 +83,12 @@ fun NotificationSettingScreen(
         onBackClick = onBack,
         showDivider = true,
         modifier = modifier
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
             when (uiState) {
                 is NotificationSettingScreenUiState.Loading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -194,7 +198,7 @@ private fun NotificationToggleCard(
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            modifier = Modifier.scale(scaleX = 0.95f, scaleY = 0.87f),
+            modifier = Modifier.scale(scaleX = 0.85f, scaleY = 0.77f),
             colors = SwitchDefaults.colors(
                 checkedTrackColor = ToggleOnColor,
                 checkedThumbColor = Color.White,
