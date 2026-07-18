@@ -29,9 +29,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.R
+import com.umc.homefit.ui.theme.RecruitmentBorder
+import com.umc.homefit.ui.theme.RecruitmentTextGray
 
-private val FieldBorderColor = Color(0xFFD2D9E2)
-private val PlaceholderColor = Color(0xFF919AA4)
+// Color.kt에 대응 토큰이 아직 없어 로컬로 유지
+private val DistrictSelectedTextColor = Color(0xFF161616)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,6 +44,14 @@ fun DistrictDropdownField(
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val menuItems = remember(districts) {
+        listOf("전체") + districts.filterNot { it == "전체" }
+    }
+    val fieldTextColor = if (selectedDistrict == null || selectedDistrict == "전체") {
+        RecruitmentTextGray
+    } else {
+        DistrictSelectedTextColor
+    }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -55,13 +65,13 @@ fun DistrictDropdownField(
                 .height(48.02.dp)
                 .clip(RoundedCornerShape(4.00.dp))
                 .background(Color.White)
-                .border(BorderStroke(1.00.dp, FieldBorderColor), RoundedCornerShape(4.00.dp))
+                .border(BorderStroke(1.00.dp, RecruitmentBorder), RoundedCornerShape(4.00.dp))
         ) {
             Text(
                 text = selectedDistrict ?: "전체",
                 fontSize = 14.01.sp,
                 fontWeight = FontWeight.Medium,
-                color = PlaceholderColor,
+                color = fieldTextColor,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .padding(start = 10.00.dp)
@@ -82,9 +92,14 @@ fun DistrictDropdownField(
             containerColor = Color.White,
             modifier = Modifier.heightIn(max = 240.dp)
         ) {
-            districts.filterNot { it == "전체" }.forEach { district ->
+            menuItems.forEach { district ->
                 DropdownMenuItem(
-                    text = { Text(district) },
+                    text = {
+                        Text(
+                            text = district,
+                            color = if (district == "전체") RecruitmentTextGray else DistrictSelectedTextColor
+                        )
+                    },
                     onClick = {
                         onDistrictSelected(district)
                         expanded = false

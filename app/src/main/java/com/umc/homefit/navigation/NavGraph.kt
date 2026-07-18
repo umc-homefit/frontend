@@ -14,6 +14,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -37,6 +38,8 @@ import com.umc.homefit.presentation.recruitment.*
 import com.umc.homefit.R
 import com.umc.homefit.ui.component.AppScaffold
 import com.umc.homefit.ui.component.TopBarAction
+
+private const val FILTER_RESULT_KEY = "filter_result"
 
 @Composable
 fun RootNavGraph(
@@ -66,7 +69,12 @@ fun RootNavGraph(
             ) { innerPadding ->
                 RecruitmentFilterScreenRoute(
                     viewModel = hiltViewModel(),
-                    onApply = { navController.popBackStack() },
+                    onApply = { filterState ->
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set(FILTER_RESULT_KEY, filterState)
+                        navController.popBackStack()
+                    },
                     modifier = Modifier.padding(innerPadding)
                 )
             }
@@ -168,6 +176,13 @@ fun MainScreen(
     val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
+    val rootBackStackEntry by rootNavController.currentBackStackEntryAsState()
+    val filterResult = rootBackStackEntry
+        ?.savedStateHandle
+        ?.getStateFlow<FilterState?>(FILTER_RESULT_KEY, null)
+        ?.collectAsState()
+        ?.value
+
     val title: String? = when {
         currentDestination?.route?.contains(TabRoute.Home::class.qualifiedName.orEmpty()) == true -> "홈"
         currentDestination?.route?.contains(TabRoute.RecruitmentList::class.qualifiedName.orEmpty()) == true -> "공고"
@@ -262,6 +277,10 @@ fun MainScreen(
             composable<TabRoute.RecruitmentList> {
                 RecruitmentListScreenRoute(
                     viewModel = hiltViewModel(),
+                    filterResult = filterResult,
+                    onFilterConsumed = {
+                        rootBackStackEntry?.savedStateHandle?.remove<FilterState>(FILTER_RESULT_KEY)
+                    },
                     onNavigateToFilter = {
                         rootNavController.navigate(Route.RecruitmentFilter)
                     },

@@ -34,20 +34,16 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-private val TrackActiveColor = Color(0xFF4A4F55)
-private val TrackInactiveColor = Color(0xFFD2D9E2)
-private val SegmentActiveColor = Color(0xFF4A4F55)
-private val SegmentInactiveColor = Color(0xFF919AA4)
-private val TickLabelColor = Color(0xFF4A4F55)
-private val TickMarkColor = Color(0xFF919AA4)
+import com.umc.homefit.ui.theme.CompetitionRateText
+import com.umc.homefit.ui.theme.RecruitmentBorder
+import com.umc.homefit.ui.theme.RecruitmentTextGray
 
 private val TrackThickness = 3.dp
-private val ThumbSize = 18.dp
+private val ThumbSize = 23.dp
 private val ThumbBorder = 1.dp
 private val ThumbRadius = ThumbSize / 2
 private val TickMarkThickness = 1.dp
-private val TickMarkLength = 6.dp
+private val TickMarkLength = 8.dp
 
 data class FilterRangeSegment(
     val label: String,
@@ -76,7 +72,7 @@ fun FilterRangeSlider(
                         fontSize = 12.sp,
                         lineHeight = 14.sp,
                         fontWeight = FontWeight.Medium,
-                        color = if (isActive) SegmentActiveColor else SegmentInactiveColor,
+                        color = if (isActive) CompetitionRateText else RecruitmentTextGray,
                         modifier = Modifier.fraction(position)
                     )
                 }
@@ -107,7 +103,7 @@ fun FilterRangeSlider(
                         .offset(x = xOffset - (TickMarkThickness / 2))
                         .width(TickMarkThickness)
                         .height(TickMarkLength)
-                        .background(TickMarkColor)
+                        .background(RecruitmentTextGray)
                 )
             }
         }
@@ -121,7 +117,7 @@ fun FilterRangeSlider(
                     fontSize = 12.sp,
                     lineHeight = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = TickLabelColor,
+                    color = CompetitionRateText,
                     modifier = Modifier.fraction(fractionOf(tick.value, valueRange))
                 )
             }
@@ -140,7 +136,7 @@ private fun FilterRangeThumb() {
         modifier = Modifier
             .size(ThumbSize)
             .background(Color.White, CircleShape)
-            .border(BorderStroke(ThumbBorder, TrackActiveColor), CircleShape)
+            .border(BorderStroke(ThumbBorder, CompetitionRateText), CircleShape)
     )
 }
 
@@ -158,14 +154,14 @@ private fun FilterRangeTrack(sliderState: RangeSliderState) {
         val centerY = size.height / 2f
         val strokeWidthPx = TrackThickness.toPx()
         drawLine(
-            color = TrackInactiveColor,
+            color = RecruitmentBorder,
             start = Offset(0f, centerY),
             end = Offset(size.width, centerY),
             strokeWidth = strokeWidthPx,
             cap = StrokeCap.Round
         )
         drawLine(
-            color = TrackActiveColor,
+            color = CompetitionRateText,
             start = Offset(size.width * startFraction, centerY),
             end = Offset(size.width * endFraction, centerY),
             strokeWidth = strokeWidthPx,

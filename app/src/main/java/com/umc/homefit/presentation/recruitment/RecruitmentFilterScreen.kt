@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -33,16 +32,13 @@ import com.umc.homefit.presentation.recruitment.component.DistrictDropdownField
 import com.umc.homefit.presentation.recruitment.component.FilterRangeSegment
 import com.umc.homefit.presentation.recruitment.component.FilterRangeSlider
 import com.umc.homefit.presentation.recruitment.component.FilterRangeTick
+import com.umc.homefit.ui.theme.RecruitmentAccent
+import com.umc.homefit.ui.theme.RecruitmentTextGray
+import com.umc.homefit.ui.theme.SearchFieldBackground
 import kotlin.math.roundToInt
 
-// TODO: Figma 색상 토큰 확정되면 Color.kt로 이동
+// TitleColor는 Color.kt에 대응 토큰이 아직 없어 로컬로 유지
 private val TitleColor = Color(0xFF161616)
-private val ValueColor = Color(0xFF3C45F3)
-private val UnitColor = Color(0xFF919AA4)
-private val ResetButtonBackground = Color(0xFFF0F4F9)
-private val ResetButtonTextColor = Color(0xFF919AA4)
-private val ApplyGradientStart = Color(0xFF3C45F3)
-private val ApplyGradientEnd = Color(0xFF3C45F3).copy(alpha = 0.5f)
 
 private val AreaSegments = listOf(
     FilterRangeSegment("원룸", 0f..20f),
@@ -101,7 +97,6 @@ fun RecruitmentFilterScreen(
         modifier = modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(top = 36.64.dp)
     ) {
         when (uiState) {
             is RecruitmentFilterScreenUiState.Loading -> {
@@ -167,7 +162,7 @@ private fun RecruitmentFilterContent(
                     text = formatAreaLabel(filterState.minArea, filterState.maxArea),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
-                    color = ValueColor,
+                    color = RecruitmentAccent,
                     textAlign = TextAlign.Right
                 )
             }
@@ -198,14 +193,14 @@ private fun RecruitmentFilterContent(
                     text = "(만 원)",
                     fontSize = 12.00.sp,
                     fontWeight = FontWeight.Medium,
-                    color = UnitColor
+                    color = RecruitmentTextGray
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = formatDepositLabel(filterState.minDeposit, filterState.maxDeposit),
                     fontSize = 16.00.sp,
                     fontWeight = FontWeight.Medium,
-                    color = ValueColor,
+                    color = RecruitmentAccent,
                     textAlign = TextAlign.Right
                 )
             }
@@ -232,7 +227,7 @@ private fun RecruitmentFilterContent(
                     .width(130.dp)
                     .height(48.dp)
                     .clip(RoundedCornerShape(4.00.dp))
-                    .background(ResetButtonBackground)
+                    .background(SearchFieldBackground)
                     .clickable(onClick = onReset),
                 contentAlignment = Alignment.Center
             ) {
@@ -240,7 +235,7 @@ private fun RecruitmentFilterContent(
                     text = "필터 초기화",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = ResetButtonTextColor,
+                    color = RecruitmentTextGray,
                     textAlign = TextAlign.Center
                 )
             }
@@ -250,7 +245,7 @@ private fun RecruitmentFilterContent(
                     .weight(1f)
                     .height(48.dp)
                     .clip(RoundedCornerShape(4.00.dp))
-                    .background(Brush.horizontalGradient(colors = listOf(ApplyGradientStart, ApplyGradientEnd)))
+                    .background(Brush.horizontalGradient(colors = listOf(RecruitmentAccent, RecruitmentAccent.copy(alpha = 0.5f))))
                     .clickable { onApply(filterState) },
                 contentAlignment = Alignment.Center
             ) {
