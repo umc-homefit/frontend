@@ -36,6 +36,7 @@ import com.umc.homefit.presentation.finance.*
 import com.umc.homefit.presentation.home.*
 import com.umc.homefit.presentation.mypage.*
 import com.umc.homefit.presentation.recruitment.*
+import com.umc.homefit.presentation.splash.SplashScreenRoute
 import com.umc.homefit.ui.component.AppScaffold
 
 @Composable
@@ -45,9 +46,19 @@ fun RootNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Route.Main,
+        startDestination = Route.Splash,
         modifier = modifier.fillMaxSize()
     ) {
+        composable<Route.Splash> {
+            SplashScreenRoute(
+                onNavigateToMain = {
+                    navController.navigate(Route.Main) {
+                        popUpTo(Route.Splash) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable<Route.Main> {
             MainScreen(rootNavController = navController)
         }
