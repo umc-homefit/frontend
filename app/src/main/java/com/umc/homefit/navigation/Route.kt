@@ -26,7 +26,6 @@ sealed interface Route {
 
     @Serializable
     data object RecommendedProduct : Route
-
     @Serializable
     data class ProductDetail(val productId: String) : Route
 
@@ -52,6 +51,11 @@ sealed interface TabRoute {
 
     @Serializable
     data object Finance : TabRoute
+
+    @Serializable
+    data object ProductSearch : TabRoute
+    @Serializable
+    data object RecommendedProduct : TabRoute
 
     @Serializable
     data object MyPage : TabRoute
