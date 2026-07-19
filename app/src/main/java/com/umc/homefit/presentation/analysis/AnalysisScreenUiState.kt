@@ -15,11 +15,12 @@ enum class AnalysisTab(val title: String) {
 }
 
 data class RecordItem(
+    val recruitmentId: String,
     val date: String,
     val title: String,
     val complexInfo: String,
     val areaInfo: String,
     val applyPeriod: String,
-    val statusLabel: String, // "모집중" | "예정" | "예정" etc.
+    val statusLabel: String,
     val competitionRate: String
 )

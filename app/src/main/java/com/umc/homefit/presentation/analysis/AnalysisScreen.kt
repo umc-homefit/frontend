@@ -37,7 +37,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.R
@@ -48,12 +47,14 @@ import androidx.compose.foundation.lazy.items
 fun AnalysisScreenRoute(
     viewModel: AnalysisScreenViewModel,
     onNavigateToMyFinance: () -> Unit,
+    onNavigateToDetail: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     AnalysisScreen(
         uiState = uiState,
         onNavigateToFinancialInfo = onNavigateToMyFinance,
+        onRecordClick = onNavigateToDetail,
         modifier = modifier
     )
 }
@@ -62,6 +63,7 @@ fun AnalysisScreenRoute(
 fun AnalysisScreen(
     uiState: AnalysisScreenUiState,
     onNavigateToFinancialInfo: () -> Unit,
+    onRecordClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(AnalysisTab.FINANCIAL_INFO) }
@@ -91,7 +93,10 @@ fun AnalysisScreen(
                         onNavigateToFinancialInfo = onNavigateToFinancialInfo
                     )
 
-                    AnalysisTab.RECORD -> RecordListContent(records = uiState.records)
+                    AnalysisTab.RECORD -> RecordListContent(
+                        records = uiState.records,
+                        onRecordClick = onRecordClick
+                    )
                 }
             }
         }
@@ -216,6 +221,7 @@ private fun FinancialInfoEmptyContent(
 @Composable
 private fun RecordListContent(
     records: List<RecordItem>,
+    onRecordClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     // 기록 없는 경우
@@ -233,7 +239,10 @@ private fun RecordListContent(
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
         items(records) { record ->
-            RecordCard(record = record)
+            RecordCard(
+                record = record,
+                onClick = { onRecordClick(record.recruitmentId) }
+            )
         }
     }
 }
@@ -241,6 +250,7 @@ private fun RecordListContent(
 @Composable
 private fun RecordCard(
     record: RecordItem,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -253,6 +263,7 @@ private fun RecordCard(
         Spacer(modifier = Modifier.height(5.dp))
 
         Card(
+            onClick = onClick,
             shape = RoundedCornerShape(4.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             border = BorderStroke(1.dp, Color(0xFFD2D9E2)),
@@ -311,42 +322,4 @@ private fun CompetitionBadge(rate: String, modifier: Modifier = Modifier) {
             fontWeight = FontWeight.Medium
         )
     }
-}
-
-// ---------------------------------------------------------------------------
-// Previews
-// ---------------------------------------------------------------------------
-
-@Preview(showBackground = true)
-@Composable
-private fun AnalysisScreenFinancialInfoEmptyPreview() {
-    AnalysisScreen(
-        uiState = AnalysisScreenUiState.Success(),
-        onNavigateToFinancialInfo = {}
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun AnalysisScreenRecordListPreview() {
-    val sample = RecordItem(
-        date = "2026.07.07",
-        title = "강동구 청년안심주택 2025-03호",
-        complexInfo = "공고번호 : 2024-강동-031",
-        areaInfo = "전용 : 59㎡ 보증금 : 3,200만원",
-        applyPeriod = "청약접수 : 2026.07.05 ~ 2026.07.08",
-        statusLabel = "모집중",
-        competitionRate = "12:1"
-    )
-    AnalysisScreen(
-        uiState = AnalysisScreenUiState.Success(
-            records = listOf(
-                sample,
-                sample.copy(date = "2026.07.01", title = "강동구 고덕강일 청년안심주택", statusLabel = "예정"),
-                sample.copy(date = "2026.06.28", title = "강동구 고덕강일 청년안심주택", statusLabel = "예정"),
-                sample.copy(date = "2026.06.25", title = "강동구 고덕강일 청년안심주택", statusLabel = "예정")
-            )
-        ),
-        onNavigateToFinancialInfo = {}
-    )
 }

@@ -260,6 +260,9 @@ fun MainScreen(
                     viewModel = hiltViewModel(),
                     onNavigateToMyFinance = {
                         rootNavController.navigate(Route.MyFinance)
+                    },
+                    onNavigateToDetail = { recruitmentId ->
+                        rootNavController.navigate(Route.RecruitmentDetail(recruitmentId))
                     }
                 )
             }

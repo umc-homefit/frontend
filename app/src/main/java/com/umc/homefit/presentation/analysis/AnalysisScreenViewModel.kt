@@ -15,6 +15,7 @@ class AnalysisScreenViewModel @Inject constructor() : ViewModel() {
     init {
         val sampleRecords = listOf(
             RecordItem(
+                recruitmentId = "1",
                 date = "2026.07.07",
                 title = "강동구 청년안심주택 2025-03호",
                 complexInfo = "공고번호 : 2024-강동-031",
@@ -24,6 +25,7 @@ class AnalysisScreenViewModel @Inject constructor() : ViewModel() {
                 competitionRate = "12:1"
             ),
             RecordItem(
+                recruitmentId = "2",
                 date = "2026.07.01",
                 title = "강동구 고덕강일 청년안심주택",
                 complexInfo = "공고번호 : 2024-강동-031",
@@ -41,4 +43,3 @@ class AnalysisScreenViewModel @Inject constructor() : ViewModel() {
         )
     }
 }
-
