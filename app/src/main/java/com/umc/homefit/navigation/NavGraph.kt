@@ -162,9 +162,14 @@ fun MainScreen(
         else -> "HomeFit"
     }
 
+    val isAnalysisTab = currentDestination?.route
+        ?.contains(TabRoute.Analysis::class.qualifiedName.orEmpty()) == true
+
     AppScaffold(
         title = title,
         showBackButton = false,
+        centerTitle = isAnalysisTab,
+        showDivider = isAnalysisTab,
         bottomBar = {
             Column {
                 // 그라데이션 그림자

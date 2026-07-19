@@ -17,6 +17,7 @@ fun AppScaffold(
     onBackClick: () -> Unit = {},
     actions: List<TopBarAction> = emptyList(),
     showDivider: Boolean = false,
+    centerTitle: Boolean = false,
     bottomBar: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit
 ) {
@@ -30,7 +31,8 @@ fun AppScaffold(
                     showBackButton = showBackButton,
                     onBackClick = onBackClick,
                     actions = actions,
-                    showDivider = showDivider
+                    showDivider = showDivider,
+                    centerTitle = centerTitle
                 )
             }
         },
