@@ -13,7 +13,6 @@ fun AppScaffold(
     title: String?,
     modifier: Modifier = Modifier,
     titleContent: (@Composable () -> Unit)? = null,
-    showTopBar: Boolean = true,
     showBackButton: Boolean = false,
     onBackClick: () -> Unit = {},
     actions: List<TopBarAction> = emptyList(),
@@ -21,11 +20,9 @@ fun AppScaffold(
     bottomBar: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit
 ) {
-    val shouldShowTopBar =
-        showTopBar && (title != null || titleContent != null || showBackButton)
-        Scaffold(
+    Scaffold(
         topBar = {
-            if (shouldShowTopBar) {
+            if (title != null || titleContent != null || showBackButton) {
                 AppTopBar(
                     title = title,
                     titleContent = titleContent,

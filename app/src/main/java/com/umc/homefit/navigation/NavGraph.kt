@@ -146,30 +146,35 @@ fun MainScreen(
     val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
+    val isRecommendedProductScreen =
+        currentDestination?.route.orEmpty().contains(
+            TabRoute.RecommendedProduct::class.qualifiedName.orEmpty()
+        )
+
+    val isProductSearchScreen =
+        currentDestination?.route.orEmpty().contains(
+            TabRoute.ProductSearch::class.qualifiedName.orEmpty()
+        )
+
     val title: String? = when {
         currentDestination?.route?.contains(TabRoute.Home::class.qualifiedName.orEmpty()) == true -> "홈"
         currentDestination?.route?.contains(TabRoute.RecruitmentList::class.qualifiedName.orEmpty()) == true -> "공고"
         currentDestination?.route?.contains(TabRoute.Analysis::class.qualifiedName.orEmpty()) == true -> "입주 분석"
         currentDestination?.route?.contains(TabRoute.Finance::class.qualifiedName.orEmpty()) == true -> "금융 상품"
+        isRecommendedProductScreen -> "추천 금융 상품"
+        isProductSearchScreen -> "금융 상품 검색"
         currentDestination?.route?.contains(TabRoute.MyPage::class.qualifiedName.orEmpty()) == true -> "마이페이지"
         else -> "HomeFit"
     }
-    val isRecommendedProductScreen =
-        currentDestination?.route?.contains(
-            TabRoute.RecommendedProduct::class.qualifiedName.orEmpty()
-        ) == true
 
-    val isProductSearchScreen =
-        currentDestination?.route?.contains(
-            TabRoute.ProductSearch::class.qualifiedName.orEmpty()
-        ) == true
 
     AppScaffold(
         title = title,
-        showTopBar =
-            !isRecommendedProductScreen &&
-                !isProductSearchScreen,
-        showBackButton = false,
+        showBackButton = isProductSearchScreen,
+        onBackClick = {
+            tabNavController.popBackStack()
+        },
+        showDivider = isProductSearchScreen,
         bottomBar = {
             if (!isProductSearchScreen) {
                 Column {
