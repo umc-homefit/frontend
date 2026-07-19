@@ -258,8 +258,8 @@ fun MainScreen(
             composable<TabRoute.Analysis> {
                 AnalysisScreenRoute(
                     viewModel = hiltViewModel(),
-                    onNavigateToFinancialInfo = {
-                        rootNavController.navigate(Route.FinancialInfo)
+                    onNavigateToMyFinance = {
+                        rootNavController.navigate(Route.MyFinance)
                     }
                 )
             }

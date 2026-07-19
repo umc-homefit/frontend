@@ -47,13 +47,13 @@ import androidx.compose.foundation.lazy.items
 @Composable
 fun AnalysisScreenRoute(
     viewModel: AnalysisScreenViewModel,
-    onNavigateToFinancialInfo: () -> Unit,
+    onNavigateToMyFinance: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     AnalysisScreen(
         uiState = uiState,
-        onNavigateToFinancialInfo = onNavigateToFinancialInfo,
+        onNavigateToFinancialInfo = onNavigateToMyFinance,
         modifier = modifier
     )
 }
