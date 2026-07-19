@@ -65,7 +65,8 @@ private val SelectedTextColor = Color(0xFF4A4F55)
 @Composable
 fun SavedRecruitmentScreenRoute(
     viewModel: SavedRecruitmentScreenViewModel,
-    onBack: () -> Unit, modifier: Modifier = Modifier
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     SavedRecruitmentScreen(
@@ -81,9 +82,9 @@ fun SavedRecruitmentScreenRoute(
 fun SavedRecruitmentScreen(
     uiState: SavedRecruitmentScreenUiState,
     onBack: () -> Unit,
+    modifier: Modifier = Modifier,
     onSortOptionSelected: (SortOption) -> Unit = {},
-    onRemoveClick: (String) -> Unit = {},
-    modifier: Modifier = Modifier
+    onRemoveClick: (String) -> Unit = {}
 ) {
     var showRemovedMessage by remember { mutableStateOf(false) }
 
@@ -100,10 +101,11 @@ fun SavedRecruitmentScreen(
         onBackClick = onBack,
         showDivider = true,
         modifier = modifier
-    ) { _ ->
+    ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding)
         ) {
             when (uiState) {
                 is SavedRecruitmentScreenUiState.Loading -> {
@@ -224,7 +226,7 @@ private fun SortDropdown(
             containerColor = Color.White,
             tonalElevation = 0.dp
         ) {
-            SortOption.values().forEach { option ->
+            SortOption.entries.forEach { option ->
                 DropdownMenuItem(
                     text = {
                         Text(
