@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -54,6 +54,7 @@ import com.umc.homefit.ui.component.AppScaffold
 import kotlinx.coroutines.delay
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
+
 private val CardBorderColor = Color(0xFFD2D9E2)
 private val GrayChipColor = Color(0xFFF0F4F9)
 private val GrayChipTextColor = Color(0xFF6B7280)
@@ -134,7 +135,7 @@ fun SavedRecruitmentScreen(
                 exit = fadeOut() + slideOutVertically(targetOffsetY = { it }),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(horizontal = 20.dp, vertical = 24.dp)
+                    .padding(horizontal = 16.dp, vertical = 45.dp)
             ) {
                 RemovedSnackbar(message = "관심 공고에서 삭제되었습니다")
             }
@@ -147,7 +148,7 @@ private fun RemovedSnackbar(message: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF4A4F55), RoundedCornerShape(10.dp))
+            .background(Color(0xFF4A4F55), RoundedCornerShape(4.dp))
             .padding(horizontal = 16.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -171,8 +172,12 @@ private fun SavedRecruitmentContent(
 ) {
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            top = 43.dp,
+            end = 16.dp,
+            bottom = 16.dp
+        )
     ) {
         item {
             Box(
@@ -184,13 +189,17 @@ private fun SavedRecruitmentContent(
                     onOptionSelected = onSortOptionSelected
                 )
             }
+            Spacer(modifier = Modifier.height(15.dp))
         }
 
-        items(items, key = { it.id }) { item ->
+        itemsIndexed(items, key = { _, item -> item.id }) { index, item ->
             SavedRecruitmentCard(
                 item = item,
                 onRemoveClick = { onRemoveClick(item.id) }
             )
+            if (index != items.lastIndex) {
+                Spacer(modifier = Modifier.height(10.dp))
+            }
         }
     }
 }
@@ -209,7 +218,7 @@ private fun SortDropdown(
     ) {
         Text(
             text = selectedOption.label,
-            fontSize = 13.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
             color = MutedTextColor
         )
@@ -233,6 +242,7 @@ private fun SortDropdown(
                             text = option.label,
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center,
+                            fontSize = 14.sp,
                             color = if (option == selectedOption) SelectedTextColor else MutedTextColor,
                             fontWeight = if (option == selectedOption) FontWeight.Bold else FontWeight.Normal
                         )
@@ -256,8 +266,8 @@ private fun SavedRecruitmentCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.White, RoundedCornerShape(8.dp))
-            .border(BorderStroke(1.dp, CardBorderColor), RoundedCornerShape(8.dp))
+            .background(Color.White, RoundedCornerShape(4.dp))
+            .border(BorderStroke(1.dp, CardBorderColor), RoundedCornerShape(4.dp))
             .padding(16.dp)
     ) {
         Row(
@@ -267,7 +277,7 @@ private fun SavedRecruitmentCard(
         ) {
             Text(
                 text = item.title,
-                fontSize = 15.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f)
             )
