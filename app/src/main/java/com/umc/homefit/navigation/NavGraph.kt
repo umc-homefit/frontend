@@ -38,7 +38,6 @@ import com.umc.homefit.presentation.mypage.*
 import com.umc.homefit.presentation.recruitment.*
 import com.umc.homefit.R
 import com.umc.homefit.ui.component.AppScaffold
-import com.umc.homefit.ui.component.TopBarAction
 
 private const val FILTER_RESULT_KEY = "filter_result"
 
@@ -57,28 +56,16 @@ fun RootNavGraph(
         }
 
         composable<Route.RecruitmentFilter> {
-            AppScaffold(
-                title = "공고 필터링",
-                showBackButton = false,
-                actions = listOf(
-                    TopBarAction(
-                        icon = painterResource(id = R.drawable.ic_filter_close),
-                        contentDescription = "닫기",
-                        onClick = { navController.popBackStack() }
-                    )
-                )
-            ) { innerPadding ->
-                RecruitmentFilterScreenRoute(
-                    viewModel = hiltViewModel(),
-                    onApply = { filterState ->
-                        navController.previousBackStackEntry
-                            ?.savedStateHandle
-                            ?.set(FILTER_RESULT_KEY, filterState)
-                        navController.popBackStack()
-                    },
-                    modifier = Modifier.padding(innerPadding)
-                )
-            }
+            RecruitmentFilterScreenRoute(
+                viewModel = hiltViewModel(),
+                onApply = { filterState ->
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set(FILTER_RESULT_KEY, filterState)
+                    navController.popBackStack()
+                },
+                onBack = { navController.popBackStack() }
+            )
         }
 
         composable<Route.RecruitmentDetail> {

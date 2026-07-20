@@ -25,13 +25,17 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.umc.homefit.R
 import com.umc.homefit.presentation.recruitment.component.DistrictDropdownField
 import com.umc.homefit.presentation.recruitment.component.FilterRangeSegment
 import com.umc.homefit.presentation.recruitment.component.FilterRangeSlider
 import com.umc.homefit.presentation.recruitment.component.FilterRangeTick
+import com.umc.homefit.ui.component.AppScaffold
+import com.umc.homefit.ui.component.TopBarAction
 import com.umc.homefit.ui.theme.RecruitmentAccent
 import com.umc.homefit.ui.theme.RecruitmentTextGray
 import com.umc.homefit.ui.theme.SearchFieldBackground
@@ -64,7 +68,9 @@ private val DepositTicks = listOf(
 @Composable
 fun RecruitmentFilterScreenRoute(
     viewModel: RecruitmentFilterScreenViewModel,
-    onApply: (FilterState) -> Unit, modifier: Modifier = Modifier
+    onApply: (FilterState) -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val districts by viewModel.districts.collectAsState()
@@ -77,6 +83,7 @@ fun RecruitmentFilterScreenRoute(
         onDepositChange = viewModel::updateDeposit,
         onReset = viewModel::resetFilter,
         onApply = onApply,
+        onBack = onBack,
         modifier = modifier
     )
 }
@@ -90,33 +97,59 @@ fun RecruitmentFilterScreen(
     onDepositChange: (Float, Float) -> Unit,
     onReset: () -> Unit,
     onApply: (FilterState) -> Unit,
-
+    onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    AppScaffold(
+        title = "공고 필터링",
+        showBackButton = false,
+        actions = listOf(
+            TopBarAction(
+                icon = painterResource(id = R.drawable.ic_filter_close),
+                contentDescription = "닫기",
+                onClick = onBack
+            )
+        ),
         modifier = modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
-        when (uiState) {
-            is RecruitmentFilterScreenUiState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+        ) {
+            when (uiState) {
+                is RecruitmentFilterScreenUiState.Loading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                is RecruitmentFilterScreenUiState.Success -> {
+                    RecruitmentFilterContent(
+                        filterState = uiState.data,
+                        districts = districts,
+                        onDistrictSelected = onDistrictSelected,
+                        onAreaChange = onAreaChange,
+                        onDepositChange = onDepositChange,
+                        onReset = onReset,
+                        onApply = onApply,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                            .padding(top = 60.dp)
+                    )
+                }
+                is RecruitmentFilterScreenUiState.Error -> {
+                    Text(
+                        text = "Error: ${uiState.message}",
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
             }
-            is RecruitmentFilterScreenUiState.Success -> {
-                RecruitmentFilterContent(
-                    filterState = uiState.data,
-                    districts = districts,
-                    onDistrictSelected = onDistrictSelected,
-                    onAreaChange = onAreaChange,
-                    onDepositChange = onDepositChange,
-                    onReset = onReset,
-                    onApply = onApply,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-            is RecruitmentFilterScreenUiState.Error -> Text(text = "Error: ${uiState.message}")
         }
     }
 }
@@ -296,6 +329,7 @@ fun RecruitmentFilterScreenPreview() {
         onAreaChange = { _, _ -> },
         onDepositChange = { _, _ -> },
         onReset = {},
-        onApply = {}
+        onApply = {},
+        onBack = {}
     )
 }
