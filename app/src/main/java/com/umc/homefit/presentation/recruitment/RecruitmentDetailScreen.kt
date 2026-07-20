@@ -57,19 +57,18 @@ import com.umc.homefit.R
 import com.umc.homefit.data.dto.Attachment
 import com.umc.homefit.data.dto.RecruitmentDto
 import com.umc.homefit.data.dto.RecruitmentStatus
+import com.umc.homefit.presentation.recruitment.component.RecruitmentTabRow
+import com.umc.homefit.presentation.recruitment.component.RecruitmentTitleCard
+import com.umc.homefit.presentation.recruitment.component.RecruitmentTopBar
+import com.umc.homefit.presentation.recruitment.component.StatusChip
+import com.umc.homefit.presentation.recruitment.component.TagChip
 import com.umc.homefit.ui.theme.AnalysisButtonGradient
 import com.umc.homefit.ui.theme.BackgroundLight
-import com.umc.homefit.ui.theme.BookmarkActive
-import com.umc.homefit.ui.theme.BookmarkInactive
 import com.umc.homefit.ui.theme.RecruitmentAccent
 import com.umc.homefit.ui.theme.RecruitmentBorder
 import com.umc.homefit.ui.theme.RecruitmentTextGray
 import com.umc.homefit.ui.theme.SearchFieldBackground
-import com.umc.homefit.ui.theme.StatusClosingSoonBackground
 import com.umc.homefit.ui.theme.StatusClosingSoonText
-import com.umc.homefit.ui.theme.StatusRecruitingBackground
-import com.umc.homefit.ui.theme.StatusRecruitingText
-import com.umc.homefit.ui.theme.StatusScheduledBackground
 import com.umc.homefit.ui.theme.StatusScheduledText
 import com.umc.homefit.ui.theme.TextBlack
 import java.util.Locale
@@ -109,7 +108,7 @@ fun RecruitmentDetailScreen(
             .background(BackgroundLight)
             .statusBarsPadding()
     ) {
-        DetailTopBar(
+        RecruitmentTopBar(
             isBookmarked = (uiState as? RecruitmentDetailScreenUiState.Success)?.recruitment?.isBookmarked == true,
             onBackClick = onBack,
             onBookmarkClick = onToggleBookmark
@@ -137,68 +136,6 @@ fun RecruitmentDetailScreen(
 }
 
 @Composable
-private fun DetailTopBar(
-    isBookmarked: Boolean,
-    onBackClick: () -> Unit,
-    onBookmarkClick: () -> Unit
-) {
-    Column {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-                .background(BackgroundLight)
-        ) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(start = 8.dp, top = 12.dp)
-                    .size(24.dp)
-                    .clickable(onClick = onBackClick),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_top_arrow_back),
-                    contentDescription = "뒤로가기",
-                    tint = RecruitmentTextGray,
-                    modifier = Modifier
-                        .width(7.67.dp)
-                        .height(13.31.dp)
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(end = 12.dp, top = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(20.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_top_save),
-                    contentDescription = if (isBookmarked) "찜 해제" else "찜하기",
-                    tint = if (isBookmarked) BookmarkActive else BookmarkInactive,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable(onClick = onBookmarkClick)
-                )
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_top_share),
-                    contentDescription = "공유",
-                    tint = BookmarkInactive,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(SearchFieldBackground)
-        )
-    }
-}
-
-@Composable
 private fun RecruitmentDetailContent(
     recruitment: RecruitmentDto,
     onNavigateToCompetition: (String) -> Unit,
@@ -213,8 +150,11 @@ private fun RecruitmentDetailContent(
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
         ) {
-            TitleCard(recruitment)
-            DetailTabRow(onCompetitionTabClick = { onNavigateToCompetition(recruitment.id) })
+            RecruitmentTitleCard(recruitment)
+            RecruitmentTabRow(
+                selectedTabIndex = 0,
+                onTabClick = { index -> if (index == 1) onNavigateToCompetition(recruitment.id) }
+            )
 
             Column(
                 modifier = Modifier
@@ -274,95 +214,6 @@ private fun RecruitmentDetailContent(
             initialPage = selectedPhotoIndex,
             onDismiss = { showFullScreenViewer = false }
         )
-    }
-}
-
-@Composable
-private fun TitleCard(recruitment: RecruitmentDto) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(BackgroundLight)
-            .border(BorderStroke(1.dp, SearchFieldBackground))
-            .padding(start = 16.dp, end = 16.dp, top = 31.dp, bottom = 31.dp)
-    ) {
-        Text(
-            text = recruitment.title,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = TextBlack
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            StatusChip(status = recruitment.status)
-            recruitment.tags.forEach { tag ->
-                TagChip(text = tag)
-            }
-        }
-    }
-}
-
-@Composable
-private fun StatusChip(status: RecruitmentStatus) {
-    val (background, text, label) = when (status) {
-        RecruitmentStatus.RECRUITING -> Triple(StatusRecruitingBackground, StatusRecruitingText, "모집중")
-        RecruitmentStatus.CLOSING_SOON -> Triple(StatusClosingSoonBackground, StatusClosingSoonText, "마감임박")
-        RecruitmentStatus.SCHEDULED -> Triple(StatusScheduledBackground, StatusScheduledText, "예정")
-    }
-    Box(
-        modifier = Modifier
-            .background(background, RoundedCornerShape(120.dp))
-            .padding(start = 12.dp, end = 12.dp, top = 5.dp, bottom = 5.dp)
-    ) {
-        Text(text = label, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = text)
-    }
-}
-
-@Composable
-private fun TagChip(text: String) {
-    Box(
-        modifier = Modifier
-            .border(BorderStroke(1.dp, RecruitmentBorder), RoundedCornerShape(120.dp))
-            .padding(top = 5.dp, end = 12.dp, bottom = 5.dp, start = 12.dp)
-    ) {
-        Text(text = text, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = RecruitmentTextGray)
-    }
-}
-
-private val detailTabs = listOf("공고 상세", "경쟁률")
-
-@Composable
-private fun DetailTabRow(onCompetitionTabClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(45.dp)
-    ) {
-        detailTabs.forEachIndexed { index, label ->
-            // "공고 상세"는 이 화면 자체이므로 선택 상태로 고정, "경쟁률"은 콘텐츠 전환이 아니라 CompetitionScreen으로 이동
-            val selected = index == 0
-            val barColor = if (selected) RecruitmentAccent else RecruitmentBorder
-            val textColor = if (selected) TextBlack else RecruitmentBorder
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .clickable(enabled = !selected) { onCompetitionTabClick() }
-            ) {
-                Box(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = label, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = textColor)
-                }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(2.dp)
-                        .background(barColor)
-                )
-            }
-        }
     }
 }
 
