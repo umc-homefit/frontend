@@ -131,7 +131,8 @@ fun RootNavGraph(
         composable<Route.MyFinance> {
             MyFinanceScreenRoute(
                 viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onNavigateToEdit = { navController.navigate(Route.FinancialInfo) }
             )
         }
     }
@@ -406,6 +407,7 @@ fun MainScreen(
                     }
                 )
             }
+
         }
     }
 }
