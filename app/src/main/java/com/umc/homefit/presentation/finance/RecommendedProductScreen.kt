@@ -27,6 +27,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,12 +42,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.umc.homefit.data.dto.RecommendedProductDto
 import com.umc.homefit.data.mock.FinanceMockData
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
 import com.umc.homefit.presentation.finance.component.RecommendedProductSearchBar
 import com.umc.homefit.ui.component.AppScaffold
-
+import com.umc.homefit.ui.component.AppTopBar
 
 
 private val ProductAccent = Color(0xFF3C45F3)
@@ -68,10 +70,10 @@ fun RecommendedProductScreenRoute(
     searchQuery: String,
     onBack: () -> Unit,
     onNavigateToSearch: () -> Unit,
-    onNavigateToDetail: (String) -> Unit,
+    onNavigateToDetail: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     RecommendedProductScreen(
         uiState = uiState,
@@ -222,16 +224,20 @@ private fun ProductListHeader(
 fun RecommendedProductScreen(
     uiState: RecommendedProductScreenUiState,
     searchQuery: String,
-    onBack: () -> Unit,
+    onNavigateToDetail: (Long) -> Unit,
     onNavigateToSearch: () -> Unit,
-    onNavigateToDetail: (String) -> Unit,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    AppScaffold(
-        title = "추천 금융 상품",
-        showBackButton = false,
-        onBackClick = onBack,
-        modifier = modifier.fillMaxSize()
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            AppTopBar(
+                showBackButton = true,
+                onBackClick = onBack,
+                showDivider = true
+            )
+        }
     ) { innerPadding ->
         RecommendedProductContent(
             uiState = uiState,
@@ -251,7 +257,7 @@ fun RecommendedProductScreen(
 private fun RecommendedProductContent(
     uiState: RecommendedProductScreenUiState,
     searchQuery: String,
-    onNavigateToDetail: (String) -> Unit,
+    onNavigateToDetail: (Long) -> Unit,
     onNavigateToSearch: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -389,19 +395,20 @@ private fun RecommendedProductContent(
                             horizontal = 20.dp,
                             vertical = 16.dp
                         ),
-                        verticalArrangement =
-                            Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(
                             items = sortedProducts,
                             key = { product ->
-                                product.id
+                                product.productId
                             }
                         ) { product ->
                             RecommendedProductCard(
                                 product = product,
                                 onClick = {
-                                    onNavigateToDetail(product.id)
+                                    onNavigateToDetail(
+                                        product.productId
+                                    )
                                 }
                             )
                         }
@@ -576,3 +583,5 @@ private fun RecommendedProductScreenPreview() {
         onNavigateToDetail = {}
     )
 }
+
+

@@ -31,6 +31,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.umc.homefit.presentation.analysis.*
 import com.umc.homefit.presentation.finance.*
 import com.umc.homefit.presentation.home.*
@@ -107,10 +108,16 @@ fun RootNavGraph(
         }
 
 
-        composable<Route.ProductDetail> {
+        composable<Route.ProductDetail> { backStackEntry ->
+            val route =
+                backStackEntry.toRoute<Route.ProductDetail>()
+
             ProductDetailScreenRoute(
-                viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() }
+                productId = route.productId,
+                viewModel = hiltViewModel<ProductDetailScreenViewModel>(),
+                onBack = {
+                    navController.popBackStack()
+                }
             )
         }
 
@@ -344,6 +351,13 @@ fun MainScreen(
                         tabNavController.navigate(
                             TabRoute.RecommendedProduct
                         )
+                    },
+                    onNavigateToDetail = { productId ->
+                        rootNavController.navigate(
+                            Route.ProductDetail(
+                                productId = productId
+                            )
+                        )
                     }
                 )
             }
@@ -387,7 +401,9 @@ fun MainScreen(
                     },
                     onNavigateToDetail = { productId ->
                         rootNavController.navigate(
-                            Route.ProductDetail(productId)
+                            Route.ProductDetail(
+                                productId = productId.toLong()
+                            )
                         )
                     }
                 )
