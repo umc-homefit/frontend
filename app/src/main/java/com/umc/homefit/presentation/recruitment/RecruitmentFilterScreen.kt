@@ -100,7 +100,6 @@ fun RecruitmentFilterScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // 필터 화면은 모달 형태로 닫기(X) 버튼 사용 - 뒤로가기 화살표 아님
     AppScaffold(
         title = "공고 필터링",
         showBackButton = false,
