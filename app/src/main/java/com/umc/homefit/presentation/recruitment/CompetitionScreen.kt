@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -55,7 +54,8 @@ import com.umc.homefit.data.dto.RecruitmentStatus
 import com.umc.homefit.data.dto.TypeCompetitionRate
 import com.umc.homefit.presentation.recruitment.component.RecruitmentTabRow
 import com.umc.homefit.presentation.recruitment.component.RecruitmentTitleCard
-import com.umc.homefit.presentation.recruitment.component.RecruitmentTopBar
+import com.umc.homefit.ui.component.AppScaffold
+import com.umc.homefit.ui.component.TopBarAction
 import com.umc.homefit.ui.theme.AnalysisButtonGradient
 import com.umc.homefit.ui.theme.BackgroundLight
 import com.umc.homefit.ui.theme.RecruitmentAccent
@@ -66,6 +66,9 @@ import com.umc.homefit.ui.theme.StatusClosingSoonBackground
 import com.umc.homefit.ui.theme.StatusClosingSoonText
 import com.umc.homefit.ui.theme.StatusScheduledText
 import com.umc.homefit.ui.theme.TextBlack
+import kotlin.math.floor
+import kotlin.math.log10
+import kotlin.math.pow
 
 // TODO: 디자이너 확인 후 theme 토큰으로 교체
 private val CompetitionIntroGradientStart = Color(0xFF3D81FF)
@@ -97,34 +100,52 @@ fun CompetitionScreen(
     onNavigateToAnalysis: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    val isBookmarked = (uiState as? CompetitionScreenUiState.Success)?.recruitment?.isBookmarked == true
+
+    AppScaffold(
+        title = null,
+        showBackButton = true,
+        onBackClick = onBack,
+        actions = listOf(
+            TopBarAction(
+                icon = painterResource(
+                    id = if (isBookmarked) R.drawable.ic_top_save_active else R.drawable.ic_top_save
+                ),
+                contentDescription = if (isBookmarked) "찜 해제" else "찜하기",
+                onClick = onToggleBookmark
+            ),
+            TopBarAction(
+                icon = painterResource(id = R.drawable.ic_top_share),
+                contentDescription = "공유",
+                onClick = { /* TODO: 공유 기능 구현 예정 */ }
+            )
+        ),
         modifier = modifier
-            .fillMaxSize()
-            .background(BackgroundLight)
-            .statusBarsPadding()
-    ) {
-        RecruitmentTopBar(
-            isBookmarked = (uiState as? CompetitionScreenUiState.Success)?.recruitment?.isBookmarked == true,
-            onBackClick = onBack,
-            onBookmarkClick = onToggleBookmark
-        )
-        when (uiState) {
-            is CompetitionScreenUiState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(BackgroundLight)
+        ) {
+            when (uiState) {
+                is CompetitionScreenUiState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
                 }
-            }
-            is CompetitionScreenUiState.Success -> {
-                CompetitionContent(
-                    recruitment = uiState.recruitment,
-                    competition = uiState.competition,
-                    onNavigateBackToDetail = onBack,
-                    onNavigateToAnalysis = onNavigateToAnalysis
-                )
-            }
-            is CompetitionScreenUiState.Error -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = "Error: ${uiState.message}")
+                is CompetitionScreenUiState.Success -> {
+                    CompetitionContent(
+                        recruitment = uiState.recruitment,
+                        competition = uiState.competition,
+                        onNavigateBackToDetail = onBack,
+                        onNavigateToAnalysis = onNavigateToAnalysis
+                    )
+                }
+                is CompetitionScreenUiState.Error -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(text = "Error: ${uiState.message}")
+                    }
                 }
             }
         }
@@ -149,55 +170,68 @@ private fun CompetitionContent(
             onTabClick = { index -> if (index == 0) onNavigateBackToDetail() }
         )
 
-        CompetitionIntroSection()
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column {
+                CompetitionIntroSection()
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .offset(y = (-20).dp)
-                .background(Color.White, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-        ) {
-            CompetitionScrollIndicator()
-            FinalRateHeroSection(finalRate = competition.finalRate, baseDate = competition.finalRateBaseDate)
-            ExpectedScoreCard(score = competition.expectedScore, label = competition.expectedScoreLabel)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset(y = (-20).dp)
+                        .background(Color.White, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                ) {
+                    CompetitionScrollIndicator()
+                    FinalRateHeroSection(finalRate = competition.finalRate, baseDate = competition.finalRateBaseDate)
+                    ExpectedScoreCard(score = competition.expectedScore, label = competition.expectedScoreLabel)
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
-                Spacer(modifier = Modifier.height(101.5.dp))
-                SectionTitle("세부 지표")
-                Spacer(modifier = Modifier.height(12.dp))
-                CompetitionDetailStatsTable(competition = competition)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        Spacer(modifier = Modifier.height(101.5.dp))
+                        SectionTitle("세부 지표")
+                        Spacer(modifier = Modifier.height(12.dp))
+                        CompetitionDetailStatsTable(competition = competition)
 
-                Spacer(modifier = Modifier.height(36.dp))
-                SectionTitle("유형별 경쟁률")
-                Spacer(modifier = Modifier.height(12.dp))
-                TypeCompetitionTable(typeRates = competition.typeRates)
+                        Spacer(modifier = Modifier.height(36.dp))
+                        SectionTitle("유형별 경쟁률")
+                        Spacer(modifier = Modifier.height(12.dp))
+                        TypeCompetitionTable(typeRates = competition.typeRates)
 
-                Spacer(modifier = Modifier.height(36.dp))
-                SectionTitle("최근 경쟁률 추이")
-                Spacer(modifier = Modifier.height(12.dp))
-                CompetitionTrendChart(history = competition.history)
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = "( 동일단지 또는 인근 지역 분양 기준 )",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = RecruitmentBorder
-                )
+                        Spacer(modifier = Modifier.height(36.dp))
+                        SectionTitle("최근 경쟁률 추이")
+                        Spacer(modifier = Modifier.height(12.dp))
+                        CompetitionTrendChart(history = competition.history)
+                        Spacer(modifier = Modifier.height(12.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
-                CompetitionHistoryTable(history = competition.history)
+                        CompetitionHistoryTable(history = competition.history)
 
-                Spacer(modifier = Modifier.height(16.dp))
-                CompetitionNoticeBox()
+                        Spacer(modifier = Modifier.height(16.dp))
+                        CompetitionNoticeBox()
 
-                Spacer(modifier = Modifier.height(16.dp))
-                AnalysisRequestButton(onClick = { onNavigateToAnalysis(competition.noticeId) })
-                Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
+                        AnalysisRequestButton(onClick = { onNavigateToAnalysis(competition.noticeId) })
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
+                }
             }
+
+            Image(
+                painter = painterResource(id = R.drawable.ic_competition_character),
+                contentDescription = null,
+                modifier = Modifier
+                    .offset(x = 44.dp, y = 126.dp)
+                    .size(width = 110.dp, height = 101.7.dp)
+            )
+            Image(
+                painter = painterResource(id = R.drawable.ic_competition_ants),
+                contentDescription = null,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(x = (-58).dp, y = 200.dp)
+                    .size(width = 130.dp, height = 15.81.dp)
+            )
         }
     }
 }
@@ -228,22 +262,9 @@ private fun CompetitionIntroSection() {
             painter = painterResource(id = R.drawable.ic_competition_cloud_r),
             contentDescription = null,
             modifier = Modifier
-                .offset(x = 264.dp, y = 59.dp)
+                .align(Alignment.TopEnd)
+                .offset(x = 15.dp, y = 59.dp)
                 .size(width = 111.dp, height = 56.dp)
-        )
-        Image(
-            painter = painterResource(id = R.drawable.ic_competition_character),
-            contentDescription = null,
-            modifier = Modifier
-                .offset(x = 44.dp, y = 122.dp)
-                .size(width = 110.dp, height = 101.7.dp)
-        )
-        Image(
-            painter = painterResource(id = R.drawable.ic_competition_ants),
-            contentDescription = null,
-            modifier = Modifier
-                .offset(x = 172.dp, y = 194.84.dp)
-                .size(width = 130.dp, height = 15.81.dp)
         )
     }
 }
@@ -314,9 +335,10 @@ private fun ExpectedScoreCard(score: Int, label: String) {
                 fontSize = 59.17.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
+                textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .offset(y = 84.38.dp)
+                    .offset(x = 30.5.dp, y = 79.dp)
+                    .size(width = 129.dp, height = 71.dp)
             )
         }
     }
@@ -417,17 +439,36 @@ private fun CompetitionTableRow(cells: List<String>, isHeader: Boolean) {
     }
 }
 
+private fun niceStep(value: Double): Double {
+    val magnitude = 10.0.pow(floor(log10(value)))
+    val normalized = value / magnitude
+    val niceNormalized = when {
+        normalized <= 1 -> 1.0
+        normalized <= 2 -> 2.0
+        normalized <= 5 -> 5.0
+        else -> 10.0
+    }
+    return niceNormalized * magnitude
+}
+
 @Composable
 private fun CompetitionTrendChart(history: List<CompetitionHistoryEntry>) {
     if (history.isEmpty()) return
 
-    // TODO: 지금은 60 고정값 사용, 추후 history.maxOf { it.rate } 기준으로 동적 계산하도록 개선
-    val maxRate = 60f
-    val yAxisValues = listOf(60, 50, 40, 30, 20, 10, 0)
+    val rawMax = history.maxOf { it.rate }
+    val maxRate: Float
+    val yAxisValues: List<Int>
+    if (rawMax <= 0.0) {
+        maxRate = 60f
+        yAxisValues = listOf(60, 50, 40, 30, 20, 10, 0)
+    } else {
+        val step = niceStep(rawMax / 5)
+        maxRate = (step * 6).toFloat()
+        yAxisValues = (0..6).map { (it * step).toInt() }.reversed()
+    }
 
     val gridColor = RecruitmentBorder
     val lineColor = RecruitmentAccent
-    // Figma 0x0D3C45F3 = RecruitmentAccent, alpha 0x0D/255 (약 5%)
     val fillColor = RecruitmentAccent.copy(alpha = 13f / 255f)
     val axisLabelColor = RecruitmentTextGray.toArgb()
     val pointLabelColor = RecruitmentAccent.toArgb()
@@ -441,13 +482,18 @@ private fun CompetitionTrendChart(history: List<CompetitionHistoryEntry>) {
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(174.dp)
-                .padding(start = 14.dp, top = 21.dp, end = 14.dp)
+                .height(200.dp)
+                .padding(start = 14.dp, top = 21.dp, end = 13.dp)
         ) {
-            val leftPadding = 28.dp.toPx()
-            val topPadding = 10.dp.toPx()
-            val bottomPadding = 14.dp.toPx()
-            val chartWidth = size.width - leftPadding
+            val leftPadding = 28.dp.toPx()      // Y축 숫자 라벨 공간
+            val rightPadding = 10.dp.toPx()     // 마지막 포인트가 테두리에 붙지 않도록
+            val topPadding = 14.dp.toPx()       // 최상단 포인트 라벨 공간
+            val bottomPadding = 22.dp.toPx()    // X축 라벨 전체 공간
+            val xLabelGap = 16.dp.toPx()        // 그래프 라인 ~ X축 라벨 사이 여백
+            val pointStartGap = 12.dp.toPx()
+            val pointEndGap = 12.dp.toPx()
+
+            val chartWidth = size.width - leftPadding - rightPadding - pointStartGap - pointEndGap
             val chartHeight = size.height - topPadding - bottomPadding
             val chartBottomY = topPadding + chartHeight
 
@@ -476,8 +522,8 @@ private fun CompetitionTrendChart(history: List<CompetitionHistoryEntry>) {
                 drawLine(
                     color = gridColor,
                     start = Offset(leftPadding, y),
-                    end = Offset(size.width, y),
-                    strokeWidth = 1.dp.toPx()
+                    end = Offset(size.width - rightPadding, y),
+                    strokeWidth = 0.5.dp.toPx()
                 )
                 val label = if (value == 0) "0" else "$value:1"
                 drawContext.canvas.nativeCanvas.drawText(
@@ -490,7 +536,7 @@ private fun CompetitionTrendChart(history: List<CompetitionHistoryEntry>) {
 
             val stepX = if (history.size > 1) chartWidth / (history.size - 1) else 0f
             val points = history.mapIndexed { index, entry ->
-                val x = leftPadding + stepX * index
+                val x = leftPadding + pointStartGap + stepX * index
                 val ratio = (entry.rate / maxRate).coerceIn(0.0, 1.0).toFloat()
                 val y = topPadding + chartHeight * (1f - ratio)
                 Offset(x, y)
@@ -522,7 +568,7 @@ private fun CompetitionTrendChart(history: List<CompetitionHistoryEntry>) {
                 drawContext.canvas.nativeCanvas.drawText(
                     history[index].roundLabel,
                     offset.x,
-                    chartBottomY + 10.dp.toPx(),
+                    chartBottomY + xLabelGap,
                     xAxisTextPaint
                 )
             }
@@ -590,23 +636,16 @@ private fun CompetitionNoticeBox() {
         modifier = Modifier
             .fillMaxWidth()
             .background(StatusClosingSoonBackground, RoundedCornerShape(4.dp))
-            .padding(16.dp)
+            .padding(14.dp)
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = "*경쟁률 산정 및 유의사항",
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                color = StatusClosingSoonText.copy(alpha = 0.5f)
-            )
-            Spacer(modifier = Modifier.height(13.dp))
-            Text(
-                text = "본 경쟁률은 청약홈 공식 발표 기준이며,\n최종 당첨 결과와 다를 수 있습니다.\n\n가점 산정 및 순위 조건은 공고문을 반드시 확인하세요.",
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                color = StatusClosingSoonText.copy(alpha = 0.5f)
-            )
-        }
+        Text(
+            text = "*경쟁률 산정 및 유의사항\n\n본 경쟁률은 청약홈 공식 발표 기준이며,\n최종 당첨 결과와 다를 수 있습니다.\n\n가점 산정 및 순위 조건은 공고문을 반드시 확인하세요.",
+            fontSize = 12.sp,
+            lineHeight = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = StatusClosingSoonText.copy(alpha = 0.5f),
+            modifier = Modifier.align(Alignment.CenterStart)
+        )
     }
 }
 
