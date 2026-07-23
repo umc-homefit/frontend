@@ -100,6 +100,7 @@ fun RecruitmentFilterScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // 필터 화면은 모달 형태로 닫기(X) 버튼 사용 - 뒤로가기 화살표 아님
     AppScaffold(
         title = "공고 필터링",
         showBackButton = false,
@@ -116,13 +117,12 @@ fun RecruitmentFilterScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
+                .padding(innerPadding)
         ) {
             when (uiState) {
                 is RecruitmentFilterScreenUiState.Loading -> {
                     Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
+                        modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator()
@@ -139,14 +139,12 @@ fun RecruitmentFilterScreen(
                         onApply = onApply,
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(innerPadding)
                             .padding(top = 60.dp)
                     )
                 }
                 is RecruitmentFilterScreenUiState.Error -> {
                     Text(
-                        text = "Error: ${uiState.message}",
-                        modifier = Modifier.padding(innerPadding)
+                        text = "Error: ${uiState.message}"
                     )
                 }
             }
