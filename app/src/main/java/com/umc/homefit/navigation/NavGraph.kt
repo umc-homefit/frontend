@@ -36,7 +36,10 @@ import com.umc.homefit.presentation.finance.*
 import com.umc.homefit.presentation.home.*
 import com.umc.homefit.presentation.mypage.*
 import com.umc.homefit.presentation.recruitment.*
+import com.umc.homefit.R
 import com.umc.homefit.ui.component.AppScaffold
+
+private const val FILTER_RESULT_KEY = "filter_result"
 
 @Composable
 fun RootNavGraph(
@@ -55,6 +58,12 @@ fun RootNavGraph(
         composable<Route.RecruitmentFilter> {
             RecruitmentFilterScreenRoute(
                 viewModel = hiltViewModel(),
+                onApply = { filterState ->
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set(FILTER_RESULT_KEY, filterState)
+                    navController.popBackStack()
+                },
                 onBack = { navController.popBackStack() }
             )
         }
@@ -149,6 +158,14 @@ fun MainScreen(
     val tabNavController = rememberNavController()
     val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+    
+    
+    val rootBackStackEntry by rootNavController.currentBackStackEntryAsState()
+    val filterResult = rootBackStackEntry
+        ?.savedStateHandle
+        ?.getStateFlow<FilterState?>(FILTER_RESULT_KEY, null)
+        ?.collectAsState()
+        ?.value
 
     val isRecommendedProductScreen =
         currentDestination?.route.orEmpty().contains(
@@ -159,6 +176,7 @@ fun MainScreen(
         currentDestination?.route.orEmpty().contains(
             TabRoute.ProductSearch::class.qualifiedName.orEmpty()
         )
+
 
     val title: String? = when {
         currentDestination?.route?.contains(TabRoute.Home::class.qualifiedName.orEmpty()) == true -> "홈"
@@ -325,6 +343,10 @@ fun MainScreen(
             composable<TabRoute.RecruitmentList> {
                 RecruitmentListScreenRoute(
                     viewModel = hiltViewModel(),
+                    filterResult = filterResult,
+                    onFilterConsumed = {
+                        rootBackStackEntry?.savedStateHandle?.remove<FilterState>(FILTER_RESULT_KEY)
+                    },
                     onNavigateToFilter = {
                         rootNavController.navigate(Route.RecruitmentFilter)
                     },
