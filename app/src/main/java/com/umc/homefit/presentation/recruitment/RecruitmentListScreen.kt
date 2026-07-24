@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,9 +57,19 @@ import com.umc.homefit.R
 @Composable
 fun RecruitmentListScreenRoute(
     viewModel: RecruitmentListScreenViewModel,
+    filterResult: FilterState?,
+    onFilterConsumed: () -> Unit,
     onNavigateToFilter: () -> Unit, onNavigateToDetail: (String) -> Unit, modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(filterResult) {
+        filterResult?.let {
+            viewModel.applyFilter(it)
+            onFilterConsumed()
+        }
+    }
+
     RecruitmentListScreen(
         uiState = uiState,
         onNavigateToDetail = onNavigateToDetail,
