@@ -125,8 +125,8 @@ fun CompetitionScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .background(BackgroundLight)
+                .padding(innerPadding)
         ) {
             when (uiState) {
                 is CompetitionScreenUiState.Loading -> {
