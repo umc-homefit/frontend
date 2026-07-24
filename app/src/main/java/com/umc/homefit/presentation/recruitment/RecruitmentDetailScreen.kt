@@ -15,12 +15,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -59,9 +56,8 @@ import com.umc.homefit.data.dto.RecruitmentDto
 import com.umc.homefit.data.dto.RecruitmentStatus
 import com.umc.homefit.presentation.recruitment.component.RecruitmentTabRow
 import com.umc.homefit.presentation.recruitment.component.RecruitmentTitleCard
-import com.umc.homefit.presentation.recruitment.component.RecruitmentTopBar
-import com.umc.homefit.presentation.recruitment.component.StatusChip
-import com.umc.homefit.presentation.recruitment.component.TagChip
+import com.umc.homefit.ui.component.AppScaffold
+import com.umc.homefit.ui.component.TopBarAction
 import com.umc.homefit.ui.theme.AnalysisButtonGradient
 import com.umc.homefit.ui.theme.BackgroundLight
 import com.umc.homefit.ui.theme.RecruitmentAccent
@@ -102,33 +98,52 @@ fun RecruitmentDetailScreen(
 
     modifier: Modifier = Modifier
 ) {
-    Column(
+    val isBookmarked = (uiState as? RecruitmentDetailScreenUiState.Success)?.recruitment?.isBookmarked == true
+
+    AppScaffold(
+        title = null,
+        showBackButton = true,
+        onBackClick = onBack,
+        actions = listOf(
+            TopBarAction(
+                icon = painterResource(
+                    id = if (isBookmarked) R.drawable.ic_top_save_active else R.drawable.ic_top_save
+                ),
+                contentDescription = if (isBookmarked) "찜 해제" else "찜하기",
+                onClick = onToggleBookmark
+            ),
+            TopBarAction(
+                icon = painterResource(id = R.drawable.ic_top_share),
+                contentDescription = "공유",
+                onClick = { }
+            )
+        ),
+        showDivider = true,
         modifier = modifier
-            .fillMaxSize()
-            .background(BackgroundLight)
-            .statusBarsPadding()
-    ) {
-        RecruitmentTopBar(
-            isBookmarked = (uiState as? RecruitmentDetailScreenUiState.Success)?.recruitment?.isBookmarked == true,
-            onBackClick = onBack,
-            onBookmarkClick = onToggleBookmark
-        )
-        when (uiState) {
-            is RecruitmentDetailScreenUiState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(BackgroundLight)
+                .padding(innerPadding)
+        ) {
+            when (uiState) {
+                is RecruitmentDetailScreenUiState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
                 }
-            }
-            is RecruitmentDetailScreenUiState.Success -> {
-                RecruitmentDetailContent(
-                    recruitment = uiState.recruitment,
-                    onNavigateToCompetition = onNavigateToCompetition,
-                    onNavigateToAnalysis = onNavigateToAnalysis
-                )
-            }
-            is RecruitmentDetailScreenUiState.Error -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = "Error: ${uiState.message}")
+                is RecruitmentDetailScreenUiState.Success -> {
+                    RecruitmentDetailContent(
+                        recruitment = uiState.recruitment,
+                        onNavigateToCompetition = onNavigateToCompetition,
+                        onNavigateToAnalysis = onNavigateToAnalysis
+                    )
+                }
+                is RecruitmentDetailScreenUiState.Error -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(text = "Error: ${uiState.message}")
+                    }
                 }
             }
         }
@@ -203,7 +218,6 @@ private fun RecruitmentDetailContent(
 
         BottomButtonBar(
             onCompetitionClick = { onNavigateToCompetition(recruitment.id) },
-            // TODO(미해결): 유닛 여러 개일 때 선택 UI 위치는 리비 팀과 아직 미조율
             onAnalysisClick = { onNavigateToAnalysis(recruitment.id) }
         )
     }
@@ -440,7 +454,6 @@ private fun BottomButtonBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .navigationBarsPadding()
             .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
