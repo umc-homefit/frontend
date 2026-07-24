@@ -84,7 +84,10 @@ fun RootNavGraph(
         composable<Route.Competition> {
             CompetitionScreenRoute(
                 viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onNavigateToAnalysis = {
+                    navController.navigate(Route.FinancialInfo)
+                }
             )
         }
 
