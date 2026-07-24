@@ -210,7 +210,7 @@ private fun EmailStep(
                         painter = painterResource(id = R.drawable.ic_signup_correct),
                         contentDescription = null,
                         tint = Color.Unspecified,
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(12.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
@@ -225,7 +225,7 @@ private fun EmailStep(
                         painter = painterResource(id = R.drawable.ic_signup_wrong),
                         contentDescription = null,
                         tint = Color.Unspecified,
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
@@ -314,7 +314,7 @@ private fun PasswordStep(
                             painter = painterResource(id = R.drawable.ic_signup_correct),
                             contentDescription = null,
                             tint = Color.Unspecified,
-                            modifier = Modifier.size(14.dp)
+                            modifier = Modifier.size(12.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
@@ -330,7 +330,7 @@ private fun PasswordStep(
                             painter = painterResource(id = R.drawable.ic_signup_wrong),
                             contentDescription = null,
                             tint = Color.Unspecified,
-                            modifier = Modifier.size(14.dp)
+                            modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
@@ -411,7 +411,7 @@ private fun PasswordConfirmStep(
                             painter = painterResource(id = R.drawable.ic_signup_correct),
                             contentDescription = null,
                             tint = Color.Unspecified,
-                            modifier = Modifier.size(14.dp)
+                            modifier = Modifier.size(12.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
@@ -426,7 +426,7 @@ private fun PasswordConfirmStep(
                             painter = painterResource(id = R.drawable.ic_signup_wrong),
                             contentDescription = null,
                             tint = Color.Unspecified,
-                            modifier = Modifier.size(14.dp)
+                            modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
