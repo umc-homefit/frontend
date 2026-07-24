@@ -76,8 +76,13 @@ class RecruitmentListScreenViewModel @Inject constructor(
     }
 
     private fun matchesDeposit(recruitment: RecruitmentDto, filter: FilterState): Boolean {
-        val minOk = recruitment.deposit >= filter.minDeposit.toWon()
-        val maxOk = filter.maxDeposit >= SLIDER_MAX_FILTER.maxDeposit || recruitment.deposit <= filter.maxDeposit.toWon()
+        val filterMinWon = filter.minDeposit.toWon()
+        val filterMaxWon = filter.maxDeposit.toWon()
+
+        // 공고의 보증금 범위(depositMin~depositMax)와 필터 범위가 겹치는지 확인
+        val minOk = recruitment.depositMax >= filterMinWon
+        val maxOk = filter.maxDeposit >= SLIDER_MAX_FILTER.maxDeposit || recruitment.depositMin <= filterMaxWon
+
         return minOk && maxOk
     }
 
