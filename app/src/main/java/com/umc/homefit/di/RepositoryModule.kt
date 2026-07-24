@@ -2,6 +2,8 @@ package com.umc.homefit.di
 
 import com.umc.homefit.data.datasource.RemoteDataSource
 import com.umc.homefit.data.datasource.RemoteDataSourceImpl
+import com.umc.homefit.data.repository.DistrictRepository
+import com.umc.homefit.data.repository.DistrictRepositoryImpl
 import com.umc.homefit.data.repository.HomeRepository
 import com.umc.homefit.data.repository.HomeRepositoryImpl
 import com.umc.homefit.data.repository.RecruitmentRepository
@@ -33,4 +35,10 @@ abstract class RepositoryModule {
     abstract fun bindRemoteDataSource(
         remoteDataSourceImpl: RemoteDataSourceImpl
     ): RemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindDistrictRepository(
+        districtRepositoryImpl: DistrictRepositoryImpl
+    ): DistrictRepository
 }
