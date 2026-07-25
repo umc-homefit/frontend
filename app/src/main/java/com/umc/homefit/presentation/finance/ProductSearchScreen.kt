@@ -39,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 
 private val ProductSearchBorder = Color(0xFFDCE2E9)
 private val ProductSearchTextGray = Color(0xFF919AA4)
@@ -260,14 +261,15 @@ private fun RecentSearchChip(
             modifier = Modifier.padding(
                 start = 14.dp,
                 end = 8.dp,
-                top = 8.dp,
-                bottom = 8.dp
+                top = 6.dp,
+                bottom = 6.dp
             ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = keyword,
-                color = ProductSearchTextGray
+                color = ProductSearchTextGray,
+                fontSize = 14.sp
             )
 
             Spacer(modifier = Modifier.width(8.dp))

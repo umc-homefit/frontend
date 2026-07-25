@@ -7,6 +7,9 @@ sealed interface Route {
     data object Main : Route
 
     @Serializable
+    data object RecruitmentSearch : Route
+
+    @Serializable
     data object RecruitmentFilter : Route
 
     @Serializable
@@ -33,6 +36,9 @@ sealed interface Route {
     data object SavedRecruitment : Route
 
     @Serializable
+    data object Notification : Route
+
+    @Serializable
     data object NotificationSetting : Route
 
     @Serializable
@@ -44,18 +50,18 @@ sealed interface TabRoute {
     data object Home : TabRoute
 
     @Serializable
-    data object RecruitmentList : TabRoute
+    data class RecruitmentList(
+        val searchQuery: String = ""
+    ) : TabRoute
+
+    @Serializable
+    data object RecruitmentSearch : TabRoute
 
     @Serializable
     data object Analysis : TabRoute
 
     @Serializable
     data object Finance : TabRoute
-
-    @Serializable
-    data object ProductSearch : TabRoute
-    @Serializable
-    data object RecommendedProduct : TabRoute
 
     @Serializable
     data object MyPage : TabRoute
