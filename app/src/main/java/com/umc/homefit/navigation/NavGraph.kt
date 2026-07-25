@@ -32,6 +32,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.umc.homefit.presentation.analysis.*
+import com.umc.homefit.presentation.auth.LoginScreenRoute
+import com.umc.homefit.presentation.auth.SignUpScreenRoute
 import com.umc.homefit.presentation.finance.*
 import com.umc.homefit.presentation.home.*
 import com.umc.homefit.presentation.mypage.*
@@ -48,9 +50,31 @@ fun RootNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Route.Main,
+        startDestination = Route.Login,
         modifier = modifier.fillMaxSize()
     ) {
+        composable<Route.Login> {
+            LoginScreenRoute(
+                onNavigateToHome = {
+                    navController.navigate(Route.Main) {
+                        popUpTo(Route.Login) { inclusive = true }
+                    }
+                },
+                onNavigateToSignUp = { navController.navigate(Route.SignUp) }
+            )
+        }
+
+        composable<Route.SignUp> {
+            SignUpScreenRoute(
+                onBack = { navController.popBackStack() },
+                onNavigateToHome = {
+                    navController.navigate(Route.Main) {
+                        popUpTo(Route.Login) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable<Route.Main> {
             MainScreen(rootNavController = navController)
         }
