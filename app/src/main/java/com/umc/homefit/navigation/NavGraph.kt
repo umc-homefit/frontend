@@ -31,6 +31,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.umc.homefit.presentation.analysis.*
 import com.umc.homefit.presentation.auth.LoginFlowScreenRoute
 import com.umc.homefit.presentation.auth.LoginScreenRoute
@@ -138,6 +139,15 @@ fun RootNavGraph(
             )
         }
 
+        composable<Route.FinancialInfoEdit> { backStackEntry ->
+            val args = backStackEntry.toRoute<Route.FinancialInfoEdit>()
+            FinancialInfoEditScreenRoute(
+                step = args.step,
+                viewModel = hiltViewModel(),
+                onBack = { navController.popBackStack() }
+            )
+        }
+
         composable<Route.AnalysisResult> {
             AnalysisResultScreenRoute(
                 viewModel = hiltViewModel(),
@@ -181,7 +191,7 @@ fun RootNavGraph(
             MyFinanceScreenRoute(
                 viewModel = hiltViewModel(),
                 onBack = { navController.popBackStack() },
-                onNavigateToEdit = { navController.navigate(Route.FinancialInfo) }
+                onNavigateToEdit = { step -> navController.navigate(Route.FinancialInfoEdit(step)) }
             )
         }
     }

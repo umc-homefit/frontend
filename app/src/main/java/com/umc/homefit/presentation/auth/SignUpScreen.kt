@@ -34,6 +34,8 @@ import androidx.compose.ui.res.painterResource
 import com.umc.homefit.R
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.runtime.saveable.rememberSaveable
 
 enum class SignUpStep {
     EMAIL,
@@ -61,8 +63,8 @@ fun SignUpScreen(
     onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var currentStep by remember { mutableStateOf(SignUpStep.EMAIL) }
-    var savedPassword by remember { mutableStateOf("") }
+    var currentStep by rememberSaveable { mutableStateOf(SignUpStep.EMAIL) }
+    var savedPassword by rememberSaveable { mutableStateOf("") }
 
     val handleBackClick = {
         when (currentStep) {
@@ -151,7 +153,7 @@ private fun EmailStep(
     onNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var email by remember { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
     val emailRegex = remember { Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$") }
     val isValidFormat = emailRegex.matches(email)
 
@@ -244,7 +246,7 @@ private fun PasswordStep(
     onNext: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var password by remember { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
     val passwordRegex = remember {
         Regex("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#\$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{8,}$")
     }
@@ -289,6 +291,7 @@ private fun PasswordStep(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
                 textStyle = MaterialTheme.typography.bodyLarge,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -351,7 +354,7 @@ private fun PasswordConfirmStep(
     onNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var passwordConfirm by remember { mutableStateOf("") }
+    var passwordConfirm by rememberSaveable { mutableStateOf("") }
     val isMatching = passwordConfirm.isNotEmpty() && passwordConfirm == originalPassword
 
     StepBaseLayout(
@@ -393,6 +396,7 @@ private fun PasswordConfirmStep(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
                 textStyle = MaterialTheme.typography.bodyLarge,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
