@@ -56,6 +56,11 @@ fun RootNavGraph(
     ) {
         composable<Route.Splash> {
             SplashScreenRoute(
+                onNavigateToMain = {
+                    navController.navigate(Route.Main) {
+                        popUpTo(Route.Splash) { inclusive = true }
+                    }
+                },
                 onNavigateToLogin = {
                     navController.navigate(Route.Login) {
                         popUpTo(Route.Splash) { inclusive = true }
