@@ -27,7 +27,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -50,7 +49,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.umc.homefit.R
-import com.umc.homefit.ui.component.AppTopBar
 import com.umc.homefit.ui.component.TopBarAction
 import java.text.NumberFormat
 import java.util.Locale
@@ -64,6 +62,7 @@ import androidx.compose.ui.text.PlatformTextStyle
 import com.umc.homefit.presentation.finance.component.HelpTerm
 import com.umc.homefit.presentation.finance.component.TermsHelpDialog
 import androidx.compose.runtime.setValue
+import com.umc.homefit.ui.component.AppScaffold
 
 @Composable
 fun ProductDetailScreenRoute(
@@ -157,21 +156,18 @@ private fun ProductDetailLoadingContent(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = Color(0xFFFFFFFF),
-        topBar = {
-            AppTopBar(
-                showBackButton = true,
-                onBackClick = onBackClick,
-                showDivider = true
-            )
-        }
+    AppScaffold(
+        title = null,
+        modifier = modifier,
+        showBackButton = true,
+        onBackClick = onBackClick,
+        showDivider = true
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .background(Color(0xFFFFFFFF)),
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(
@@ -190,21 +186,18 @@ private fun ProductDetailErrorContent(
     onRetryClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = Color(0xFFFFFFFF),
-        topBar = {
-            AppTopBar(
-                showBackButton = true,
-                onBackClick = onBackClick,
-                showDivider = true
-            )
-        }
+    AppScaffold(
+        title = null,
+        modifier = modifier,
+        showBackButton = true,
+        onBackClick = onBackClick,
+        showDivider = true
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(Color(0xFFFFFFFF))
                 .padding(horizontal = 24.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -248,26 +241,22 @@ private fun ProductDetailScreen(
         mutableStateOf(false)
     }
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = Color(0xFFFFFFFF),
-        topBar = {
-            AppTopBar(
-                showBackButton = true,
-                onBackClick = onBackClick,
-                actions = listOf(
-                    TopBarAction(
-                        icon = painterResource(
-                            id = R.drawable.ic_top_share
-                        ),
-                        contentDescription = "상품 공유",
-                        onClick = onShareClick,
-                        iconSize = 28.dp
-                    )
+    AppScaffold(
+        title = null,
+        modifier = modifier,
+        showBackButton = true,
+        onBackClick = onBackClick,
+        actions = listOf(
+            TopBarAction(
+                icon = painterResource(
+                    id = R.drawable.ic_top_share
                 ),
-                showDivider = true
+                contentDescription = "상품 공유",
+                onClick = onShareClick,
+                iconSize = 28.dp
             )
-        },
+        ),
+        showDivider = true,
         bottomBar = {
             ProductDetailBottomBar(
                 applyEnabled = !product.officialUrl.isNullOrBlank(),
@@ -279,7 +268,8 @@ private fun ProductDetailScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .background(Color(0xFFFFFFFF)),
             contentPadding = PaddingValues(
                 bottom = 16.dp
             )
@@ -309,12 +299,15 @@ private fun ProductDetailScreen(
                             valueFontWeight = FontWeight.Bold
                         )
 
-                        product.preferentialRateDiscount?.let { discount ->
-                            DetailValueRow(
-                                label = "우대 금리",
-                                value = "최대 ${formatDecimal(discount)}%p 할인"
-                            )
-                        }
+                        product.preferentialRateDiscount
+                            ?.let { discount ->
+                                DetailValueRow(
+                                    label = "우대 금리",
+                                    value = "최대 ${
+                                        formatDecimal(discount)
+                                    }%p 할인"
+                                )
+                            }
 
                         Text(
                             text = "*금리는 신청일 및 심사 결과에 따라 변동될 수 있습니다",
@@ -366,7 +359,9 @@ private fun ProductDetailScreen(
                         product.maxIncome?.let { income ->
                             DetailValueRow(
                                 label = "소득 조건",
-                                value = "연소득 ${formatWon(income)} 이하"
+                                value = "연소득 ${
+                                    formatWon(income)
+                                } 이하"
                             )
                         }
 
@@ -428,7 +423,7 @@ private fun ProductDetailHeader(
     ) {
         Image(
             painter = painterResource(
-                id = R.drawable.img_kookmin_logo
+                id = product.iconRes
             ),
             contentDescription = product.productName,
             modifier = Modifier

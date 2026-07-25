@@ -391,9 +391,6 @@ fun MainScreen(
                 RecommendedProductScreenRoute(
                     viewModel = hiltViewModel(),
                     searchQuery = searchQuery,
-                    onBack = {
-                        tabNavController.popBackStack()
-                    },
                     onNavigateToSearch = {
                         tabNavController.navigate(
                             TabRoute.ProductSearch
@@ -402,7 +399,7 @@ fun MainScreen(
                     onNavigateToDetail = { productId ->
                         rootNavController.navigate(
                             Route.ProductDetail(
-                                productId = productId.toLong()
+                                productId = productId
                             )
                         )
                     }

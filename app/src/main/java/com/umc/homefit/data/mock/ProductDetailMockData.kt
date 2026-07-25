@@ -2,6 +2,7 @@ package com.umc.homefit.data.mock
 
 
 import com.umc.homefit.presentation.finance.ProductDetailData
+import com.umc.homefit.R
 
 object ProductDetailMockData {
 
@@ -12,6 +13,7 @@ object ProductDetailMockData {
             providerType = "POLICY",
             productCategory = "MORTGAGE_LOAN",
             providerName = "주택도시기금",
+            iconRes = R.drawable.img_kookmin_logo,
             rateRange = "2.15% ~ 3.00%",
             maxIncome = 60_000_000L,
             firstTimeBuyerOnly = true,
@@ -38,6 +40,7 @@ object ProductDetailMockData {
             providerType = "POLICY",
             productCategory = "JEONSE_LOAN",
             providerName = "주택도시기금",
+            iconRes = R.drawable.img_hana_logo,
             rateRange = "1.5% ~ 2.7%",
             maxIncome = 60_000_000L,
             firstTimeBuyerOnly = false,

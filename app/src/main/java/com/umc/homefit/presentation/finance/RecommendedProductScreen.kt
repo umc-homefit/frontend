@@ -27,11 +27,9 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,8 +46,6 @@ import com.umc.homefit.data.mock.FinanceMockData
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
 import com.umc.homefit.presentation.finance.component.RecommendedProductSearchBar
 import com.umc.homefit.ui.component.AppScaffold
-import com.umc.homefit.ui.component.AppTopBar
-
 
 private val ProductAccent = Color(0xFF3C45F3)
 private val ProductBorder = Color(0xFFDCE2E9)
@@ -68,7 +64,6 @@ private enum class ProductSort(
 fun RecommendedProductScreenRoute(
     viewModel: RecommendedProductScreenViewModel,
     searchQuery: String,
-    onBack: () -> Unit,
     onNavigateToSearch: () -> Unit,
     onNavigateToDetail: (Long) -> Unit,
     modifier: Modifier = Modifier
@@ -78,7 +73,6 @@ fun RecommendedProductScreenRoute(
     RecommendedProductScreen(
         uiState = uiState,
         searchQuery = searchQuery,
-        onBack = onBack,
         onNavigateToSearch = onNavigateToSearch,
         onNavigateToDetail = onNavigateToDetail,
         modifier = modifier
@@ -226,18 +220,12 @@ fun RecommendedProductScreen(
     searchQuery: String,
     onNavigateToDetail: (Long) -> Unit,
     onNavigateToSearch: () -> Unit,
-    onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            AppTopBar(
-                showBackButton = true,
-                onBackClick = onBack,
-                showDivider = true
-            )
-        }
+    AppScaffold(
+        title = null,
+        modifier = modifier,
+        showBackButton = false
     ) { innerPadding ->
         RecommendedProductContent(
             uiState = uiState,
@@ -250,7 +238,6 @@ fun RecommendedProductScreen(
         )
     }
 }
-
 
 
 @Composable
@@ -578,7 +565,6 @@ private fun RecommendedProductScreenPreview() {
             products = FinanceMockData.recommendedProducts
         ),
         searchQuery = "",
-        onBack = {},
         onNavigateToSearch = {},
         onNavigateToDetail = {}
     )
