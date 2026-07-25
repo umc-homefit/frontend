@@ -2,6 +2,7 @@ package com.umc.homefit.ui.theme
 
 // TODO: Figma 색상/폰트로 교체
 
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 val PrimaryLight = Color(0xFF1E3A8A) // Deep Navy
@@ -53,3 +54,9 @@ val CompetitionRateText = Color(0xFF4A4F55)
 
 val BookmarkActive = Color(0xFFFF5659)
 val BookmarkInactive = Color(0xFFD2D9E2)
+
+// 공고 상세 화면 Figma 색상
+val TextBlack = Color(0xFF161616)
+val AnalysisButtonGradient = Brush.horizontalGradient(
+    listOf(RecruitmentAccent, RecruitmentAccent.copy(alpha = 0.5f))
+)

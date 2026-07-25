@@ -25,18 +25,18 @@ import com.umc.homefit.R
 
 @Composable
 fun SplashScreenRoute(
-    onNavigateToMain: () -> Unit,
+    onNavigateToLogin: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     SplashScreen(
-        onNavigateToMain = onNavigateToMain,
+        onNavigateToLogin = onNavigateToLogin,
         modifier = modifier
     )
 }
 
 @Composable
 fun SplashScreen(
-    onNavigateToMain: () -> Unit,
+    onNavigateToLogin: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val logoAlpha = remember { Animatable(0f) }
@@ -66,7 +66,7 @@ fun SplashScreen(
         }
 
         delay(700)
-        onNavigateToMain()
+        onNavigateToLogin()
     }
 
     Box(

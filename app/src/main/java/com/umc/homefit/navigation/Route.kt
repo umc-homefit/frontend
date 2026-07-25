@@ -10,6 +10,12 @@ sealed interface Route {
     data object Main : Route
 
     @Serializable
+    data object Login : Route
+
+    @Serializable
+    data object SignUp : Route
+
+    @Serializable
     data object RecruitmentFilter : Route
 
     @Serializable
@@ -20,6 +26,9 @@ sealed interface Route {
 
     @Serializable
     data object FinancialInfo : Route
+
+    @Serializable
+    data class FinancialInfoEdit(val step: com.umc.homefit.presentation.analysis.FinancialInfoStep) : Route
 
     @Serializable
     data class AnalysisResult(val analysisId: String) : Route

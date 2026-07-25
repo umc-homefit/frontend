@@ -31,13 +31,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.umc.homefit.presentation.analysis.*
+import com.umc.homefit.presentation.auth.LoginScreenRoute
+import com.umc.homefit.presentation.auth.SignUpScreenRoute
 import com.umc.homefit.presentation.finance.*
 import com.umc.homefit.presentation.home.*
 import com.umc.homefit.presentation.mypage.*
 import com.umc.homefit.presentation.recruitment.*
 import com.umc.homefit.presentation.splash.SplashScreenRoute
 import com.umc.homefit.ui.component.AppScaffold
+
+private const val FILTER_RESULT_KEY = "filter_result"
 
 @Composable
 fun RootNavGraph(
@@ -51,9 +56,31 @@ fun RootNavGraph(
     ) {
         composable<Route.Splash> {
             SplashScreenRoute(
-                onNavigateToMain = {
-                    navController.navigate(Route.Main) {
+                onNavigateToLogin = {
+                    navController.navigate(Route.Login) {
                         popUpTo(Route.Splash) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable<Route.Login> {
+            LoginScreenRoute(
+                onNavigateToHome = {
+                    navController.navigate(Route.Main) {
+                        popUpTo(Route.Login) { inclusive = true }
+                    }
+                },
+                onNavigateToSignUp = { navController.navigate(Route.SignUp) }
+            )
+        }
+
+        composable<Route.SignUp> {
+            SignUpScreenRoute(
+                onBack = { navController.popBackStack() },
+                onNavigateToHome = {
+                    navController.navigate(Route.Main) {
+                        popUpTo(Route.Login) { inclusive = true }
                     }
                 }
             )
@@ -66,6 +93,12 @@ fun RootNavGraph(
         composable<Route.RecruitmentFilter> {
             RecruitmentFilterScreenRoute(
                 viewModel = hiltViewModel(),
+                onApply = { filterState ->
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set(FILTER_RESULT_KEY, filterState)
+                    navController.popBackStack()
+                },
                 onBack = { navController.popBackStack() }
             )
         }
@@ -86,7 +119,10 @@ fun RootNavGraph(
         composable<Route.Competition> {
             CompetitionScreenRoute(
                 viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onNavigateToAnalysis = {
+                    navController.navigate(Route.FinancialInfo)
+                }
             )
         }
 
@@ -97,6 +133,15 @@ fun RootNavGraph(
                 onNavigateToResult = { analysisId ->
                     navController.navigate(Route.AnalysisResult(analysisId))
                 }
+            )
+        }
+
+        composable<Route.FinancialInfoEdit> { backStackEntry ->
+            val args = backStackEntry.toRoute<Route.FinancialInfoEdit>()
+            FinancialInfoEditScreenRoute(
+                step = args.step,
+                viewModel = hiltViewModel(),
+                onBack = { navController.popBackStack() }
             )
         }
 
@@ -142,7 +187,8 @@ fun RootNavGraph(
         composable<Route.MyFinance> {
             MyFinanceScreenRoute(
                 viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onNavigateToEdit = { step -> navController.navigate(Route.FinancialInfoEdit(step)) }
             )
         }
     }
@@ -157,6 +203,14 @@ fun MainScreen(
     val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
+
+    val rootBackStackEntry by rootNavController.currentBackStackEntryAsState()
+    val filterResult = rootBackStackEntry
+        ?.savedStateHandle
+        ?.getStateFlow<FilterState?>(FILTER_RESULT_KEY, null)
+        ?.collectAsState()
+        ?.value
+
     val isRecommendedProductScreen =
         currentDestination?.route.orEmpty().contains(
             TabRoute.RecommendedProduct::class.qualifiedName.orEmpty()
@@ -166,6 +220,7 @@ fun MainScreen(
         currentDestination?.route.orEmpty().contains(
             TabRoute.ProductSearch::class.qualifiedName.orEmpty()
         )
+
 
     val title: String? = when {
         currentDestination?.route?.contains(TabRoute.Home::class.qualifiedName.orEmpty()) == true -> "홈"
@@ -332,6 +387,10 @@ fun MainScreen(
             composable<TabRoute.RecruitmentList> {
                 RecruitmentListScreenRoute(
                     viewModel = hiltViewModel(),
+                    filterResult = filterResult,
+                    onFilterConsumed = {
+                        rootBackStackEntry?.savedStateHandle?.remove<FilterState>(FILTER_RESULT_KEY)
+                    },
                     onNavigateToFilter = {
                         rootNavController.navigate(Route.RecruitmentFilter)
                     },
@@ -417,6 +476,7 @@ fun MainScreen(
                     }
                 )
             }
+
         }
     }
 }
