@@ -82,7 +82,7 @@ fun StepBaseLayout(
                 Text(
                     text = bottomLinkText,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray,
+                    color = Color(0xFF4A4F55),
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier.clickable { onBottomLinkClick() }
                 )
@@ -106,10 +106,10 @@ fun StepBaseLayout(
                                 colors = listOf(disabledButtonColor, disabledButtonColor)
                             )
                         },
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(4.dp)
                     ),
                 enabled = isNextEnabled,
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(4.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                     contentColor = Color.White,

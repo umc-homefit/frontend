@@ -35,7 +35,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.layout.size
 import com.umc.homefit.ui.component.StepBaseLayout
 import com.umc.homefit.ui.component.CompletionStep
+import kotlinx.serialization.Serializable
 
+@Serializable
 enum class FinancialInfoStep {
     INCOME,   // 소득
     ASSET,    // 자산
@@ -271,11 +273,14 @@ fun FinancialInputField(
 @Composable
 fun IncomeStep(
     onNext: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    initialAmount: String = "",
+    initialIncomeType: String = "근로소득",
+    buttonText: String = "다음"
 ) {
-    var annualIncomeText by remember { mutableStateOf("") }
-    var incomeType by remember { mutableStateOf("근로소득") }
-    var hasSelectedIncomeType by remember { mutableStateOf(false) }
+    var annualIncomeText by remember { mutableStateOf(initialAmount) }
+    var incomeType by remember { mutableStateOf(initialIncomeType) }
+    var hasSelectedIncomeType by remember { mutableStateOf(initialAmount.isNotEmpty()) }
     var isDropdownExpanded by remember { mutableStateOf(false) }
 
     val incomeTypes = listOf("근로소득", "사업소득", "기타소득")
@@ -289,7 +294,8 @@ fun IncomeStep(
         bottomLinkText = "소득이 없어요",
 
         onBottomLinkClick = { annualIncomeText = "0" },
-        modifier = modifier
+        modifier = modifier,
+        buttonText = buttonText
     ) {
         // 연간 총소득 입력 필드
         FinancialInputField(
@@ -349,7 +355,7 @@ fun IncomeStep(
                             contentDescription = null
                         )
                     },
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(4.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = dividerColor,
                         unfocusedBorderColor = dividerColor,
@@ -398,10 +404,13 @@ fun IncomeStep(
 @Composable
 fun AssetStep(
     onNext: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    initialTotalAsset: String = "",
+    initialFinancialAsset: String = "",
+    buttonText: String = "다음"
 ) {
-    var totalAssetText by remember { mutableStateOf("") }
-    var financialAssetText by remember { mutableStateOf("") }
+    var totalAssetText by remember { mutableStateOf(initialTotalAsset) }
+    var financialAssetText by remember { mutableStateOf(initialFinancialAsset) }
 
     @Suppress("AssignedValueIsNeverRead")
     StepBaseLayout(
@@ -413,7 +422,8 @@ fun AssetStep(
             totalAssetText = "0"
             financialAssetText = "0"
         },
-        modifier = modifier
+        modifier = modifier,
+        buttonText = buttonText
     ) {
         // 총 보유 자산 입력 필드
         FinancialInputField(
@@ -443,10 +453,13 @@ fun AssetStep(
 @Composable
 fun DebtStep(
     onNext: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    initialTotalDebt: String = "",
+    initialMonthlyRepayment: String = "",
+    buttonText: String = "다음"
 ) {
-    var totalDebtText by remember { mutableStateOf("") }
-    var monthlyRepaymentText by remember { mutableStateOf("") }
+    var totalDebtText by remember { mutableStateOf(initialTotalDebt) }
+    var monthlyRepaymentText by remember { mutableStateOf(initialMonthlyRepayment) }
 
     @Suppress("AssignedValueIsNeverRead")
     StepBaseLayout(
@@ -458,7 +471,8 @@ fun DebtStep(
             totalDebtText = "0"
             monthlyRepaymentText = "0"
         },
-        modifier = modifier
+        modifier = modifier,
+        buttonText = buttonText
     ) {
         // 총 부채 금액 입력 필드
         FinancialInputField(
@@ -489,10 +503,12 @@ fun DebtStep(
 @Composable
 fun HouseStep(
     onNext: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    initialOption: String? = null,
+    buttonText: String = "다음"
 ) {
     val options = listOf("본인 무주택", "세대원 전원 무주택", "주택 보유 (유주택)")
-    var selectedOption by remember { mutableStateOf<String?>(null) }
+    var selectedOption by remember { mutableStateOf(initialOption) }
 
     StepBaseLayout(
         title = "주택 보유 여부를 알려주세요",
@@ -500,7 +516,8 @@ fun HouseStep(
         isNextEnabled = selectedOption != null,
         bottomLinkText = "",
         onBottomLinkClick = {},
-        modifier = modifier
+        modifier = modifier,
+        buttonText = buttonText
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -554,7 +571,7 @@ private fun HouseOptionRow(
         Surface(
             shape = RoundedCornerShape(50),
             color = Color(0xFFEEF1F6),
-            modifier = Modifier.size(18.dp)
+            modifier = Modifier.size(16.dp)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Text(
@@ -563,6 +580,83 @@ private fun HouseOptionRow(
                     color = Color(0xFF9EA4AA),
                     fontWeight = FontWeight.Bold
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun FinancialInfoEditScreenRoute(
+    step: FinancialInfoStep,
+    viewModel: FinancialInfoScreenViewModel,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    FinancialInfoEditScreen(
+        step = step,
+        uiState = uiState,
+        onSave = onBack,
+        onBack = onBack,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun FinancialInfoEditScreen(
+    step: FinancialInfoStep,
+    uiState: FinancialInfoScreenUiState,
+    onSave: () -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AppScaffold(
+        title = null,
+        showBackButton = true,
+        onBackClick = onBack,
+        modifier = modifier
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            when (uiState) {
+                is FinancialInfoScreenUiState.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+                is FinancialInfoScreenUiState.Success -> {
+                    // TODO: 실제 금융 정보 API 연동 후 아래 초기값을 서버 데이터로 교체
+                    when (step) {
+                        FinancialInfoStep.INCOME -> IncomeStep(
+                            onNext = onSave,
+                            buttonText = "완료",
+                            initialAmount = "4800",
+                            initialIncomeType = "근로소득"
+                        )
+                        FinancialInfoStep.ASSET -> AssetStep(
+                            onNext = onSave,
+                            buttonText = "완료",
+                            initialTotalAsset = "6500",
+                            initialFinancialAsset = "2800"
+                        )
+                        FinancialInfoStep.DEBT -> DebtStep(
+                            onNext = onSave,
+                            buttonText = "완료",
+                            initialTotalDebt = "1800",
+                            initialMonthlyRepayment = "35"
+                        )
+                        FinancialInfoStep.HOUSE -> HouseStep(
+                            onNext = onSave,
+                            buttonText = "완료",
+                            initialOption = "본인 무주택"
+                        )
+                        FinancialInfoStep.COMPLETE -> Unit
+                    }
+                }
+                is FinancialInfoScreenUiState.Error -> {
+                    Text(text = "Error: ${uiState.message}", modifier = Modifier.align(Alignment.Center))
+                }
             }
         }
     }

@@ -25,6 +25,9 @@ sealed interface Route {
     data object FinancialInfo : Route
 
     @Serializable
+    data class FinancialInfoEdit(val step: com.umc.homefit.presentation.analysis.FinancialInfoStep) : Route
+
+    @Serializable
     data class AnalysisResult(val analysisId: String) : Route
 
     @Serializable
