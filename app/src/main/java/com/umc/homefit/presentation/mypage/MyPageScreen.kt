@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.sp
 import com.umc.homefit.R
 import com.umc.homefit.presentation.mypage.component.MyPageMenuItem
 
-// TODO: Figma 색상 토큰 확정되면 Color.kt로 이동
 private val CardBorderColor = Color(0xFFD2D9E2)
 private val SectionDividerColor = Color(0xFFF0F4F9)
 
@@ -94,29 +93,29 @@ private fun MyPageContent(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(27.dp))
 
         ProfileCard(
             profile = profile,
-            modifier = Modifier.padding(horizontal = 20.dp)
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(27.dp))
 
         // 구분 바 (전체 폭 회색 띠)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(10.dp)
+                .height(9.dp)
                 .background(SectionDividerColor)
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(27.dp))
 
         MyPageMenuItem(
             label = "관심 공고 관리",
             onClick = onNavigateToSaved,
-            modifier = Modifier.padding(horizontal = 20.dp)
+            modifier = Modifier.padding(horizontal = 16.dp)
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_mypage_heart),
@@ -126,12 +125,12 @@ private fun MyPageContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         MyPageMenuItem(
             label = "알림 설정",
             onClick = onNavigateToNotification,
-            modifier = Modifier.padding(horizontal = 20.dp)
+            modifier = Modifier.padding(horizontal = 16.dp)
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_mypage_bell),
@@ -141,12 +140,12 @@ private fun MyPageContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         MyPageMenuItem(
             label = "금융 정보 관리",
             onClick = onNavigateToFinance,
-            modifier = Modifier.padding(horizontal = 20.dp)
+            modifier = Modifier.padding(horizontal = 16.dp)
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_mypage_bank),
@@ -166,9 +165,9 @@ private fun ProfileCard(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.White, RoundedCornerShape(12.dp))
-            .border(BorderStroke(1.5.dp, CardBorderColor), RoundedCornerShape(12.dp))
-            .padding(20.dp),
+            .background(Color.White, RoundedCornerShape(4.dp))
+            .border(BorderStroke(1.dp, CardBorderColor), RoundedCornerShape(4.dp))
+            .padding(horizontal = 16.dp, vertical = 20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -196,12 +195,12 @@ private fun ProfileCard(
         Column {
             Text(
                 text = profile.nickname,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = profile.email,
-                fontSize = 13.sp,
+                fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

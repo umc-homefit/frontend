@@ -35,4 +35,13 @@ class RecruitmentDetailScreenViewModel @Inject constructor(
             }
         }
     }
+
+    fun toggleBookmark() {
+        val currentState = _uiState.value
+        if (currentState is RecruitmentDetailScreenUiState.Success) {
+            _uiState.value = currentState.copy(
+                recruitment = currentState.recruitment.copy(isBookmarked = !currentState.recruitment.isBookmarked)
+            )
+        }
+    }
 }

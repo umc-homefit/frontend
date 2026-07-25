@@ -1,6 +1,5 @@
-package com.umc.homefit.presentation.finance
+package com.umc.homefit.presentation.finance.component
 
-import android.R.attr.fontWeight
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement

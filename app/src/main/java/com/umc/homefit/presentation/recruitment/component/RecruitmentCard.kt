@@ -91,7 +91,7 @@ fun RecruitmentCard(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "보증금 | ${formatDepositToManwon(recruitment.deposit)}",
+                        text = "보증금 | ${formatDepositToManwon(recruitment.depositMin)}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = RecruitmentTextGray
                     )
@@ -161,8 +161,10 @@ fun RecruitmentCardPreview() {
             company = "한국토지주택공사",
             location = "서울특별시 강남구",
             rentType = "월세",
-            deposit = 30000000,
-            monthlyRent = 350000,
+            depositMin = 30000000,
+            depositMax = 30000000,
+            monthlyRentMin = 350000,
+            monthlyRentMax = 350000,
             announcementDate = "2026-07-13",
             announcementNumber = "2026-강남-001",
             area = 39.87,

@@ -13,8 +13,23 @@ class NotificationSettingScreenViewModel @Inject constructor() : ViewModel() {
     val uiState: StateFlow<NotificationSettingScreenUiState> = _uiState.asStateFlow()
 
     init {
-        // Initialize with success default state
-        _uiState.value = NotificationSettingScreenUiState.Success("Data initialized for NotificationSettingScreen")
+        // TODO: 실제 알림 설정 API 연동
+        _uiState.value = NotificationSettingScreenUiState.Success()
+    }
+
+    fun onTogglePush(enabled: Boolean) {
+        val current = _uiState.value
+        if (current is NotificationSettingScreenUiState.Success) {
+            // TODO: 실제 PUSH 알림 설정 API 연동
+            _uiState.value = current.copy(pushEnabled = enabled)
+        }
+    }
+
+    fun onToggleSms(enabled: Boolean) {
+        val current = _uiState.value
+        if (current is NotificationSettingScreenUiState.Success) {
+            // TODO: 실제 SMS 알림 설정 API 연동
+            _uiState.value = current.copy(smsEnabled = enabled)
+        }
     }
 }
-
