@@ -1,7 +1,6 @@
 ﻿package com.umc.homefit.presentation.analysis
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,9 +13,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,7 +21,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -35,25 +31,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.umc.homefit.R
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.lazy.items
 
 @Composable
 fun AnalysisScreenRoute(
     viewModel: AnalysisScreenViewModel,
-    onNavigateToMyFinance: () -> Unit,
+    onNavigateToEdit: (FinancialInfoStep) -> Unit,
     onNavigateToDetail: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     AnalysisScreen(
         uiState = uiState,
-        onNavigateToFinancialInfo = onNavigateToMyFinance,
+        onNavigateToEdit = onNavigateToEdit,
         onRecordClick = onNavigateToDetail,
         modifier = modifier
     )
@@ -62,9 +56,9 @@ fun AnalysisScreenRoute(
 @Composable
 fun AnalysisScreen(
     uiState: AnalysisScreenUiState,
-    onNavigateToFinancialInfo: () -> Unit,
+    onNavigateToEdit: (FinancialInfoStep) -> Unit,
     onRecordClick: (String) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(AnalysisTab.FINANCIAL_INFO) }
 
@@ -89,8 +83,9 @@ fun AnalysisScreen(
 
             is AnalysisScreenUiState.Success -> {
                 when (selectedTab) {
-                    AnalysisTab.FINANCIAL_INFO -> FinancialInfoEmptyContent(
-                        onNavigateToFinancialInfo = onNavigateToFinancialInfo
+                    AnalysisTab.FINANCIAL_INFO -> FinancialInfoContent(
+                        sections = uiState.sections,
+                        onEditClick = onNavigateToEdit
                     )
 
                     AnalysisTab.RECORD -> RecordListContent(
@@ -144,73 +139,6 @@ private fun AnalysisTabRow(
                 )
             }
         }
-    }
-}
-
-// 금융 정보 관리 탭
-
-@Composable
-private fun FinancialInfoEmptyContent(
-    onNavigateToFinancialInfo: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        // 금융 정보 관리 버튼
-        Card(
-            onClick = onNavigateToFinancialInfo,
-            shape = RoundedCornerShape(4.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            border = BorderStroke(1.dp, Color(0xFFD2D9EC)),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_analysis_bank),
-                    contentDescription = null,
-                    tint = Color(0xFF2F6FED),
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "금융 정보 관리",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4A4F55),
-                    modifier = Modifier.weight(1f)
-                )
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_analysis_chevron_right),
-                    contentDescription = null,
-                    tint = Color(0xFF919AA4),
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        }
-
-        // 캐릭터 일러스트
-        Image(
-            painter = painterResource(id = R.drawable.ic_analysis_empty),
-            contentDescription = null,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .offset(
-                    x = (-26).dp,
-                    y = (-52).dp
-                )
-        )
     }
 }
 

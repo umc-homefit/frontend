@@ -3,8 +3,8 @@
 sealed interface AnalysisScreenUiState {
     data object Loading : AnalysisScreenUiState
     data class Success(
-        val hasFinancialInfo: Boolean = false,
-        val records: List<RecordItem> = emptyList()
+        val records: List<RecordItem> = emptyList(),
+        val sections: List<FinanceInfoSection> = emptyList()
     ) : AnalysisScreenUiState
     data class Error(val message: String) : AnalysisScreenUiState
 }

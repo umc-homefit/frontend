@@ -13,6 +13,40 @@ class AnalysisScreenViewModel @Inject constructor() : ViewModel() {
     val uiState: StateFlow<AnalysisScreenUiState> = _uiState.asStateFlow()
 
     init {
+        val sampleSections = listOf(
+            FinanceInfoSection(
+                title = "소득 정보",
+                step = FinancialInfoStep.INCOME,
+                rows = listOf(
+                    FinanceInfoRow("연간 총소득", "4,800만 원"),
+                    FinanceInfoRow("소득 유형", "근로소득")
+                )
+            ),
+            FinanceInfoSection(
+                title = "자산 정보",
+                step = FinancialInfoStep.ASSET,
+                rows = listOf(
+                    FinanceInfoRow("총 보유 자산", "6,500만 원"),
+                    FinanceInfoRow("금융 자산", "2,800만 원")
+                )
+            ),
+            FinanceInfoSection(
+                title = "부채 정보",
+                step = FinancialInfoStep.DEBT,
+                rows = listOf(
+                    FinanceInfoRow("총 부채 금액", "1,800만 원"),
+                    FinanceInfoRow("월 상환액", "35만 원")
+                )
+            ),
+            FinanceInfoSection(
+                title = "주택 보유 여부",
+                step = FinancialInfoStep.HOUSE,
+                rows = listOf(
+                    FinanceInfoRow("본인 무주택")
+                )
+            )
+        )
+
         val sampleRecords = listOf(
             RecordItem(
                 recruitmentId = "1",
@@ -38,7 +72,7 @@ class AnalysisScreenViewModel @Inject constructor() : ViewModel() {
 
         // Success 상태에 더미 데이터 리스트를 주입
         _uiState.value = AnalysisScreenUiState.Success(
-            hasFinancialInfo = false,
+            sections = sampleSections,
             records = sampleRecords
         )
     }

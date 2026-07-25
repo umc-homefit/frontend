@@ -398,8 +398,8 @@ fun
             composable<TabRoute.Analysis> {
                 AnalysisScreenRoute(
                     viewModel = hiltViewModel(),
-                    onNavigateToMyFinance = {
-                        rootNavController.navigate(Route.MyFinance)
+                    onNavigateToEdit = { step ->
+                        rootNavController.navigate(Route.FinancialInfoEdit(step))
                     },
                     onNavigateToDetail = { recruitmentId ->
                         rootNavController.navigate(Route.RecruitmentDetail(recruitmentId))
