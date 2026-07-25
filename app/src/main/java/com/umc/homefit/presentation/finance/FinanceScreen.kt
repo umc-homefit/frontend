@@ -39,7 +39,6 @@ import com.umc.homefit.data.dto.RecommendedProductDto
 import androidx.compose.foundation.Image
 import com.umc.homefit.data.mock.FinanceMockData
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
-import com.umc.homefit.navigation.Route
 
 @Composable
 fun FinanceScreenRoute(
@@ -172,13 +171,13 @@ private fun FinanceHeaderSection(
             .fillMaxWidth()
             .padding(
                 start = 16.dp,
-                top = 28.dp,
+                top = 16.dp,
                 end = 16.dp,
                 bottom = 22.dp
             )
     ) {
         Spacer(
-            modifier = Modifier.height(130.dp)
+            modifier = Modifier.height(50.dp)
         )
 
         Text(
