@@ -220,7 +220,7 @@ fun
     val title: String? = when {
         currentDestination?.route?.contains(TabRoute.Home::class.qualifiedName.orEmpty()) == true -> "홈"
         currentDestination?.route?.contains(TabRoute.RecruitmentList::class.qualifiedName.orEmpty()) == true -> "공고"
-        currentDestination?.route?.contains(TabRoute.Analysis::class.qualifiedName.orEmpty()) == true -> "입주 분석"
+        currentDestination?.route?.contains(TabRoute.Analysis::class.qualifiedName.orEmpty()) == true -> "분석"
         currentDestination?.route?.contains(TabRoute.Finance::class.qualifiedName.orEmpty()) == true -> "금융 상품"
         isRecommendedProductScreen -> "추천 금융 상품"
         isProductSearchScreen -> "금융 상품 검색"
