@@ -1,6 +1,7 @@
 ﻿package com.umc.homefit.presentation.analysis
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,9 +34,21 @@ import androidx.compose.material3.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.umc.homefit.presentation.finance.component.HelpTerm
 import com.umc.homefit.ui.component.StepBaseLayout
 import com.umc.homefit.ui.component.CompletionStep
 import kotlinx.serialization.Serializable
+import com.umc.homefit.R
 
 @Serializable
 enum class FinancialInfoStep {
@@ -205,6 +218,7 @@ fun FinancialInputField(
     onQuickAmountClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
     showHelpIcon: Boolean = true,
+    helpTerms: List<HelpTerm> = emptyList(),
 ) {
     val dividerColor = Color(0xFFD2D9E2)
 
@@ -220,20 +234,7 @@ fun FinancialInputField(
             )
             Spacer(modifier = Modifier.weight(1f))
             if (showHelpIcon) {
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = Color(0xFFEEF1F6),
-                    modifier = Modifier.size(16.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = "?",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color(0xFF9EA4AA),
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
+                HelpIconButton(terms = helpTerms)
             }
         }
 
@@ -252,7 +253,15 @@ fun FinancialInputField(
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
-            textStyle = MaterialTheme.typography.bodyLarge,
+            textStyle = if (value.isNotEmpty()) {
+                TextStyle(
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF4A4F55)
+                )
+            } else {
+                MaterialTheme.typography.bodyLarge
+            },
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
@@ -268,6 +277,136 @@ fun FinancialInputField(
     }
 }
 
+@Composable
+fun HelpIconButton(
+    terms: List<HelpTerm>,
+    modifier: Modifier = Modifier,
+    iconSize: Dp = 20.dp
+) {
+    var showDialog by remember { mutableStateOf(false) }
+
+    Image(
+        painter = painterResource(id = R.drawable.ic_question_mark),
+        contentDescription = "도움말",
+        modifier = modifier
+            .size(iconSize)
+            .clickable { showDialog = true }
+    )
+
+    if (showDialog) {
+        TermsHelpDialog(
+            terms = terms,
+            onDismissRequest = { showDialog = false }
+        )
+    }
+}
+
+@Composable
+fun TermsHelpDialog(
+    terms: List<HelpTerm>,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true
+        )
+    ) {
+        Box(
+            modifier = modifier
+                .width(315.dp)
+                .height(325.dp)
+        ) {
+            Image(
+                painter = painterResource(
+                    id = R.drawable.bg_terms_help
+                ),
+                contentDescription = null,
+                modifier = Modifier.matchParentSize(),
+                contentScale = ContentScale.FillBounds
+            )
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 14.dp)
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .clickable(onClick = onDismissRequest),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "×",
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Color(0xFFA9B6C5),
+                    fontSize = 32.sp,
+                    lineHeight = 32.sp,
+                    fontWeight = FontWeight.Light,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            val topPadding = if (terms.size >= 3) 100.dp else 132.dp
+            val itemSpacing = if (terms.size >= 3) 10.dp else 15.dp
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        start = 24.dp,
+                        top = topPadding,
+                        end = 24.dp,
+                        bottom = 24.dp
+                    ),
+                verticalArrangement = Arrangement.spacedBy(
+                    space = itemSpacing,
+                    alignment = Alignment.CenterVertically
+                )
+            ) {
+                terms.forEach { term ->
+                    TermDescription(
+                        title = term.title,
+                        description = term.description
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TermDescription(
+    title: String,
+    description: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = title,
+            color = Color(0xFF4A4F55),
+            fontSize = 14.sp,
+            lineHeight = 20.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(
+            modifier = Modifier.height(4.dp)
+        )
+
+        Text(
+            text = description,
+            color = Color(0xFF919AA4),
+            fontSize = 12.sp,
+            lineHeight = 18.sp
+        )
+    }
+}
+
 // 금융정보 입력_소득
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -276,7 +415,8 @@ fun IncomeStep(
     modifier: Modifier = Modifier,
     initialAmount: String = "",
     initialIncomeType: String = "근로소득",
-    buttonText: String = "다음"
+    buttonText: String = "다음",
+    autoAdvanceOnEmpty: Boolean = true
 ) {
     var annualIncomeText by remember { mutableStateOf(initialAmount) }
     var incomeType by remember { mutableStateOf(initialIncomeType) }
@@ -292,8 +432,11 @@ fun IncomeStep(
         onNext = onNext,
         isNextEnabled = annualIncomeText.isNotEmpty(),
         bottomLinkText = "소득이 없어요",
-
-        onBottomLinkClick = { annualIncomeText = "0" },
+        onBottomLinkClick = {
+            annualIncomeText = "0"
+            hasSelectedIncomeType = true
+            if (autoAdvanceOnEmpty) onNext()
+        },
         modifier = modifier,
         buttonText = buttonText
     ) {
@@ -306,7 +449,7 @@ fun IncomeStep(
                 val current = annualIncomeText.toLongOrNull() ?: 0L
                 annualIncomeText = (current + amount).toString()
             },
-            showHelpIcon = false,
+            showHelpIcon = false
         )
 
         // 소득 유형 드롭다운 메뉴
@@ -325,20 +468,13 @@ fun IncomeStep(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = Color(0xFFEEF1F6),
-                    modifier = Modifier.size(16.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = "?",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color(0xFF9EA4AA),
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
+                HelpIconButton(
+                    terms = listOf(
+                        HelpTerm("근로소득", "회사에서 근무하며 받는 급여"),
+                        HelpTerm("사업소득", "사업 또는 프리랜서 활동으로 얻는 소득"),
+                        HelpTerm("기타소득", "강연료, 원고료, 상금 등 일시적으로 발생하는 소득")
+                    )
+                )
             }
 
             ExposedDropdownMenuBox(
@@ -407,7 +543,8 @@ fun AssetStep(
     modifier: Modifier = Modifier,
     initialTotalAsset: String = "",
     initialFinancialAsset: String = "",
-    buttonText: String = "다음"
+    buttonText: String = "다음",
+    autoAdvanceOnEmpty: Boolean = true
 ) {
     var totalAssetText by remember { mutableStateOf(initialTotalAsset) }
     var financialAssetText by remember { mutableStateOf(initialFinancialAsset) }
@@ -421,6 +558,7 @@ fun AssetStep(
         onBottomLinkClick = {
             totalAssetText = "0"
             financialAssetText = "0"
+            if (autoAdvanceOnEmpty) onNext()
         },
         modifier = modifier,
         buttonText = buttonText
@@ -433,7 +571,11 @@ fun AssetStep(
             onQuickAmountClick = { amount ->
                 val current = totalAssetText.toLongOrNull() ?: 0L
                 totalAssetText = (current + amount).toString()
-            }
+            },
+            helpTerms = listOf(
+                HelpTerm("총 보유 자산", "보유 중인 모든 자산의 합계 (부동산, 자동차, 금융자산 등)"),
+                HelpTerm("금융 자산", "금융기관에 보유한 자산 (예금, 적금, 주식, 펀드 등)")
+            )
         )
 
         // 금융 자산 입력 필드
@@ -444,7 +586,11 @@ fun AssetStep(
             onQuickAmountClick = { amount ->
                 val current = financialAssetText.toLongOrNull() ?: 0L
                 financialAssetText = (current + amount).toString()
-            }
+            },
+            helpTerms = listOf(
+                HelpTerm("총 보유 자산", "보유 중인 모든 자산의 합계 (부동산, 자동차, 금융자산 등)"),
+                HelpTerm("금융 자산", "금융기관에 보유한 자산 (예금, 적금, 주식, 펀드 등)")
+            )
         )
     }
 }
@@ -456,7 +602,8 @@ fun DebtStep(
     modifier: Modifier = Modifier,
     initialTotalDebt: String = "",
     initialMonthlyRepayment: String = "",
-    buttonText: String = "다음"
+    buttonText: String = "다음",
+    autoAdvanceOnEmpty: Boolean = true
 ) {
     var totalDebtText by remember { mutableStateOf(initialTotalDebt) }
     var monthlyRepaymentText by remember { mutableStateOf(initialMonthlyRepayment) }
@@ -470,6 +617,7 @@ fun DebtStep(
         onBottomLinkClick = {
             totalDebtText = "0"
             monthlyRepaymentText = "0"
+            if (autoAdvanceOnEmpty) onNext()
         },
         modifier = modifier,
         buttonText = buttonText
@@ -482,7 +630,11 @@ fun DebtStep(
             onQuickAmountClick = { amount ->
                 val current = totalDebtText.toLongOrNull() ?: 0L
                 totalDebtText = (current + amount).toString()
-            }
+            },
+            helpTerms = listOf(
+                HelpTerm("총 부채 금액", "대출, 카드론 등 현재 보유한 부채의 총액"),
+                HelpTerm("월 상환액", "매월 상환하는 원금과 이자의 합계")
+            )
         )
 
         // 월 상환액 입력 필드
@@ -493,7 +645,11 @@ fun DebtStep(
             onQuickAmountClick = { amount ->
                 val current = monthlyRepaymentText.toLongOrNull() ?: 0L
                 monthlyRepaymentText = (current + amount).toString()
-            }
+            },
+            helpTerms = listOf(
+                HelpTerm("총 부채 금액", "대출, 카드론 등 현재 보유한 부채의 총액"),
+                HelpTerm("월 상환액", "매월 상환하는 원금과 이자의 합계")
+            )
         )
     }
 }
@@ -509,6 +665,12 @@ fun HouseStep(
 ) {
     val options = listOf("본인 무주택", "세대원 전원 무주택", "주택 보유 (유주택)")
     var selectedOption by remember { mutableStateOf(initialOption) }
+
+    val houseHelpTerms = listOf(
+        HelpTerm("본인 무주택", "본인 명의의 주택을 보유하고 있지 않은 상태"),
+        HelpTerm("세대원 전원 무주택", "본인을 포함한 모든 세대원이 주택을 보유하고 있지 않은 상태"),
+        HelpTerm("주택 보유 (유주택)", "본인 또는 세대원이 주택을 보유하고 있는 상태")
+    )
 
     StepBaseLayout(
         title = "주택 보유 여부를 알려주세요",
@@ -527,7 +689,8 @@ fun HouseStep(
                 HouseOptionRow(
                     text = option,
                     isSelected = selectedOption == option,
-                    onSelect = { selectedOption = option }
+                    onSelect = { selectedOption = option },
+                    helpTerms = houseHelpTerms
                 )
             }
         }
@@ -539,6 +702,7 @@ private fun HouseOptionRow(
     text: String,
     isSelected: Boolean,
     onSelect: () -> Unit,
+    helpTerms: List<HelpTerm>,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -567,21 +731,7 @@ private fun HouseOptionRow(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // 우측 도움말 아이콘
-        Surface(
-            shape = RoundedCornerShape(50),
-            color = Color(0xFFEEF1F6),
-            modifier = Modifier.size(16.dp)
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Text(
-                    text = "?",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color(0xFF9EA4AA),
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
+        HelpIconButton(terms = helpTerms)
     }
 }
 
@@ -632,19 +782,22 @@ fun FinancialInfoEditScreen(
                             onNext = onSave,
                             buttonText = "완료",
                             initialAmount = "4800",
-                            initialIncomeType = "근로소득"
+                            initialIncomeType = "근로소득",
+                            autoAdvanceOnEmpty = false
                         )
                         FinancialInfoStep.ASSET -> AssetStep(
                             onNext = onSave,
                             buttonText = "완료",
                             initialTotalAsset = "6500",
-                            initialFinancialAsset = "2800"
+                            initialFinancialAsset = "2800",
+                            autoAdvanceOnEmpty = false
                         )
                         FinancialInfoStep.DEBT -> DebtStep(
                             onNext = onSave,
                             buttonText = "완료",
                             initialTotalDebt = "1800",
-                            initialMonthlyRepayment = "35"
+                            initialMonthlyRepayment = "35",
+                            autoAdvanceOnEmpty = false
                         )
                         FinancialInfoStep.HOUSE -> HouseStep(
                             onNext = onSave,
