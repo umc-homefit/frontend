@@ -40,52 +40,11 @@ import androidx.compose.foundation.Image
 import com.umc.homefit.data.mock.FinanceMockData
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
 
-
-private val sampleRecommendedProducts = listOf(
-    RecommendedProductDto(
-        id = "1",
-        title = "디딤돌 대출",
-        iconRes = R.drawable.img_kookmin_logo,
-        productType = "정부지원",
-        interestRate = "연 2.15% ~ 3.00%",
-        amountDescription = "대출한도 | 2억 5천만 원",
-        targetDescription = "연소득 | 6천만 원 이하",
-        tags = listOf(
-            "무주택자",
-            "생애최초"
-        )
-    ),
-    RecommendedProductDto(
-        id = "2",
-        title = "버팀목 전세대출",
-        iconRes = R.drawable.img_hana_logo,
-        productType = "정부지원",
-        interestRate = "연 2.15% ~ 3.00%",
-        amountDescription = "대출한도 | 1억 2천만 원",
-        targetDescription = "연소득 | 5천만 원 이하",
-        tags = listOf(
-            "무주택자",
-            "청년"
-        )
-    ),
-    RecommendedProductDto(
-        id = "3",
-        title = "주택청약종합저축",
-        iconRes = R.drawable.img_shinhan_logo,
-        productType = "정부지원",
-        interestRate = "연 2.00%",
-        amountDescription = "월 납입 | 2만 원 ~ 50만 원",
-        targetDescription = "가입대상 | 무주택 청년",
-        tags = listOf(
-            "청약",
-            "소득공제"
-        )
-    )
-)
 @Composable
 fun FinanceScreenRoute(
     viewModel: FinanceScreenViewModel,
     onNavigateToRecommendedProducts: () -> Unit,
+    onNavigateToDetail: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -93,6 +52,7 @@ fun FinanceScreenRoute(
     FinanceScreen(
         uiState = uiState,
         onNavigateToRecommendedProducts = onNavigateToRecommendedProducts,
+        onNavigateToDetail = onNavigateToDetail,
         modifier = modifier
     )
 }
@@ -101,6 +61,7 @@ fun FinanceScreenRoute(
 fun FinanceScreen(
     uiState: FinanceScreenUiState,
     onNavigateToRecommendedProducts: () -> Unit,
+    onNavigateToDetail: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (uiState) {
@@ -115,7 +76,9 @@ fun FinanceScreen(
 
         is FinanceScreenUiState.Success -> {
             FinanceSuccessContent(
-                onNavigateToRecommendedProducts = onNavigateToRecommendedProducts,
+                onNavigateToRecommendedProducts =
+                    onNavigateToRecommendedProducts,
+                onNavigateToDetail = onNavigateToDetail,
                 modifier = modifier
             )
         }
@@ -137,13 +100,16 @@ fun FinanceScreen(
 @Composable
 private fun FinanceSuccessContent(
     onNavigateToRecommendedProducts: () -> Unit,
+    onNavigateToDetail: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFFFFFFF)),
-        contentPadding = PaddingValues(bottom = 140.dp)
+        contentPadding = PaddingValues(
+            bottom = 140.dp
+        )
     ) {
         item {
             FinanceHeaderSection()
@@ -175,10 +141,8 @@ private fun FinanceSuccessContent(
 
         item {
             RecommendedProductsSection(
-                products = sampleRecommendedProducts,
-                onProductClick = { productId ->
-                    // 금융 상품 상세 화면으로 이동
-                }
+                products = FinanceMockData.recommendedProducts,
+                onProductClick = onNavigateToDetail
             )
         }
 
@@ -207,13 +171,13 @@ private fun FinanceHeaderSection(
             .fillMaxWidth()
             .padding(
                 start = 16.dp,
-                top = 28.dp,
+                top = 16.dp,
                 end = 16.dp,
                 bottom = 22.dp
             )
     ) {
         Spacer(
-            modifier = Modifier.height(130.dp)
+            modifier = Modifier.height(50.dp)
         )
 
         Text(
@@ -332,7 +296,7 @@ private fun FinanceSummaryItem(
 @Composable
 private fun RecommendedProductsSection(
     products: List<RecommendedProductDto>,
-    onProductClick: (String) -> Unit,
+    onProductClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -345,12 +309,12 @@ private fun RecommendedProductsSection(
             products.forEach { product ->
                 RecommendedProductCard(
                     product = product,
-                    onClick = {
-                        onProductClick(product.id)
-                    },
                     modifier = Modifier.padding(
                         horizontal = 16.dp
-                    )
+                    ),
+                    onClick = {
+                        onProductClick(product.productId)
+                    }
                 )
             }
         }
@@ -407,13 +371,13 @@ private fun RecommendedProductsButton(
     widthDp = 390,
     heightDp = 844
 )
-
 @Composable
 private fun FinanceScreenPreview() {
     FinanceScreen(
         uiState = FinanceScreenUiState.Success(
             data = "Preview of FinanceScreen"
         ),
-        onNavigateToRecommendedProducts = {}
+        onNavigateToRecommendedProducts = {},
+        onNavigateToDetail = {}
     )
 }

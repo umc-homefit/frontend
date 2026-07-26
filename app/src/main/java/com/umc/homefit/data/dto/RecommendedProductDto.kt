@@ -3,7 +3,7 @@ package com.umc.homefit.data.dto
 import androidx.annotation.DrawableRes
 
 data class RecommendedProductDto(
-    val id: String,
+    val productId: Long,
     val title: String,
     @DrawableRes val iconRes: Int,
     val productType: String,
