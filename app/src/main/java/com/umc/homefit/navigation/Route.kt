@@ -16,6 +16,9 @@ sealed interface Route {
     data object SignUp : Route
 
     @Serializable
+    data object LoginFlow : Route
+
+    @Serializable
     data object RecruitmentFilter : Route
 
     @Serializable

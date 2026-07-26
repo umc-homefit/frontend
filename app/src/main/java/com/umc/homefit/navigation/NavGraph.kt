@@ -33,6 +33,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.umc.homefit.presentation.analysis.*
+import com.umc.homefit.presentation.auth.LoginFlowScreenRoute
 import com.umc.homefit.presentation.auth.LoginScreenRoute
 import com.umc.homefit.presentation.auth.SignUpScreenRoute
 import com.umc.homefit.presentation.finance.*
@@ -76,7 +77,19 @@ fun RootNavGraph(
                         popUpTo(Route.Login) { inclusive = true }
                     }
                 },
-                onNavigateToSignUp = { navController.navigate(Route.SignUp) }
+                onNavigateToSignUp = { navController.navigate(Route.SignUp) },
+                onNavigateToLoginFlow = { navController.navigate(Route.LoginFlow) }
+            )
+        }
+
+        composable<Route.LoginFlow> {
+            LoginFlowScreenRoute(
+                onBack = { navController.popBackStack() },
+                onNavigateToHome = {
+                    navController.navigate(Route.Main) {
+                        popUpTo(Route.Login) { inclusive = true }
+                    }
+                }
             )
         }
 
@@ -200,7 +213,8 @@ fun RootNavGraph(
 }
 
 @Composable
-fun MainScreen(
+fun
+    MainScreen(
     rootNavController: NavHostController,
     modifier: Modifier = Modifier
 ) {
@@ -226,11 +240,16 @@ fun MainScreen(
             TabRoute.ProductSearch::class.qualifiedName.orEmpty()
         )
 
+    val isAnalysisTab =
+        currentDestination?.route.orEmpty().contains(
+            TabRoute.Analysis::class.qualifiedName.orEmpty()
+        )
+
 
     val title: String? = when {
         currentDestination?.route?.contains(TabRoute.Home::class.qualifiedName.orEmpty()) == true -> "홈"
         currentDestination?.route?.contains(TabRoute.RecruitmentList::class.qualifiedName.orEmpty()) == true -> "공고"
-        currentDestination?.route?.contains(TabRoute.Analysis::class.qualifiedName.orEmpty()) == true -> "입주 분석"
+        currentDestination?.route?.contains(TabRoute.Analysis::class.qualifiedName.orEmpty()) == true -> "분석"
         currentDestination?.route?.contains(TabRoute.Finance::class.qualifiedName.orEmpty()) == true -> "금융 상품"
         isRecommendedProductScreen -> "추천 금융 상품"
         isProductSearchScreen -> "금융 상품 검색"
@@ -245,7 +264,8 @@ fun MainScreen(
         onBackClick = {
             tabNavController.popBackStack()
         },
-        showDivider = isProductSearchScreen,
+        centerTitle = isAnalysisTab,
+        showDivider = isAnalysisTab || isProductSearchScreen,
         bottomBar = {
             if (!isProductSearchScreen) {
                 Column {
@@ -407,8 +427,11 @@ fun MainScreen(
             composable<TabRoute.Analysis> {
                 AnalysisScreenRoute(
                     viewModel = hiltViewModel(),
-                    onNavigateToFinancialInfo = {
-                        rootNavController.navigate(Route.FinancialInfo)
+                    onNavigateToEdit = { step ->
+                        rootNavController.navigate(Route.FinancialInfoEdit(step))
+                    },
+                    onNavigateToDetail = { recruitmentId ->
+                        rootNavController.navigate(Route.RecruitmentDetail(recruitmentId))
                     }
                 )
             }

@@ -55,6 +55,10 @@ val CompetitionRateText = Color(0xFF4A4F55)
 val BookmarkActive = Color(0xFFFF5659)
 val BookmarkInactive = Color(0xFFD2D9E2)
 
+// 회원가입/로그인 단계별 검증 메시지 색상
+val ValidationSuccessText = Color(0x8019A141)
+val ValidationErrorText = Color(0x80FF5659)
+
 // 공고 상세 화면 Figma 색상
 val TextBlack = Color(0xFF161616)
 val AnalysisButtonGradient = Brush.horizontalGradient(
