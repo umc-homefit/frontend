@@ -40,6 +40,7 @@ import com.umc.homefit.presentation.finance.*
 import com.umc.homefit.presentation.home.*
 import com.umc.homefit.presentation.mypage.*
 import com.umc.homefit.presentation.recruitment.*
+import com.umc.homefit.presentation.splash.SplashScreenRoute
 import com.umc.homefit.ui.component.AppScaffold
 
 private const val FILTER_RESULT_KEY = "filter_result"
@@ -51,9 +52,24 @@ fun RootNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Route.Login,
+        startDestination = Route.Splash,
         modifier = modifier.fillMaxSize()
     ) {
+        composable<Route.Splash> {
+            SplashScreenRoute(
+                onNavigateToMain = {
+                    navController.navigate(Route.Main) {
+                        popUpTo(Route.Splash) { inclusive = true }
+                    }
+                },
+                onNavigateToLogin = {
+                    navController.navigate(Route.Login) {
+                        popUpTo(Route.Splash) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable<Route.Login> {
             LoginScreenRoute(
                 onNavigateToHome = {
