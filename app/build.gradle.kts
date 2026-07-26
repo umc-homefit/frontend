@@ -72,7 +72,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.activity.compose)
-    
+
     // Compose
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
@@ -113,4 +113,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // core-splashscreen
+    implementation(libs.androidx.core.splashscreen)
 }

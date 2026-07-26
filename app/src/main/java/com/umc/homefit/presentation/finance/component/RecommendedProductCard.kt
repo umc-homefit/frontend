@@ -195,16 +195,16 @@ private fun ProductTag(
 private fun RecommendedProductCardPreview() {
     RecommendedProductCard(
         product = RecommendedProductDto(
-            id = "1",
-            title = "디딤돌 대출",
-            iconRes = R.drawable.img_kookmin_logo,
+            productId = 106,
+            title = "주택청약종합저축",
+            iconRes = R.drawable.img_shinhan_logo,
             productType = "정부지원",
-            interestRate = "연 2.15% ~ 3.00%",
-            amountDescription = "대출한도 | 2억 5천만 원",
-            targetDescription = "연소득 | 6천만 원 이하",
+            interestRate = "연 최대 4.50%",
+            amountDescription = "월 납입 | 최대 50만 원",
+            targetDescription = "가입대상 | 무주택 청년",
             tags = listOf(
-                "무주택자",
-                "생애최초"
+                "청약",
+                "소득공제"
             )
         ),
         onClick = {},

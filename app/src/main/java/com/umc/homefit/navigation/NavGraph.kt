@@ -1,11 +1,7 @@
 package com.umc.homefit.navigation
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -15,9 +11,10 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -32,94 +29,179 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.umc.homefit.presentation.analysis.*
+import com.umc.homefit.presentation.auth.LoginFlowScreenRoute
+import com.umc.homefit.presentation.auth.LoginScreenRoute
+import com.umc.homefit.presentation.auth.SignUpScreenRoute
 import com.umc.homefit.presentation.finance.*
 import com.umc.homefit.presentation.home.*
 import com.umc.homefit.presentation.mypage.*
 import com.umc.homefit.presentation.recruitment.*
+import com.umc.homefit.presentation.splash.SplashScreenRoute
 import com.umc.homefit.ui.component.AppScaffold
 
-@Composable
-fun RootNavGraph(
-    navController: NavHostController,
-    modifier: Modifier = Modifier
-) {
-    NavHost(
-        navController = navController,
-        startDestination = Route.Main,
-        modifier = modifier.fillMaxSize()
+    private const val FILTER_RESULT_KEY = "filter_result"
+    private const val NAVIGATE_TO_TAB_KEY = "navigate_to_tab"
+
+    @Composable
+    fun RootNavGraph(
+        navController: NavHostController,
+        modifier: Modifier = Modifier
     ) {
-        composable<Route.Main> {
-            MainScreen(rootNavController = navController)
-        }
+        NavHost(
+            navController = navController,
+            startDestination = Route.Splash,
+            modifier = modifier.fillMaxSize()
+        ) {
+            composable<Route.Splash> {
+                SplashScreenRoute(
+                    onNavigateToMain = {
+                        navController.navigate(Route.Main) {
+                            popUpTo(Route.Splash) { inclusive = true }
+                        }
+                    },
+                    onNavigateToLogin = {
+                        navController.navigate(Route.Login) {
+                            popUpTo(Route.Splash) { inclusive = true }
+                        }
+                    }
+                )
+            }
 
-        composable<Route.RecruitmentFilter> {
-            RecruitmentFilterScreenRoute(
-                viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() }
-            )
-        }
+            composable<Route.Login> {
+                LoginScreenRoute(
+                    onNavigateToHome = {
+                        navController.navigate(Route.Main) {
+                            popUpTo(Route.Login) { inclusive = true }
+                        }
+                    },
+                    onNavigateToSignUp = { navController.navigate(Route.SignUp) },
+                    onNavigateToLoginFlow = { navController.navigate(Route.LoginFlow) }
+                )
+            }
 
-        composable<Route.RecruitmentDetail> {
-            RecruitmentDetailScreenRoute(
-                viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() },
-                onNavigateToCompetition = { recruitmentId ->
-                    navController.navigate(Route.Competition(recruitmentId))
-                },
-                onNavigateToAnalysis = {
-                    navController.navigate(Route.FinancialInfo)
-                }
-            )
-        }
+            composable<Route.LoginFlow> {
+                LoginFlowScreenRoute(
+                    onBack = { navController.popBackStack() },
+                    onNavigateToHome = {
+                        navController.navigate(Route.Main) {
+                            popUpTo(Route.Login) { inclusive = true }
+                        }
+                    }
+                )
+            }
 
-        composable<Route.Competition> {
-            CompetitionScreenRoute(
-                viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() }
-            )
-        }
+            composable<Route.SignUp> {
+                SignUpScreenRoute(
+                    onBack = { navController.popBackStack() },
+                    onNavigateToHome = {
+                        navController.navigate(Route.Main) {
+                            popUpTo(Route.Login) { inclusive = true }
+                        }
+                    }
+                )
+            }
 
-        composable<Route.FinancialInfo> {
-            FinancialInfoScreenRoute(
-                viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() },
-                onNavigateToResult = { analysisId ->
-                    navController.navigate(Route.AnalysisResult(analysisId))
-                }
-            )
-        }
+            composable<Route.Main> {
+                MainScreen(rootNavController = navController)
+            }
 
-        composable<Route.AnalysisResult> {
-            AnalysisResultScreenRoute(
-                viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() },
-                onNavigateToEstimatedCost = { resultId ->
-                    navController.navigate(Route.EstimatedCost(resultId))
-                }
-            )
-        }
+            composable<Route.RecruitmentFilter> {
+                RecruitmentFilterScreenRoute(
+                    viewModel = hiltViewModel(),
+                    onApply = { filterState ->
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set(FILTER_RESULT_KEY, filterState)
+                        navController.popBackStack()
+                    },
+                    onBack = { navController.popBackStack() }
+                )
+            }
 
-        composable<Route.EstimatedCost> {
-            EstimatedCostScreenRoute(
-                viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() }
-            )
-        }
+            composable<Route.RecruitmentDetail> {
+                RecruitmentDetailScreenRoute(
+                    viewModel = hiltViewModel(),
+                    onBack = { navController.popBackStack() },
+                    onNavigateToCompetition = { recruitmentId ->
+                        navController.navigate(Route.Competition(recruitmentId))
+                    },
+                    onNavigateToAnalysis = {
+                        navController.navigate(Route.FinancialInfo)
+                    }
+                )
+            }
+
+            composable<Route.Competition> {
+                CompetitionScreenRoute(
+                    viewModel = hiltViewModel(),
+                    onBack = { navController.popBackStack() },
+                    onNavigateToAnalysis = {
+                        navController.navigate(Route.FinancialInfo)
+                    }
+                )
+            }
+
+            composable<Route.FinancialInfo> {
+                FinancialInfoScreenRoute(
+                    viewModel = hiltViewModel(),
+                    onBack = { navController.popBackStack() },
+                    onNavigateToResult = { analysisId ->
+                        navController.navigate(Route.AnalysisResult(analysisId))
+                    }
+                )
+            }
+
+            composable<Route.FinancialInfoEdit> { backStackEntry ->
+                val args = backStackEntry.toRoute<Route.FinancialInfoEdit>()
+                FinancialInfoEditScreenRoute(
+                    step = args.step,
+                    viewModel = hiltViewModel(),
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable<Route.AnalysisResult> {
+                AnalysisResultScreenRoute(
+                    viewModel = hiltViewModel(),
+                    onBack = { navController.popBackStack() },
+                    onNavigateToHome = {
+                        navController.navigate(Route.Main) {
+                            popUpTo(Route.Main) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
+                    onNavigateToRecommendedProduct = {
+                        navController.navigate(Route.Main) {
+                            popUpTo(Route.Main) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                        navController.currentBackStackEntry
+                            ?.savedStateHandle
+                            ?.set(NAVIGATE_TO_TAB_KEY, "recommendedProduct")
+                    }
+                )
+            }
+
+            composable<Route.EstimatedCost> {
+                EstimatedCostScreenRoute(
+                    viewModel = hiltViewModel(),
+                    onBack = { navController.popBackStack() }
+                )
+            }
 
 
-        composable<Route.ProductDetail> {
-            ProductDetailScreenRoute(
-                viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() }
-            )
-        }
+            composable<Route.ProductDetail> { backStackEntry ->
+                val route =
+                    backStackEntry.toRoute<Route.ProductDetail>()
 
-        composable<Route.SavedRecruitment> {
-            SavedRecruitmentScreenRoute(
-                viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() }
-            )
-        }
+                ProductDetailScreenRoute(
+                    productId = route.productId,
+                    viewModel = hiltViewModel<ProductDetailScreenViewModel>(),
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
 
         composable<Route.Notification> {
             NotificationScreenRoute(
@@ -145,16 +227,22 @@ fun RootNavGraph(
                 onBack = { navController.popBackStack() }
             )
         }
+            composable<Route.SavedRecruitment> {
+                SavedRecruitmentScreenRoute(
+                    viewModel = hiltViewModel(),
+                    onBack = { navController.popBackStack() }
+                )
+            }
 
-        composable<Route.MyFinance> {
-            MyFinanceScreenRoute(
-                viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() },
-                onNavigateToEdit = { navController.navigate(Route.FinancialInfo) }
-            )
+            composable<Route.MyFinance> {
+                MyFinanceScreenRoute(
+                    viewModel = hiltViewModel(),
+                    onBack = { navController.popBackStack() },
+                    onNavigateToEdit = { step -> navController.navigate(Route.FinancialInfoEdit(step)) }
+                )
+            }
         }
     }
-}
 
 @Composable
 fun MainScreen(
@@ -162,62 +250,186 @@ fun MainScreen(
     modifier: Modifier = Modifier
 ) {
     val tabNavController = rememberNavController()
-    val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
+
+    val navBackStackEntry by
+    tabNavController.currentBackStackEntryAsState()
+
+    val currentDestination =
+        navBackStackEntry?.destination
+
+    val currentRoute =
+        currentDestination?.route.orEmpty()
+
+    val rootBackStackEntry by
+    rootNavController.currentBackStackEntryAsState()
+
+    val filterResult =
+        rootBackStackEntry
+            ?.savedStateHandle
+            ?.getStateFlow<FilterState?>(
+                FILTER_RESULT_KEY,
+                null
+            )
+            ?.collectAsState()
+            ?.value
+
+    val requestedTab =
+        rootBackStackEntry
+            ?.savedStateHandle
+            ?.getStateFlow<String?>(
+                NAVIGATE_TO_TAB_KEY,
+                null
+            )
+            ?.collectAsState()
+            ?.value
+
+    LaunchedEffect(requestedTab) {
+        when (requestedTab) {
+            "recruitment" -> {
+                tabNavController.navigateToTab(
+                    TabRoute.RecruitmentList()
+                )
+            }
+
+            "analysis" -> {
+                tabNavController.navigateToTab(
+                    TabRoute.Analysis
+                )
+            }
+
+            "finance" -> {
+                tabNavController.navigateToTab(
+                    TabRoute.Finance
+                )
+            }
+
+            "recommendedProduct" -> {
+                tabNavController.navigateToTab(
+                    TabRoute.RecommendedProduct
+                )
+            }
+
+            "mypage" -> {
+                tabNavController.navigateToTab(
+                    TabRoute.MyPage
+                )
+            }
+        }
+
+        if (requestedTab != null) {
+            rootBackStackEntry
+                ?.savedStateHandle
+                ?.remove<String>(
+                    NAVIGATE_TO_TAB_KEY
+                )
+        }
+    }
 
     val isHomeDestination =
-        currentDestination?.route?.contains(
+        currentRoute.contains(
             TabRoute.Home::class.qualifiedName.orEmpty()
-        ) == true
+        )
 
     val isRecruitmentSearchDestination =
-        currentDestination?.route?.contains(
-            TabRoute.RecruitmentSearch::class.qualifiedName.orEmpty()
-        ) == true
+        currentRoute.contains(
+            TabRoute.RecruitmentSearch::class
+                .qualifiedName
+                .orEmpty()
+        )
+
+    val isProductSearchScreen =
+        currentRoute.contains(
+            TabRoute.ProductSearch::class
+                .qualifiedName
+                .orEmpty()
+        )
+
+    val isAnalysisTab =
+        currentRoute.contains(
+            TabRoute.Analysis::class
+                .qualifiedName
+                .orEmpty()
+        )
+
+    val hideBottomBar =
+        isRecruitmentSearchDestination ||
+            isProductSearchScreen
 
     val title = when {
-        currentDestination?.route?.contains(TabRoute.RecruitmentList::class.qualifiedName.orEmpty()) == true -> "공고 조회"
-        currentDestination?.route?.contains(TabRoute.Analysis::class.qualifiedName.orEmpty()) == true -> "입주 분석"
-        currentDestination?.route?.contains(TabRoute.Finance::class.qualifiedName.orEmpty()) == true -> "금융 상품 추천"
-        currentDestination?.route?.contains(TabRoute.MyPage::class.qualifiedName.orEmpty()) == true -> "마이페이지"
+        isHomeDestination -> null
+
+        isRecruitmentSearchDestination -> null
+
+        currentRoute.contains(
+            TabRoute.RecruitmentList::class
+                .qualifiedName
+                .orEmpty()
+        ) -> "공고 조회"
+
+        isAnalysisTab -> "입주 분석"
+
+        isProductSearchScreen -> "금융 상품 검색"
+
+        currentRoute.contains(
+            TabRoute.Finance::class
+                .qualifiedName
+                .orEmpty()
+        ) -> "금융 상품 추천"
+
+        currentRoute.contains(
+            TabRoute.RecommendedProduct::class
+                .qualifiedName
+                .orEmpty()
+        ) -> "추천 금융 상품"
+
+        currentRoute.contains(
+            TabRoute.MyPage::class
+                .qualifiedName
+                .orEmpty()
+        ) -> "마이페이지"
+
         else -> "HomeFit"
     }
 
     AppScaffold(
-        title = if (
-            isHomeDestination ||
-            isRecruitmentSearchDestination
-            ) {
-            null
-        } else {
-            title
+        title = title,
+        showBackButton = isProductSearchScreen,
+        onBackClick = {
+            tabNavController.popBackStack()
         },
-        showBackButton = false,
+        centerTitle = isAnalysisTab,
+        showDivider =
+            isAnalysisTab ||
+                isProductSearchScreen,
         bottomBar = {
-            if (!isRecruitmentSearchDestination) {
-            Column {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(15.dp)
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Black.copy(alpha = 0f),
-                                    Color.Black.copy(alpha = 0.05f)
-                                )
-                            )
-                        )
-                )
-
+            if (!hideBottomBar) {
                 NavigationBar(
                     containerColor = Color.White,
                     tonalElevation = 0.dp,
                     modifier = Modifier.height(120.dp)
                 ) {
                     BottomNavItem.items.forEach { item ->
-                        val isSelected = currentDestination?.route
-                            ?.contains(item.route::class.qualifiedName.orEmpty()) == true
+                        val itemRouteName =
+                            item.route::class
+                                .qualifiedName
+                                .orEmpty()
+
+                        val isFinanceSubRoute =
+                            currentRoute.contains(
+                                TabRoute.RecommendedProduct::class
+                                    .qualifiedName
+                                    .orEmpty()
+                            )
+
+                        val isFinanceItem =
+                            item.route is TabRoute.Finance
+
+                        val isSelected =
+                            currentRoute.contains(itemRouteName) ||
+                                (
+                                    isFinanceItem &&
+                                        isFinanceSubRoute
+                                    )
 
                         NavigationBarItem(
                             selected = isSelected,
@@ -225,57 +437,71 @@ fun MainScreen(
                                 when (item.route) {
                                     TabRoute.Home -> {
                                         val popped =
-                                            tabNavController.popBackStack(
-                                                route = TabRoute.Home,
-                                                inclusive = false
-                                            )
+                                            tabNavController
+                                                .popBackStack(
+                                                    route =
+                                                        TabRoute.Home,
+                                                    inclusive = false
+                                                )
 
                                         if (!popped) {
-                                            tabNavController.navigate(
-                                                TabRoute.Home
-                                            ) {
-                                                launchSingleTop = true
-                                            }
+                                            tabNavController
+                                                .navigateToTab(
+                                                    TabRoute.Home
+                                                )
                                         }
                                     }
 
                                     else -> {
-                                        tabNavController.navigate(item.route) {
-                                            popUpTo<TabRoute.Home> {
-                                                saveState = true
-                                            }
-
-                                            launchSingleTop = true
-                                            restoreState = true
-                                        }
+                                        tabNavController
+                                            .navigateToTab(
+                                                item.route
+                                            )
                                     }
                                 }
                             },
                             icon = {
                                 Icon(
-                                    painter = painterResource(id = item.iconRes),
-                                    contentDescription = item.title,
-                                    tint = if (isSelected) Color.Black else Color.Gray,
-                                    modifier = Modifier.size(30.dp)
+                                    painter = painterResource(
+                                        id = item.iconRes
+                                    ),
+                                    contentDescription =
+                                        item.title,
+                                    tint = if (isSelected) {
+                                        Color.Black
+                                    } else {
+                                        Color.Gray
+                                    },
+                                    modifier =
+                                        Modifier.size(30.dp)
                                 )
                             },
                             label = {
                                 Text(
                                     text = item.title,
                                     fontSize = 14.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                    fontWeight =
+                                        if (isSelected) {
+                                            FontWeight.Bold
+                                        } else {
+                                            FontWeight.Normal
+                                        }
                                 )
                             },
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedTextColor = Color.Black,
-                                unselectedTextColor = Color.Gray,
-                                indicatorColor = Color.Transparent
-                            )
+                            colors =
+                                NavigationBarItemDefaults.colors(
+                                    selectedTextColor =
+                                        Color.Black,
+                                    unselectedTextColor =
+                                        Color.Gray,
+                                    indicatorColor =
+                                        Color.Transparent
+                                )
                         )
                     }
                 }
             }
-        } },
+        },
         modifier = modifier.fillMaxSize()
     ) { innerPadding ->
         NavHost(
@@ -301,50 +527,72 @@ fun MainScreen(
                             )
                         )
                     },
-
-                    // 검색창 → 공고 검색 화면
                     onSearchClick = {
                         tabNavController.navigate(
                             TabRoute.RecruitmentSearch
                         )
                     },
-
-                    // 전체 공고 보기 → 공고 목록
                     onAllAnnouncementClick = {
-                        tabNavController.navigate(
-                            TabRoute.RecruitmentList()
-                        ) {
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        tabNavController
+                            .navigateToTab(
+                                TabRoute.RecruitmentList()
+                            )
                     },
-
-                    // 관심 공고 → 저장 공고 화면
                     onFavoriteClick = {
                         rootNavController.navigate(
                             Route.SavedRecruitment
                         )
                     },
-
-                    // 입주 분석 → 분석 탭
                     onAnalysisClick = {
-                        tabNavController.navigate(
-                            TabRoute.Analysis
-                        ) {
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        tabNavController
+                            .navigateToTab(
+                                TabRoute.Analysis
+                            )
                     },
-
-                    // 금융 상품 → 금융 탭
                     onFinanceClick = {
-                        tabNavController.navigate(
-                            TabRoute.Finance
-                        ) {
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        tabNavController
+                            .navigateToTab(
+                                TabRoute.Finance
+                            )
                     }
+                )
+            }
+
+            composable<TabRoute.RecruitmentList> { backStackEntry ->
+
+                val route =
+                    backStackEntry
+                        .toRoute<TabRoute.RecruitmentList>()
+
+                RecruitmentListScreenRoute(
+                    viewModel = hiltViewModel(),
+                    filterResult = filterResult,
+                    onFilterConsumed = {
+                        rootBackStackEntry
+                            ?.savedStateHandle
+                            ?.remove<FilterState>(
+                                FILTER_RESULT_KEY
+                            )
+                    },
+                    onNavigateToFilter = {
+                        rootNavController.navigate(
+                            Route.RecruitmentFilter
+                        )
+                    },
+                    onNavigateToDetail = { recruitmentId ->
+                        rootNavController.navigate(
+                            Route.RecruitmentDetail(
+                                recruitmentId
+                            )
+                        )
+                    },
+                    onNavigateToSearch = {
+                        tabNavController.navigate(
+                            TabRoute.RecruitmentSearch
+                        )
+                    },
+                    initialSearchQuery =
+                        route.searchQuery
                 )
             }
 
@@ -370,76 +618,110 @@ fun MainScreen(
                 )
             }
 
-
-            composable<TabRoute.RecruitmentList> { backStackEntry ->
-                val route =
-                    backStackEntry.toRoute<TabRoute.RecruitmentList>()
-
-                RecruitmentListScreenRoute(
-                    viewModel = hiltViewModel(),
-                    initialSearchQuery = route.searchQuery,
-                    onNavigateToFilter = {
-                        rootNavController.navigate(
-                            Route.RecruitmentFilter
-                        )
-                    },
-                    onNavigateToDetail = { recruitmentId ->
-                        rootNavController.navigate(
-                            Route.RecruitmentDetail(recruitmentId)
-                        )
-                    },
-                    onNavigateToSearch = {
-                        tabNavController.navigate(
-                            TabRoute.RecruitmentSearch
-                        ) {
-                            launchSingleTop = true
-                        }
-                    }
-                )
-            }
-
             composable<TabRoute.Analysis> {
                 AnalysisScreenRoute(
                     viewModel = hiltViewModel(),
-                    onNavigateToFinancialInfo = {
-                        rootNavController.navigate(
-                            Route.FinancialInfo
-                        )
+                    onNavigateToEdit = { step ->
+                        rootNavController.navigate(Route.FinancialInfoEdit(step))
+                    },
+                    onNavigateToDetail = { recruitmentId ->
+                        rootNavController.navigate(Route.RecruitmentDetail(recruitmentId))
                     }
                 )
             }
+
 
             composable<TabRoute.Finance> {
                 FinanceScreenRoute(
                     viewModel = hiltViewModel(),
                     onNavigateToRecommendedProducts = {
+                        tabNavController.navigate(
+                            TabRoute.RecommendedProduct
+                        )
+                    },
+                    onNavigateToDetail = { productId ->
                         rootNavController.navigate(
-                            Route.RecommendedProduct
+                            Route.ProductDetail(
+                                productId = productId
+                            )
                         )
                     }
                 )
             }
+            composable<TabRoute.ProductSearch> {
+                ProductSearchScreenRoute(
+                    viewModel = hiltViewModel(),
+                    onBack = {
+                        tabNavController.popBackStack()
+                    },
+                    onSearchComplete = { keyword ->
+                        tabNavController
+                            .previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set(
+                                "productSearchQuery",
+                                keyword
+                            )
 
+                        tabNavController.popBackStack()
+                    }
+                )
+            }
+            composable<TabRoute.RecommendedProduct> { backStackEntry ->
+                val searchQuery by backStackEntry.savedStateHandle
+                    .getStateFlow(
+                        key = "productSearchQuery",
+                        initialValue = ""
+                    )
+                    .collectAsState()
+
+                RecommendedProductScreenRoute(
+                    viewModel = hiltViewModel(),
+                    searchQuery = searchQuery,
+                    onNavigateToSearch = {
+                        tabNavController.navigate(
+                            TabRoute.ProductSearch
+                        )
+                    },
+                    onNavigateToDetail = { productId ->
+                        rootNavController.navigate(
+                            Route.ProductDetail(
+                                productId = productId
+                            )
+                        )
+                    }
+                )
+            }
             composable<TabRoute.MyPage> {
                 MyPageScreenRoute(
                     viewModel = hiltViewModel(),
                     onNavigateToSaved = {
-                        rootNavController.navigate(
-                            Route.SavedRecruitment
-                        )
+                        rootNavController.navigate(Route.SavedRecruitment)
                     },
                     onNavigateToNotification = {
-                        rootNavController.navigate(
-                            Route.NotificationSetting
-                        )
+                        rootNavController.navigate(Route.NotificationSetting)
                     },
                     onNavigateToFinance = {
-                        rootNavController.navigate(
-                            Route.MyFinance
-                        )
+                        rootNavController.navigate(Route.MyFinance)
                     }
                 )
             }
         }
     }
 }
+
+private fun NavHostController.navigateToTab(
+    route: TabRoute
+) {
+    navigate(route) {
+        popUpTo(
+            graph.findStartDestination().id
+        ) {
+            saveState = true
+        }
+
+        launchSingleTop = true
+        restoreState = true
+    }
+}
+

@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,6 +58,8 @@ import com.umc.homefit.R
 @Composable
 fun RecruitmentListScreenRoute(
     viewModel: RecruitmentListScreenViewModel,
+    filterResult: FilterState?,
+    onFilterConsumed: () -> Unit,
     onNavigateToFilter: () -> Unit,
     onNavigateToDetail: (String) -> Unit,
     onNavigateToSearch: () -> Unit,
@@ -64,6 +67,14 @@ fun RecruitmentListScreenRoute(
     initialSearchQuery: String = ""
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(filterResult) {
+        filterResult?.let { result ->
+            viewModel.applyFilter(result)
+            onFilterConsumed()
+        }
+    }
+
     RecruitmentListScreen(
         uiState = uiState,
         onNavigateToDetail = onNavigateToDetail,
@@ -212,7 +223,7 @@ fun RecruitmentListScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_recruit_filter),
+                            painter = painterResource(id = R.drawable.ic_recruitment_filter),
                             contentDescription = "필터",
                             modifier = Modifier
                                 .width(17.47.dp)
@@ -295,8 +306,10 @@ fun RecruitmentListScreenPreview() {
                     company = "한국토지주택공사",
                     location = "서울특별시 강남구",
                     rentType = "월세",
-                    deposit = 30000000,
-                    monthlyRent = 350000,
+                    depositMin = 30000000,
+                    depositMax = 30000000,
+                    monthlyRentMin = 350000,
+                    monthlyRentMax = 350000,
                     announcementDate = "2026-07-13",
                     announcementNumber = "2026-강남-001",
                     area = 39.87,
@@ -312,8 +325,10 @@ fun RecruitmentListScreenPreview() {
                     company = "서울주택도시공사",
                     location = "서울특별시 마포구",
                     rentType = "전세",
-                    deposit = 80000000,
-                    monthlyRent = 0,
+                    depositMin = 80000000,
+                    depositMax = 80000000,
+                    monthlyRentMin = 0,
+                    monthlyRentMax = 0,
                     announcementDate = "2026-07-10",
                     announcementNumber = "2026-마포-014",
                     area = 29.5,

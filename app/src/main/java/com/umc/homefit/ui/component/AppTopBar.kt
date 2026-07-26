@@ -42,7 +42,8 @@ fun AppTopBar(
     showBackButton: Boolean = false,
     onBackClick: () -> Unit = {},
     actions: List<TopBarAction> = emptyList(),
-    showDivider: Boolean = false
+    showDivider: Boolean = false,
+    centerTitle: Boolean = false
 ) {
     val dividerColor = Color(0xFFF0F4F9)
 
@@ -53,7 +54,7 @@ fun AppTopBar(
             title?.let {
                 Text(
                     text = it,
-                    fontSize = if (showBackButton) 18.sp else 24.sp,
+                    fontSize = if (showBackButton || centerTitle) 16.sp else 20.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -99,7 +100,7 @@ fun AppTopBar(
     )
 
     Column (modifier = modifier) {
-        if (showBackButton) {
+        if (showBackButton || centerTitle) {
             CenterAlignedTopAppBar(
                 title = titleComposable,
                 navigationIcon = navigationIconComposable,
