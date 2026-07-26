@@ -23,7 +23,7 @@ fun AppScaffold(
 ) {
     Scaffold(
         topBar = {
-            if (title != null || titleContent != null || showBackButton) {
+            if (title != null || titleContent != null || actions.isNotEmpty() ) {
                 AppTopBar(
                     title = title,
                     titleContent = titleContent,
