@@ -72,7 +72,7 @@ git clone https://github.com/[org이름]/homefit-android.git
 ## 🖼 화면 목록
 
 | 화면 이름 | 스크린 ID | 진입 경로 | 담당자 | 구현 여부 |
-|---|---|---|---|
+|---|---|---|---|---|
 | 홈 | HomeScreen | 앱 최초 진입 | 제이/박유진 | 완료 |
 | 알림 | NotificationScreen | 홈 → 알림 | 제이/박유진 | 완료 |
 | 공고 검색 | RecruitmentSearchScreen | 홈 → 검색창 | 제이/박유진 | 완료 |
