@@ -29,14 +29,16 @@ private val BorderColor = Color(0xFFD2D9E2)
 fun AnalysisResultScreenRoute(
     viewModel: AnalysisResultScreenViewModel,
     onBack: () -> Unit,
-    onNavigateToEstimatedCost: (String) -> Unit,
+    onNavigateToHome: () -> Unit,
+    onNavigateToRecommendedProduct: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     AnalysisResultScreen(
         uiState = uiState,
         onBack = onBack,
-        onNavigateToEstimatedCost = onNavigateToEstimatedCost,
+        onNavigateToHome = onNavigateToHome,
+        onNavigateToRecommendedProduct = onNavigateToRecommendedProduct,
         modifier = modifier
     )
 }
@@ -46,9 +48,12 @@ fun AnalysisResultScreenRoute(
 fun AnalysisResultScreen(
     uiState: AnalysisResultScreenUiState,
     onBack: () -> Unit,
-    onNavigateToEstimatedCost: (String) -> Unit,
+    onNavigateToHome: () -> Unit,
+    onNavigateToRecommendedProduct: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var isSaved by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             AppTopBar(
@@ -57,9 +62,11 @@ fun AnalysisResultScreen(
                 onBackClick = onBack,
                 actions = listOf(
                     TopBarAction(
-                        icon = painterResource(id = R.drawable.ic_top_save),
+                        icon = painterResource(
+                            id = if (isSaved) R.drawable.ic_top_save_filled else R.drawable.ic_top_save
+                        ),
                         contentDescription = "찜",
-                        onClick = { /* 찜 기능 */ }
+                        onClick = { isSaved = !isSaved },
                     ),
                     TopBarAction(
                         icon = painterResource(id = R.drawable.ic_top_share),
@@ -80,7 +87,7 @@ fun AnalysisResultScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedButton(
-                        onClick = onBack,
+                        onClick = onNavigateToHome,
                         modifier = Modifier
                             .weight(1f)
                             .height(48.dp),
@@ -92,7 +99,7 @@ fun AnalysisResultScreen(
                     }
 
                     Button(
-                        onClick = { onNavigateToEstimatedCost("cost_abc") },
+                        onClick = onNavigateToRecommendedProduct,
                         modifier = Modifier
                             .weight(1.7f)
                             .height(48.dp)
@@ -261,7 +268,7 @@ private fun SuccessContent(data: AnalysisResultData) {
                             painter = painterResource(R.drawable.ic_analysis_house),
                             contentDescription = null,
                             tint = Color.Unspecified,
-                            modifier = Modifier.size(width = 220.dp, height = 138.dp) // 미세 축소
+                            modifier = Modifier.size(width = 220.dp, height = 138.dp)
                         )
 
                         Text(
