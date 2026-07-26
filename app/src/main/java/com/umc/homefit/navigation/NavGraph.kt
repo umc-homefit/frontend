@@ -40,7 +40,6 @@ import com.umc.homefit.presentation.finance.*
 import com.umc.homefit.presentation.home.*
 import com.umc.homefit.presentation.mypage.*
 import com.umc.homefit.presentation.recruitment.*
-import com.umc.homefit.R
 import com.umc.homefit.ui.component.AppScaffold
 
 private const val FILTER_RESULT_KEY = "filter_result"
@@ -198,15 +197,16 @@ fun RootNavGraph(
 }
 
 @Composable
-fun MainScreen(
+fun
+    MainScreen(
     rootNavController: NavHostController,
     modifier: Modifier = Modifier
 ) {
     val tabNavController = rememberNavController()
     val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    
-    
+
+
     val rootBackStackEntry by rootNavController.currentBackStackEntryAsState()
     val filterResult = rootBackStackEntry
         ?.savedStateHandle
@@ -224,11 +224,16 @@ fun MainScreen(
             TabRoute.ProductSearch::class.qualifiedName.orEmpty()
         )
 
+    val isAnalysisTab =
+        currentDestination?.route.orEmpty().contains(
+            TabRoute.Analysis::class.qualifiedName.orEmpty()
+        )
+
 
     val title: String? = when {
         currentDestination?.route?.contains(TabRoute.Home::class.qualifiedName.orEmpty()) == true -> "홈"
         currentDestination?.route?.contains(TabRoute.RecruitmentList::class.qualifiedName.orEmpty()) == true -> "공고"
-        currentDestination?.route?.contains(TabRoute.Analysis::class.qualifiedName.orEmpty()) == true -> "입주 분석"
+        currentDestination?.route?.contains(TabRoute.Analysis::class.qualifiedName.orEmpty()) == true -> "분석"
         currentDestination?.route?.contains(TabRoute.Finance::class.qualifiedName.orEmpty()) == true -> "금융 상품"
         isRecommendedProductScreen -> "추천 금융 상품"
         isProductSearchScreen -> "금융 상품 검색"
@@ -243,7 +248,8 @@ fun MainScreen(
         onBackClick = {
             tabNavController.popBackStack()
         },
-        showDivider = isProductSearchScreen,
+        centerTitle = isAnalysisTab,
+        showDivider = isAnalysisTab || isProductSearchScreen,
         bottomBar = {
             if (!isProductSearchScreen) {
                 Column {
@@ -405,8 +411,11 @@ fun MainScreen(
             composable<TabRoute.Analysis> {
                 AnalysisScreenRoute(
                     viewModel = hiltViewModel(),
-                    onNavigateToFinancialInfo = {
-                        rootNavController.navigate(Route.FinancialInfo)
+                    onNavigateToEdit = { step ->
+                        rootNavController.navigate(Route.FinancialInfoEdit(step))
+                    },
+                    onNavigateToDetail = { recruitmentId ->
+                        rootNavController.navigate(Route.RecruitmentDetail(recruitmentId))
                     }
                 )
             }
