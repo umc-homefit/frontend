@@ -71,24 +71,26 @@ git clone https://github.com/[org이름]/homefit-android.git
 
 ## 🖼 화면 목록
 
-| 화면 이름 | 스크린 ID | 진입 경로 | 담당자 |
+| 화면 이름 | 스크린 ID | 진입 경로 | 담당자 | 구현 여부 |
 |---|---|---|---|
-| 홈 | HomeScreen | 앱 최초 진입 | 제이/박유진 |
-| 공고 목록 | RecruitmentListScreen | 하단 탭 → 공고 | 릴리/김혜민 |
-| 공고 필터 | RecruitmentFilterScreen | 공고 목록 → 필터 | 릴리/김혜민 |
-| 공고 상세 | RecruitmentDetailScreen | 공고 목록 → 공고 선택 | 릴리/김혜민 |
-| 경쟁률 정보 | CompetitionScreen | 공고 상세 → 경쟁률 보기 | 릴리/김혜민 |
-| 입주 분석 | AnalysisScreen | 하단 탭 → 분석 | 리비/홍지원 |
-| 금융 정보 입력 | FinancialInfoScreen | 입주 분석 → 금융 정보 입력 | 리비/홍지원 |
-| 입주 가능성 결과 | AnalysisResultScreen | 금융 정보 입력 → 분석 완료 | 리비/홍지원 |
-| 예상 보증금/월세 | EstimatedCostScreen | 입주 가능성 결과 → 상세 보기 | 리비/홍지원 |
-| 금융 상품 | FinanceScreen | 하단 탭 → 금융 | 제이/박유진 |
-| 추천 상품 목록 | RecommendedProductScreen | 금융 상품 → 추천 상품 전체 보기 | 제이/박유진 |
-| 상품 상세 | ProductDetailScreen | 추천 상품 목록 → 상품 선택 | 제이/박유진 |
-| 마이페이지 | MyPageScreen | 하단 탭 → 마이 | 양고/전서영 |
-| 저장 공고 관리 | SavedRecruitmentScreen | 마이페이지 → 저장 공고 | 양고/전서영 |
-| 알림 설정 | NotificationSettingScreen | 마이페이지 → 알림 설정 | 양고/전서영 |
-| 내 금융 정보 관리 | MyFinanceScreen | 마이페이지 → 내 금융 정보 | 양고/전서영 |
+| 홈 | HomeScreen | 앱 최초 진입 | 제이/박유진 | 완료 |
+| 알림 | NotificationScreen | 홈 → 알림 | 제이/박유진 | 완료 |
+| 공고 검색 | RecruitmentSearchScreen | 홈 → 검색창 | 제이/박유진 | 완료 |
+| 공고 목록 | RecruitmentListScreen | 하단 탭 → 공고 | 릴리/김혜민 | 완료 |
+| 공고 필터 | RecruitmentFilterScreen | 공고 목록 → 필터 | 릴리/김혜민 | 완료 |
+| 공고 상세 | RecruitmentDetailScreen | 공고 목록 → 공고 선택 | 릴리/김혜민 | 완료 |
+| 경쟁률 정보 | CompetitionScreen | 공고 상세 → 경쟁률 보기 | 릴리/김혜민 | 완료 |
+| 입주 분석 | AnalysisScreen | 하단 탭 → 분석 | 리비/홍지원 | 완료 |
+| 금융 정보 입력 | FinancialInfoScreen | 입주 분석 → 금융 정보 입력 | 리비/홍지원 | 완료 |
+| 입주 가능성 결과 | AnalysisResultScreen | 금융 정보 입력 → 분석 완료 | 리비/홍지원 | 완료 |
+| 금융 상품 | FinanceScreen | 하단 탭 → 금융 | 제이/박유진 | 완료 |
+| 추천 상품 목록 | RecommendedProductScreen | 금융 상품 → 추천 상품 전체 보기 | 제이/박유진 | 완료 |
+| 상품 상세 | ProductDetailScreen | 추천 상품 목록 → 상품 선택 | 제이/박유진 | 완료 |
+| 금융 상품 검색 | ProductSearchScreen | 추천 금융 상품 → 검색창 | 제이/박유진 | 수정 필요 |
+| 마이페이지 | MyPageScreen | 하단 탭 → 마이 | 양고/전서영 | 완료 |
+| 저장 공고 관리 | SavedRecruitmentScreen | 마이페이지 → 저장 공고 | 양고/전서영 | 완료 |
+| 알림 설정 | NotificationSettingScreen | 마이페이지 → 알림 설정 | 양고/전서영 | 완료 |
+| 내 금융 정보 관리 | MyFinanceScreen | 마이페이지 → 내 금융 정보 | 양고/전서영 | 완료 |
 
 ---
 
@@ -106,7 +108,7 @@ Home
 ├── 분석
 │   ├── 금융 정보 입력
 │   └── 입주 가능성 결과
-│       └── 예상 보증금/월세
+│       
 ├── 금융
 │   └── 금융 상품
 │       └── 추천 상품 목록
@@ -122,3 +124,7 @@ Home
 ## 📏 Convention
 
 - [GIT_CONVENTION.md](./GIT_CONVENTION.md)
+
+## 🎨 Figma
+
+- Figma URL: [https://www.figma.com/design/bK4utyX0yVnQptcXGXjDlw/%ED%99%88%ED%95%8F?node-id=241-8737&t=5QssZ6X6T5bqFdfd-0]
