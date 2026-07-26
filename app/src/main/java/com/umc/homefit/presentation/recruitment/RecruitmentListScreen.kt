@@ -36,6 +36,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,13 +60,17 @@ fun RecruitmentListScreenRoute(
     viewModel: RecruitmentListScreenViewModel,
     filterResult: FilterState?,
     onFilterConsumed: () -> Unit,
-    onNavigateToFilter: () -> Unit, onNavigateToDetail: (String) -> Unit, modifier: Modifier = Modifier
+    onNavigateToFilter: () -> Unit,
+    onNavigateToDetail: (String) -> Unit,
+    onNavigateToSearch: () -> Unit,
+    modifier: Modifier = Modifier,
+    initialSearchQuery: String = ""
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(filterResult) {
-        filterResult?.let {
-            viewModel.applyFilter(it)
+        filterResult?.let { result ->
+            viewModel.applyFilter(result)
             onFilterConsumed()
         }
     }
@@ -74,8 +79,10 @@ fun RecruitmentListScreenRoute(
         uiState = uiState,
         onNavigateToDetail = onNavigateToDetail,
         onNavigateToFilter = onNavigateToFilter,
+        onNavigateToSearch = onNavigateToSearch,
         onToggleBookmark = viewModel::toggleBookmark,
-        modifier = modifier
+        modifier = modifier,
+        initialSearchQuery = initialSearchQuery
     )
 }
 
@@ -93,11 +100,15 @@ fun RecruitmentListScreen(
     uiState: RecruitmentListScreenUiState,
     onNavigateToDetail: (String) -> Unit,
     onNavigateToFilter: () -> Unit,
+    onNavigateToSearch: () -> Unit,
     onToggleBookmark: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    initialSearchQuery: String = ""
 
-    modifier: Modifier = Modifier
 ) {
-    var searchQuery by remember { mutableStateOf("") }
+    var searchQuery by rememberSaveable(initialSearchQuery) {
+        mutableStateOf(initialSearchQuery)
+    }
     var selectedStatus by remember { mutableStateOf<RecruitmentStatus?>(null) }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -107,26 +118,45 @@ fun RecruitmentListScreen(
                 .padding(horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
+            Box(
                 modifier = Modifier
                     .weight(1f)
-                    .height(52.dp),
-                placeholder = { Text("공고명, 지하철역명, 단지명 등으로 검색") },
-                singleLine = true,
-                shape = RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = SearchFieldBackground,
-                    unfocusedContainerColor = SearchFieldBackground,
-                    disabledContainerColor = SearchFieldBackground,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    focusedPlaceholderColor = RecruitmentTextGray,
-                    unfocusedPlaceholderColor = RecruitmentTextGray
+                    .height(52.dp)
+            ) {
+                TextField(
+                    value = searchQuery,
+                    onValueChange = {},
+                    modifier = Modifier.fillMaxSize(),
+                    readOnly = true,
+                    placeholder = {
+                        Text(
+                            text = "공고명, 지하철역명, 단지명 등으로 검색"
+                        )
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(
+                        topStart = 4.dp,
+                        bottomStart = 4.dp
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = SearchFieldBackground,
+                        unfocusedContainerColor = SearchFieldBackground,
+                        disabledContainerColor = SearchFieldBackground,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        focusedPlaceholderColor = RecruitmentTextGray,
+                        unfocusedPlaceholderColor = RecruitmentTextGray
+                    )
                 )
-            )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable(onClick = onNavigateToSearch)
+                )
+            }
+
             Box(
                 modifier = Modifier
                     .size(52.dp)
@@ -137,16 +167,22 @@ fun RecruitmentListScreen(
                                 RecruitmentAccent.copy(alpha = 0.4f)
                             ),
                             start = Offset(0f, 0f),
-                            end = Offset(0f, Float.POSITIVE_INFINITY)
+                            end = Offset(
+                                0f,
+                                Float.POSITIVE_INFINITY
+                            )
                         ),
-                        shape = RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp)
+                        shape = RoundedCornerShape(
+                            topEnd = 4.dp,
+                            bottomEnd = 4.dp
+                        )
                     )
-                    .clickable { },
+                    .clickable(onClick = onNavigateToSearch),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Search,
-                    contentDescription = "검색",
+                    contentDescription = "검색 화면으로 이동",
                     tint = Color.White
                 )
             }
@@ -306,6 +342,8 @@ fun RecruitmentListScreenPreview() {
         ),
         onNavigateToDetail = {},
         onNavigateToFilter = {},
-        onToggleBookmark = {}
+        onNavigateToSearch = {},
+        onToggleBookmark = {},
+        initialSearchQuery = "청년"
     )
 }

@@ -1,6 +1,7 @@
 package com.umc.homefit.ui.component
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import com.umc.homefit.R
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -15,17 +16,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.graphicsLayer
 
 data class TopBarAction(
     val icon: Painter,
     val contentDescription: String,
     val onClick: () -> Unit,
-    val iconSize: Dp = 24.dp
+    val iconSize: Dp = 24.dp,
+    val iconScale: Float = 1f
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,12 +76,20 @@ fun AppTopBar(
 
     val actionsComposable: @Composable () -> Unit = {
         actions.forEach { action ->
-            IconButton(onClick = action.onClick) {
-                Icon(
+            IconButton(
+                onClick = action.onClick,
+                modifier = Modifier.size(48.dp)
+            ) {
+                Image(
                     painter = action.icon,
-                    modifier = Modifier.size(action.iconSize),
                     contentDescription = action.contentDescription,
-                    tint = Color.Unspecified // 벡터 XML에 지정된 원래 색을 그대로 사용
+                    modifier = Modifier
+                        .requiredSize(action.iconSize)
+                        .graphicsLayer {
+                            scaleX = action.iconScale
+                            scaleY = action.iconScale
+                        },
+                    contentScale = ContentScale.FillBounds
                 )
             }
         }
