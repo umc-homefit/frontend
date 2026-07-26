@@ -181,10 +181,16 @@ fun RootNavGraph(
         }
 
 
-        composable<Route.ProductDetail> {
+        composable<Route.ProductDetail> { backStackEntry ->
+            val route =
+                backStackEntry.toRoute<Route.ProductDetail>()
+
             ProductDetailScreenRoute(
-                viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() }
+                productId = route.productId,
+                viewModel = hiltViewModel<ProductDetailScreenViewModel>(),
+                onBack = {
+                    navController.popBackStack()
+                }
             )
         }
 
@@ -442,6 +448,13 @@ fun
                         tabNavController.navigate(
                             TabRoute.RecommendedProduct
                         )
+                    },
+                    onNavigateToDetail = { productId ->
+                        rootNavController.navigate(
+                            Route.ProductDetail(
+                                productId = productId
+                            )
+                        )
                     }
                 )
             }
@@ -475,9 +488,6 @@ fun
                 RecommendedProductScreenRoute(
                     viewModel = hiltViewModel(),
                     searchQuery = searchQuery,
-                    onBack = {
-                        tabNavController.popBackStack()
-                    },
                     onNavigateToSearch = {
                         tabNavController.navigate(
                             TabRoute.ProductSearch
@@ -485,7 +495,9 @@ fun
                     },
                     onNavigateToDetail = { productId ->
                         rootNavController.navigate(
-                            Route.ProductDetail(productId)
+                            Route.ProductDetail(
+                                productId = productId
+                            )
                         )
                     }
                 )

@@ -42,7 +42,7 @@ sealed interface Route {
     @Serializable
     data object RecommendedProduct : Route
     @Serializable
-    data class ProductDetail(val productId: String) : Route
+    data class ProductDetail(val productId: Long) : Route
 
     @Serializable
     data object SavedRecruitment : Route

@@ -6,9 +6,8 @@ import com.umc.homefit.data.dto.RecommendedProductDto
 object FinanceMockData {
 
     val recommendedProducts = listOf(
-
         RecommendedProductDto(
-            id = "1",
+            productId = 101,
             title = "디딤돌 대출",
             iconRes = R.drawable.img_kookmin_logo,
             productType = "정부지원",
@@ -20,9 +19,8 @@ object FinanceMockData {
                 "생애최초"
             )
         ),
-
         RecommendedProductDto(
-            id = "2",
+            productId = 102,
             title = "버팀목 전세대출",
             iconRes = R.drawable.img_hana_logo,
             productType = "정부지원",
@@ -34,9 +32,8 @@ object FinanceMockData {
                 "청년"
             )
         ),
-
         RecommendedProductDto(
-            id = "3",
+            productId = 103,
             title = "주택청약종합저축",
             iconRes = R.drawable.img_shinhan_logo,
             productType = "정부지원",
@@ -48,9 +45,8 @@ object FinanceMockData {
                 "소득공제"
             )
         ),
-
         RecommendedProductDto(
-            id = "4",
+            productId = 104,
             title = "디딤돌 대출",
             iconRes = R.drawable.img_kookmin_logo,
             productType = "정부지원",
@@ -62,9 +58,8 @@ object FinanceMockData {
                 "생애최초"
             )
         ),
-
         RecommendedProductDto(
-            id = "5",
+            productId = 105,
             title = "버팀목 전세대출",
             iconRes = R.drawable.img_hana_logo,
             productType = "정부지원",
@@ -76,9 +71,8 @@ object FinanceMockData {
                 "청년"
             )
         ),
-
         RecommendedProductDto(
-            id = "6",
+            productId = 106,
             title = "주택청약종합저축",
             iconRes = R.drawable.img_shinhan_logo,
             productType = "정부지원",
@@ -89,6 +83,6 @@ object FinanceMockData {
                 "청약",
                 "소득공제"
             )
-        ),
+        )
     )
 }

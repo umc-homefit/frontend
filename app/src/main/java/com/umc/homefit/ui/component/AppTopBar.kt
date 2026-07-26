@@ -17,13 +17,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 data class TopBarAction(
     val icon: Painter,
     val contentDescription: String,
-    val onClick: () -> Unit
+    val onClick: () -> Unit,
+    val iconSize: Dp = 24.dp
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,6 +74,7 @@ fun AppTopBar(
             IconButton(onClick = action.onClick) {
                 Icon(
                     painter = action.icon,
+                    modifier = Modifier.size(action.iconSize),
                     contentDescription = action.contentDescription,
                     tint = Color.Unspecified // 벡터 XML에 지정된 원래 색을 그대로 사용
                 )
