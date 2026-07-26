@@ -39,11 +39,13 @@ private val PrimaryColor = Color(0xFF3C45F3)
 fun LoginScreenRoute(
     onNavigateToHome: () -> Unit,
     onNavigateToSignUp: () -> Unit,
+    onNavigateToLoginFlow: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LoginScreen(
         onNavigateToHome = onNavigateToHome,
         onNavigateToSignUp = onNavigateToSignUp,
+        onNavigateToLoginFlow = onNavigateToLoginFlow,
         modifier = modifier
     )
 }
@@ -52,6 +54,7 @@ fun LoginScreenRoute(
 fun LoginScreen(
     onNavigateToHome: () -> Unit,
     onNavigateToSignUp: () -> Unit,
+    onNavigateToLoginFlow: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -124,7 +127,7 @@ fun LoginScreen(
 
         // 이메일로 로그인
         Button(
-            onClick = onNavigateToHome, // TODO: 로그인 화면 완성되면 그 화면으로 연결
+            onClick = onNavigateToLoginFlow,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp)
@@ -164,6 +167,7 @@ fun LoginScreen(
 fun LoginScreenPreview() {
     LoginScreen(
         onNavigateToHome = {},
-        onNavigateToSignUp = {}
+        onNavigateToSignUp = {},
+        onNavigateToLoginFlow = {}
     )
 }
