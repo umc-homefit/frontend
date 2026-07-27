@@ -202,6 +202,17 @@ fun RootNavGraph(
             )
         }
 
+        composable<Route.ProductSearch> {
+            ProductSearchScreenRoute(
+                viewModel = hiltViewModel(),
+                onBack = { navController.popBackStack() },
+                onSearchComplete = { keyword ->
+                    navController.previousBackStackEntry?.savedStateHandle?.set("productSearchQuery", keyword)
+                    navController.popBackStack()
+                }
+            )
+        }
+
         composable<Route.SavedRecruitment> {
             SavedRecruitmentScreenRoute(
                 viewModel = hiltViewModel(),
@@ -258,16 +269,13 @@ fun MainScreen(
 
     val isHomeDestination = currentRoute.contains(TabRoute.Home::class.qualifiedName.orEmpty())
     val isRecruitmentSearchDestination = currentRoute.contains(TabRoute.RecruitmentSearch::class.qualifiedName.orEmpty())
-    val isProductSearchScreen = currentRoute.contains(TabRoute.ProductSearch::class.qualifiedName.orEmpty())
     val isAnalysisTab = currentRoute.contains(TabRoute.Analysis::class.qualifiedName.orEmpty())
-    val hideBottomBar = isRecruitmentSearchDestination || isProductSearchScreen
 
     val title = when {
         isHomeDestination -> null
         isRecruitmentSearchDestination -> null
         currentRoute.contains(TabRoute.RecruitmentList::class.qualifiedName.orEmpty()) -> "공고"
         isAnalysisTab -> "분석"
-        isProductSearchScreen -> "금융 상품 검색"
         currentRoute.contains(TabRoute.Finance::class.qualifiedName.orEmpty()) -> "금융 상품"
         currentRoute.contains(TabRoute.RecommendedProduct::class.qualifiedName.orEmpty()) -> "추천 금융 상품"
         currentRoute.contains(TabRoute.MyPage::class.qualifiedName.orEmpty()) -> "마이페이지"
@@ -276,12 +284,12 @@ fun MainScreen(
 
     AppScaffold(
         title = title,
-        showBackButton = isProductSearchScreen,
+        showBackButton = false, // 필요없을 것 같으면 코드 생략
         onBackClick = { tabNavController.popBackStack() },
         centerTitle = isAnalysisTab,
-        showDivider = isAnalysisTab || isProductSearchScreen,
+        showDivider = isAnalysisTab,
         bottomBar = {
-            if (!hideBottomBar) {
+            if (!isRecruitmentSearchDestination) {
                 NavigationBar(
                     containerColor = Color.White,
                     tonalElevation = 0.dp,
@@ -397,17 +405,6 @@ fun MainScreen(
                 )
             }
 
-            composable<TabRoute.ProductSearch> {
-                ProductSearchScreenRoute(
-                    viewModel = hiltViewModel(),
-                    onBack = { tabNavController.popBackStack() },
-                    onSearchComplete = { keyword ->
-                        tabNavController.previousBackStackEntry?.savedStateHandle?.set("productSearchQuery", keyword)
-                        tabNavController.popBackStack()
-                    }
-                )
-            }
-
             composable<TabRoute.RecommendedProduct> { backStackEntry ->
                 val searchQuery by backStackEntry.savedStateHandle
                     .getStateFlow(key = "productSearchQuery", initialValue = "")
@@ -416,7 +413,7 @@ fun MainScreen(
                 RecommendedProductScreenRoute(
                     viewModel = hiltViewModel(),
                     searchQuery = searchQuery,
-                    onNavigateToSearch = { tabNavController.navigate(TabRoute.ProductSearch) },
+                    onNavigateToSearch = { rootNavController.navigate(Route.ProductSearch) },
                     onNavigateToDetail = { productId -> rootNavController.navigate(Route.ProductDetail(productId = productId)) }
                 )
             }
