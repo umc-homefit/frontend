@@ -1,5 +1,6 @@
 ﻿package com.umc.homefit.di
 
+import com.umc.homefit.data.datasource.HealthApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -54,4 +55,9 @@ object NetworkModule {
             .client(client)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
+
+    @Provides
+    @Singleton
+    fun provideHealthApiService(retrofit: Retrofit): HealthApiService =
+        retrofit.create(HealthApiService::class.java)
 }
