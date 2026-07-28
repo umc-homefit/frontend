@@ -20,25 +20,17 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindHomeRepository(
-        homeRepositoryImpl: HomeRepositoryImpl
-    ): HomeRepository
+    abstract fun bindHomeRepository(homeRepositoryImpl: HomeRepositoryImpl): HomeRepository
 
     @Binds
     @Singleton
-    abstract fun bindRecruitmentRepository(
-        recruitmentRepositoryImpl: RecruitmentRepositoryImpl
-    ): RecruitmentRepository
+    abstract fun bindRecruitmentRepository(recruitmentRepositoryImpl: RecruitmentRepositoryImpl): RecruitmentRepository
 
     @Binds
     @Singleton
-    abstract fun bindRemoteDataSource(
-        remoteDataSourceImpl: RemoteDataSourceImpl
-    ): RemoteDataSource
+    abstract fun bindRemoteDataSource(remoteDataSourceImpl: RemoteDataSourceImpl): RemoteDataSource
 
     @Binds
     @Singleton
-    abstract fun bindDistrictRepository(
-        districtRepositoryImpl: DistrictRepositoryImpl
-    ): DistrictRepository
+    abstract fun bindDistrictRepository(districtRepositoryImpl: DistrictRepositoryImpl): DistrictRepository
 }
