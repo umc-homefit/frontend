@@ -83,6 +83,7 @@ fun ProductSearchScreen(
         title = "금융 상품 검색",
         showBackButton = true,
         onBackClick = onBack,
+        showDivider = true,
         modifier = modifier.fillMaxSize()
     ) { innerPadding ->
         when (uiState) {
@@ -142,7 +143,7 @@ private fun ProductSearchContent(
         modifier = modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(top = 16.dp)
+            .padding(top = 14.dp)
     ) {
         RecommendedProductSearchBar(
             searchQuery = searchQuery,
@@ -157,30 +158,30 @@ private fun ProductSearchContent(
             readOnly = false
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
         Text(
             text = "최근 검색어",
-            modifier = Modifier.padding(horizontal = 20.dp),
-            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(horizontal = 16.dp),
+            fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF24282D)
+            color = Color(0xFF161616)
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(17.dp))
 
         if (recentSearches.isEmpty()) {
             Text(
                 text = "최근 검색어가 없습니다.",
-                modifier = Modifier.padding(horizontal = 20.dp),
-                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(horizontal = 16.dp),
+                fontSize = 16.sp,
                 color = ProductSearchTextGray
             )
         } else {
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
+                    .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(
@@ -202,26 +203,25 @@ private fun ProductSearchContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(43.dp))
 
         Text(
             text = "인기 검색어",
-            modifier = Modifier.padding(horizontal = 20.dp),
-            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(horizontal = 16.dp),
+            fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF24282D)
+            color = Color(0xFF161616)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(33.dp))
 
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(
-                start = 20.dp,
-                end = 20.dp,
-                bottom = 24.dp
+                start = 16.dp,
+                end = 16.dp,
             ),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(35.dp)
         ) {
             itemsIndexed(
                 items = popularSearches,
@@ -259,10 +259,10 @@ private fun RecentSearchChip(
     ) {
         Row(
             modifier = Modifier.padding(
-                start = 14.dp,
-                end = 8.dp,
-                top = 6.dp,
-                bottom = 6.dp
+                start = 12.dp,
+                end = 12.dp,
+                top = 5.dp,
+                bottom = 5.dp
             ),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -272,11 +272,11 @@ private fun RecentSearchChip(
                 fontSize = 14.sp
             )
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(5.dp))
 
             IconButton(
                 onClick = onDeleteClick,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(16.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
@@ -303,16 +303,16 @@ private fun PopularSearchItem(
     ) {
         Text(
             text = rank.toString(),
-            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF4A4F55)
         )
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(8.dp))
 
         Text(
             text = keyword,
-            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 14.sp,
             color = Color(0xFF4A4F55)
         )
     }
