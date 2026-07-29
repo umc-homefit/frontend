@@ -37,14 +37,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.R
-import com.umc.homefit.ui.component.TopBarAction
+import com.umc.homefit.presentation.component.TopBarAction
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.collectAsState
-import com.umc.homefit.data.dto.RecruitmentDto
-import com.umc.homefit.data.dto.RecruitmentStatus
+import com.umc.homefit.data.dto.recruitment.RecruitmentDto
+import com.umc.homefit.data.dto.recruitment.RecruitmentStatus
 import com.umc.homefit.presentation.recruitment.component.RecruitmentCard
 import androidx.compose.runtime.getValue
-import com.umc.homefit.ui.component.AppScaffold
+import com.umc.homefit.presentation.component.AppScaffold
 
 @Suppress("UNUSED_PARAMETER")
 @Composable

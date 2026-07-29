@@ -1,4 +1,4 @@
-package com.umc.homefit.presentation.home
+﻿package com.umc.homefit.presentation.home
 
 import  androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
@@ -35,8 +35,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.umc.homefit.R
-import com.umc.homefit.ui.component.AppScaffold
-import com.umc.homefit.ui.component.TopBarAction
+import com.umc.homefit.presentation.component.AppScaffold
+import com.umc.homefit.presentation.component.TopBarAction
 
 @Composable
 fun NotificationScreenRoute(

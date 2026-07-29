@@ -1,4 +1,4 @@
-package com.umc.homefit.presentation.auth
+﻿package com.umc.homefit.presentation.auth
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Box
@@ -15,9 +15,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.umc.homefit.ui.component.AppScaffold
-import com.umc.homefit.ui.component.CompletionStep
-import com.umc.homefit.ui.component.StepBaseLayout
+import com.umc.homefit.presentation.component.AppScaffold
+import com.umc.homefit.presentation.component.CompletionStep
+import com.umc.homefit.presentation.component.StepBaseLayout
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size

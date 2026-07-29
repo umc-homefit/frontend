@@ -1,4 +1,4 @@
-package com.umc.homefit.presentation.finance
+﻿package com.umc.homefit.presentation.finance
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.umc.homefit.presentation.finance.component.RecommendedProductSearchBar
-import com.umc.homefit.ui.component.AppScaffold
+import com.umc.homefit.presentation.component.AppScaffold
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

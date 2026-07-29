@@ -1,4 +1,4 @@
-package com.umc.homefit.presentation.auth
+﻿package com.umc.homefit.presentation.auth
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
@@ -33,15 +33,15 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.umc.homefit.R
 import com.umc.homefit.presentation.auth.component.LastCharVisibleTransformation
-import com.umc.homefit.ui.component.AppScaffold
-import com.umc.homefit.ui.component.CompletionStep
-import com.umc.homefit.ui.component.StepBaseLayout
-import com.umc.homefit.ui.theme.RecruitmentAccent
-import com.umc.homefit.ui.theme.RecruitmentBorder
-import com.umc.homefit.ui.theme.RecruitmentTextGray
-import com.umc.homefit.ui.theme.SearchFieldBackground
-import com.umc.homefit.ui.theme.ValidationErrorText
-import com.umc.homefit.ui.theme.ValidationSuccessText
+import com.umc.homefit.presentation.component.AppScaffold
+import com.umc.homefit.presentation.component.CompletionStep
+import com.umc.homefit.presentation.component.StepBaseLayout
+import com.umc.homefit.presentation.theme.RecruitmentAccent
+import com.umc.homefit.presentation.theme.RecruitmentBorder
+import com.umc.homefit.presentation.theme.RecruitmentTextGray
+import com.umc.homefit.presentation.theme.SearchFieldBackground
+import com.umc.homefit.presentation.theme.ValidationErrorText
+import com.umc.homefit.presentation.theme.ValidationSuccessText
 
 @Composable
 fun LoginFlowScreenRoute(

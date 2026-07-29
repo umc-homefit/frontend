@@ -1,9 +1,9 @@
-package com.umc.homefit.presentation.finance
+﻿package com.umc.homefit.presentation.finance
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.umc.homefit.data.repository.ProductSearchRepository
+import com.umc.homefit.domain.repository.finance.ProductSearchRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow

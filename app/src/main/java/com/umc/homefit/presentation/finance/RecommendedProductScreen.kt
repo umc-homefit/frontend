@@ -41,11 +41,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.umc.homefit.data.dto.RecommendedProductDto
+import com.umc.homefit.data.dto.home.RecommendedProductDto
 import com.umc.homefit.data.mock.FinanceMockData
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
 import com.umc.homefit.presentation.finance.component.RecommendedProductSearchBar
-import com.umc.homefit.ui.component.AppScaffold
+import com.umc.homefit.presentation.component.AppScaffold
 
 private val ProductAccent = Color(0xFF3C45F3)
 private val ProductBorder = Color(0xFFDCE2E9)

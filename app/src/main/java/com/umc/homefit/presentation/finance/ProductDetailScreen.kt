@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.umc.homefit.R
-import com.umc.homefit.ui.component.TopBarAction
+import com.umc.homefit.presentation.component.TopBarAction
 import java.text.NumberFormat
 import java.util.Locale
 import androidx.compose.foundation.Image
@@ -62,7 +62,7 @@ import androidx.compose.ui.text.PlatformTextStyle
 import com.umc.homefit.presentation.finance.component.HelpTerm
 import com.umc.homefit.presentation.finance.component.TermsHelpDialog
 import androidx.compose.runtime.setValue
-import com.umc.homefit.ui.component.AppScaffold
+import com.umc.homefit.presentation.component.AppScaffold
 
 @Composable
 fun ProductDetailScreenRoute(

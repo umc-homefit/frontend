@@ -2,7 +2,7 @@
 
 
 import androidx.lifecycle.ViewModel
-import com.umc.homefit.data.dto.RecruitmentDto
+import com.umc.homefit.data.dto.recruitment.RecruitmentDto
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

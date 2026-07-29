@@ -1,4 +1,4 @@
-package com.umc.homefit.presentation.recruitment.component
+﻿package com.umc.homefit.presentation.recruitment.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -21,20 +21,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.umc.homefit.data.dto.RecruitmentDto
-import com.umc.homefit.data.dto.RecruitmentStatus
-import com.umc.homefit.ui.theme.BackgroundLight
-import com.umc.homefit.ui.theme.RecruitmentAccent
-import com.umc.homefit.ui.theme.RecruitmentBorder
-import com.umc.homefit.ui.theme.RecruitmentTextGray
-import com.umc.homefit.ui.theme.SearchFieldBackground
-import com.umc.homefit.ui.theme.StatusClosingSoonBackground
-import com.umc.homefit.ui.theme.StatusClosingSoonText
-import com.umc.homefit.ui.theme.StatusRecruitingBackground
-import com.umc.homefit.ui.theme.StatusRecruitingText
-import com.umc.homefit.ui.theme.StatusScheduledBackground
-import com.umc.homefit.ui.theme.StatusScheduledText
-import com.umc.homefit.ui.theme.TextBlack
+import com.umc.homefit.data.dto.recruitment.RecruitmentDto
+import com.umc.homefit.data.dto.recruitment.RecruitmentStatus
+import com.umc.homefit.presentation.theme.BackgroundLight
+import com.umc.homefit.presentation.theme.RecruitmentAccent
+import com.umc.homefit.presentation.theme.RecruitmentBorder
+import com.umc.homefit.presentation.theme.RecruitmentTextGray
+import com.umc.homefit.presentation.theme.SearchFieldBackground
+import com.umc.homefit.presentation.theme.StatusClosingSoonBackground
+import com.umc.homefit.presentation.theme.StatusClosingSoonText
+import com.umc.homefit.presentation.theme.StatusRecruitingBackground
+import com.umc.homefit.presentation.theme.StatusRecruitingText
+import com.umc.homefit.presentation.theme.StatusScheduledBackground
+import com.umc.homefit.presentation.theme.StatusScheduledText
+import com.umc.homefit.presentation.theme.TextBlack
 
 @Composable
 fun RecruitmentTitleCard(recruitment: RecruitmentDto) {

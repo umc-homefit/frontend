@@ -115,6 +115,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // core-splashscreen
-    implementation(libs.androidx.core.splashscreen)
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.android)
 }

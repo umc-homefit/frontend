@@ -1,4 +1,4 @@
-package com.umc.homefit.presentation.recruitment.component
+﻿package com.umc.homefit.presentation.recruitment.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -29,8 +29,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.R
-import com.umc.homefit.ui.theme.RecruitmentBorder
-import com.umc.homefit.ui.theme.RecruitmentTextGray
+import com.umc.homefit.presentation.theme.RecruitmentBorder
+import com.umc.homefit.presentation.theme.RecruitmentTextGray
 
 // Color.kt에 대응 토큰이 아직 없어 로컬로 유지
 private val DistrictSelectedTextColor = Color(0xFF161616)

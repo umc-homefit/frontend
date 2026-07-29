@@ -1,4 +1,4 @@
-package com.umc.homefit.presentation.recruitment
+﻿package com.umc.homefit.presentation.recruitment
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -46,13 +46,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.umc.homefit.data.dto.RecruitmentDto
-import com.umc.homefit.data.dto.RecruitmentStatus
+import com.umc.homefit.data.dto.recruitment.RecruitmentDto
+import com.umc.homefit.data.dto.recruitment.RecruitmentStatus
 import com.umc.homefit.presentation.recruitment.component.RecruitmentCard
-import com.umc.homefit.ui.theme.RecruitmentAccent
-import com.umc.homefit.ui.theme.RecruitmentBorder
-import com.umc.homefit.ui.theme.RecruitmentTextGray
-import com.umc.homefit.ui.theme.SearchFieldBackground
+import com.umc.homefit.presentation.theme.RecruitmentAccent
+import com.umc.homefit.presentation.theme.RecruitmentBorder
+import com.umc.homefit.presentation.theme.RecruitmentTextGray
+import com.umc.homefit.presentation.theme.SearchFieldBackground
 import com.umc.homefit.R
 
 @Composable
