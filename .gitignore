@@ -65,3 +65,6 @@ Thumbs.db
 
 # Release artifacts
 app/release/
+
+# AI Guide
+CLAUDE.md
