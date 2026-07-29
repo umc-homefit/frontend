@@ -1,7 +1,7 @@
 package com.umc.homefit.di
 
-import com.umc.homefit.data.datasource.AuthApiService
-import com.umc.homefit.data.datasource.HealthApiService
+import com.umc.homefit.data.api.auth.AuthApiService
+import com.umc.homefit.data.api.common.HealthApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

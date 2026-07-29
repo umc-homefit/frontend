@@ -1,7 +1,7 @@
 package com.umc.homefit.di
 
 import android.content.Context
-import com.umc.homefit.data.datasource.local.UserPreferencesDataSource
+import com.umc.homefit.data.local.UserPreferencesDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

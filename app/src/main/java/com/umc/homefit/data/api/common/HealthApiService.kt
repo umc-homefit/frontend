@@ -1,4 +1,4 @@
-package com.umc.homefit.data.datasource
+package com.umc.homefit.data.api.common
 
 import retrofit2.http.GET
 import retrofit2.Response

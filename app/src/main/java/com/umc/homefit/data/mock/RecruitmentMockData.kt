@@ -1,16 +1,13 @@
-﻿package com.umc.homefit.data.datasource.recruitment
+package com.umc.homefit.data.mock
 
 import com.umc.homefit.R
 import com.umc.homefit.data.dto.recruitment.Attachment
 import com.umc.homefit.data.dto.recruitment.RecruitmentDto
 import com.umc.homefit.data.dto.recruitment.RecruitmentStatus
-import javax.inject.Inject
 
-class RemoteDataSourceImpl @Inject constructor(
-    // TODO: Retrofit API 서비스 인터페이스 추가 시 여기에 주입
-) : RemoteDataSource {
+object RecruitmentMockData {
 
-    override suspend fun getRecruitments(): List<RecruitmentDto> {
+    fun getRecruitments(): List<RecruitmentDto> {
         return listOf(
             RecruitmentDto(
                 id = "1",
@@ -91,7 +88,7 @@ class RemoteDataSourceImpl @Inject constructor(
         )
     }
 
-    override suspend fun getRecruitmentDetail(id: String): RecruitmentDto {
+    fun getRecruitmentDetail(id: String): RecruitmentDto {
         return RecruitmentDto(
             id = id,
             title = "강동구 청년안심주택 2025-03호",

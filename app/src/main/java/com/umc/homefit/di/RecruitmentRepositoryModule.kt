@@ -1,7 +1,5 @@
 package com.umc.homefit.di
 
-import com.umc.homefit.data.datasource.recruitment.RemoteDataSource
-import com.umc.homefit.data.datasource.recruitment.RemoteDataSourceImpl
 import com.umc.homefit.domain.repository.recruitment.DistrictRepository
 import com.umc.homefit.data.repository.recruitment.DistrictRepositoryImpl
 import com.umc.homefit.domain.repository.recruitment.RecruitmentRepository
@@ -19,10 +17,6 @@ abstract class RecruitmentRepositoryModule {
     @Binds
     @Singleton
     abstract fun bindRecruitmentRepository(impl: RecruitmentRepositoryImpl): RecruitmentRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindRecruitmentRemoteDataSource(impl: RemoteDataSourceImpl): RemoteDataSource
 
     @Binds
     @Singleton

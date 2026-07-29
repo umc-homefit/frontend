@@ -1,4 +1,4 @@
-package com.umc.homefit.data.datasource
+package com.umc.homefit.data.api.auth
 
 import com.umc.homefit.data.dto.auth.LoginRequest
 import com.umc.homefit.data.dto.auth.LoginResponse
