@@ -33,7 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.umc.homefit.ui.component.AppScaffold
+import com.umc.homefit.presentation.component.AppScaffold
 import com.umc.homefit.R
 import androidx.compose.ui.draw.scale
 

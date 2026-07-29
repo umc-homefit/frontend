@@ -1,13 +1,13 @@
-package com.umc.homefit.presentation.recruitment
+﻿package com.umc.homefit.presentation.recruitment
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.umc.homefit.data.dto.CompetitionDto
-import com.umc.homefit.data.dto.CompetitionHistoryEntry
-import com.umc.homefit.data.dto.RecruitmentDto
-import com.umc.homefit.data.dto.RecruitmentStatus
-import com.umc.homefit.data.dto.TypeCompetitionRate
+import com.umc.homefit.data.dto.home.CompetitionDto
+import com.umc.homefit.data.dto.home.CompetitionHistoryEntry
+import com.umc.homefit.data.dto.recruitment.RecruitmentDto
+import com.umc.homefit.data.dto.recruitment.RecruitmentStatus
+import com.umc.homefit.data.dto.home.TypeCompetitionRate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

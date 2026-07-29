@@ -1,4 +1,4 @@
-package com.umc.homefit.presentation.finance.component
+﻿package com.umc.homefit.presentation.finance.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -27,7 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.R
-import com.umc.homefit.data.dto.RecommendedProductDto
+import com.umc.homefit.data.dto.home.RecommendedProductDto
 
 @Composable
 fun RecommendedProductCard(

@@ -1,7 +1,7 @@
-package com.umc.homefit.data.mock
+﻿package com.umc.homefit.data.mock
 
 import com.umc.homefit.R
-import com.umc.homefit.data.dto.RecommendedProductDto
+import com.umc.homefit.data.dto.home.RecommendedProductDto
 
 object FinanceMockData {
 

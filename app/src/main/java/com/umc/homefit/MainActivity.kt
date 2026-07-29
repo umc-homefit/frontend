@@ -1,4 +1,4 @@
-package com.umc.homefit
+﻿package com.umc.homefit
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -9,8 +9,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.umc.homefit.navigation.RootNavGraph
-import com.umc.homefit.ui.theme.HomeFitTheme
+import com.umc.homefit.presentation.navigation.RootNavGraph
+import com.umc.homefit.presentation.theme.HomeFitTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

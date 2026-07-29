@@ -35,23 +35,38 @@ HomeFit은 사용자가 공공 청년주택 공고를 조회하고, 자신의 �
 
 ## 📁 프로젝트 폴더 구조
 
-```
-app/
-├── data/
-│   ├── datasource/
-│   ├── dto/
-│   └── repository/
-├── presentation/
-│   ├── home/
-│   ├── recruitment/
+```text
+app/src/main/java/com/umc/homefit/
+├── data/                  # 데이터 레이어 (통신, DB, DTO)
+│   ├── datasource/        # Local / Remote 데이터 소스
+│   ├── dto/               # API 통신용 DTO (기능별 분리)
+│   │   ├── analysis/
+│   │   ├── auth/
+│   │   ├── common/
+│   │   ├── finance/
+│   │   ├── home/
+│   │   ├── mypage/
+│   │   └── recruitment/
+│   ├── local/             # DataStore, TokenProvider 등 로컬 데이터
+│   ├── mock/              # 테스트용 Mock 데이터
+│   ├── remote/            # NetworkResult, SafeApiCall 등 네트워크 헬퍼
+│   └── repository/        # Repository 구현체 (Impl)
+├── domain/                # 도메인 레이어 (비즈니스 규칙)
+│   └── repository/        # Repository 인터페이스 (home, recruitment, finance 등)
+├── presentation/          # 프레젠테이션 레이어 (UI, ViewModel)
+│   ├── component/         # 공통 UI 컴포넌트 (AppButton, AppTopBar 등)
+│   ├── navigation/        # Navigation Compose (NavGraph, Route, BottomNavItem)
+│   ├── theme/             # Design System / UI 테마 (Color, Theme, Type)
 │   ├── analysis/
+│   ├── auth/
+│   ├── common/
 │   ├── finance/
+│   ├── home/
 │   ├── mypage/
-│   └── common/
-├── navigation/
-├── di/
-├── ui/
-└── util/
+│   ├── recruitment/
+│   └── splash/
+├── di/                    # Hilt 의존성 주입 모듈
+└── util/                  # 순수 공통 유틸리티
 ```
 
 ---

@@ -1,4 +1,4 @@
-package com.umc.homefit.presentation.recruitment
+﻿package com.umc.homefit.presentation.recruitment
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -51,22 +51,22 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.umc.homefit.R
-import com.umc.homefit.data.dto.Attachment
-import com.umc.homefit.data.dto.RecruitmentDto
-import com.umc.homefit.data.dto.RecruitmentStatus
+import com.umc.homefit.data.dto.recruitment.Attachment
+import com.umc.homefit.data.dto.recruitment.RecruitmentDto
+import com.umc.homefit.data.dto.recruitment.RecruitmentStatus
 import com.umc.homefit.presentation.recruitment.component.RecruitmentTabRow
 import com.umc.homefit.presentation.recruitment.component.RecruitmentTitleCard
-import com.umc.homefit.ui.component.AppScaffold
-import com.umc.homefit.ui.component.TopBarAction
-import com.umc.homefit.ui.theme.AnalysisButtonGradient
-import com.umc.homefit.ui.theme.BackgroundLight
-import com.umc.homefit.ui.theme.RecruitmentAccent
-import com.umc.homefit.ui.theme.RecruitmentBorder
-import com.umc.homefit.ui.theme.RecruitmentTextGray
-import com.umc.homefit.ui.theme.SearchFieldBackground
-import com.umc.homefit.ui.theme.StatusClosingSoonText
-import com.umc.homefit.ui.theme.StatusScheduledText
-import com.umc.homefit.ui.theme.TextBlack
+import com.umc.homefit.presentation.component.AppScaffold
+import com.umc.homefit.presentation.component.TopBarAction
+import com.umc.homefit.presentation.theme.AnalysisButtonGradient
+import com.umc.homefit.presentation.theme.BackgroundLight
+import com.umc.homefit.presentation.theme.RecruitmentAccent
+import com.umc.homefit.presentation.theme.RecruitmentBorder
+import com.umc.homefit.presentation.theme.RecruitmentTextGray
+import com.umc.homefit.presentation.theme.SearchFieldBackground
+import com.umc.homefit.presentation.theme.StatusClosingSoonText
+import com.umc.homefit.presentation.theme.StatusScheduledText
+import com.umc.homefit.presentation.theme.TextBlack
 import java.util.Locale
 
 @Composable
