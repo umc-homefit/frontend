@@ -20,8 +20,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.umc.homefit.R
-import com.umc.homefit.ui.component.AppTopBar
-import com.umc.homefit.ui.component.TopBarAction
+import com.umc.homefit.presentation.component.AppTopBar
+import com.umc.homefit.presentation.component.TopBarAction
 
 private val BorderColor = Color(0xFFD2D9E2)
 

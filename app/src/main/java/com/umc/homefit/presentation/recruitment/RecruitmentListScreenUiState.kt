@@ -1,6 +1,6 @@
-package com.umc.homefit.presentation.recruitment
+﻿package com.umc.homefit.presentation.recruitment
 
-import com.umc.homefit.data.dto.RecruitmentDto
+import com.umc.homefit.data.dto.recruitment.RecruitmentDto
 
 sealed interface RecruitmentListScreenUiState {
     object Loading : RecruitmentListScreenUiState

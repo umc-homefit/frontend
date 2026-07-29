@@ -1,4 +1,4 @@
-﻿package com.umc.homefit.di
+package com.umc.homefit.di
 
 import com.umc.homefit.data.datasource.HealthApiService
 import dagger.Module
@@ -35,7 +35,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideAuthInterceptor(tokenProvider: com.umc.homefit.util.TokenProvider): Interceptor =
+    fun provideAuthInterceptor(tokenProvider: com.umc.homefit.data.local.TokenProvider): Interceptor =
         Interceptor { chain ->
             val token = tokenProvider.getAccessToken()
             val request = if (token != null) {

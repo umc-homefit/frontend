@@ -1,4 +1,4 @@
-package com.umc.homefit.presentation.recruitment
+﻿package com.umc.homefit.presentation.recruitment
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,11 +34,11 @@ import com.umc.homefit.presentation.recruitment.component.DistrictDropdownField
 import com.umc.homefit.presentation.recruitment.component.FilterRangeSegment
 import com.umc.homefit.presentation.recruitment.component.FilterRangeSlider
 import com.umc.homefit.presentation.recruitment.component.FilterRangeTick
-import com.umc.homefit.ui.component.AppScaffold
-import com.umc.homefit.ui.component.TopBarAction
-import com.umc.homefit.ui.theme.RecruitmentAccent
-import com.umc.homefit.ui.theme.RecruitmentTextGray
-import com.umc.homefit.ui.theme.SearchFieldBackground
+import com.umc.homefit.presentation.component.AppScaffold
+import com.umc.homefit.presentation.component.TopBarAction
+import com.umc.homefit.presentation.theme.RecruitmentAccent
+import com.umc.homefit.presentation.theme.RecruitmentTextGray
+import com.umc.homefit.presentation.theme.SearchFieldBackground
 import kotlin.math.roundToInt
 
 // TitleColor는 Color.kt에 대응 토큰이 아직 없어 로컬로 유지

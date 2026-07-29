@@ -1,6 +1,6 @@
 ﻿package com.umc.homefit.presentation.finance
 
-import com.umc.homefit.data.dto.RecommendedProductDto
+import com.umc.homefit.data.dto.home.RecommendedProductDto
 
 sealed interface RecommendedProductScreenUiState {
 

@@ -1,7 +1,7 @@
 ﻿package com.umc.homefit.presentation.recruitment
 
-import com.umc.homefit.data.dto.CompetitionDto
-import com.umc.homefit.data.dto.RecruitmentDto
+import com.umc.homefit.data.dto.home.CompetitionDto
+import com.umc.homefit.data.dto.recruitment.RecruitmentDto
 
 sealed interface CompetitionScreenUiState {
     data object Loading : CompetitionScreenUiState

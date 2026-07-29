@@ -1,4 +1,4 @@
-package com.umc.homefit.presentation.recruitment.component
+﻿package com.umc.homefit.presentation.recruitment.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -25,20 +25,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.umc.homefit.data.dto.RecruitmentDto
-import com.umc.homefit.data.dto.RecruitmentStatus
-import com.umc.homefit.ui.theme.BookmarkActive
-import com.umc.homefit.ui.theme.BookmarkInactive
-import com.umc.homefit.ui.theme.CompetitionRateBackground
-import com.umc.homefit.ui.theme.CompetitionRateText
-import com.umc.homefit.ui.theme.RecruitmentBorder
-import com.umc.homefit.ui.theme.RecruitmentTextGray
-import com.umc.homefit.ui.theme.StatusClosingSoonBackground
-import com.umc.homefit.ui.theme.StatusClosingSoonText
-import com.umc.homefit.ui.theme.StatusRecruitingBackground
-import com.umc.homefit.ui.theme.StatusRecruitingText
-import com.umc.homefit.ui.theme.StatusScheduledBackground
-import com.umc.homefit.ui.theme.StatusScheduledText
+import com.umc.homefit.data.dto.recruitment.RecruitmentDto
+import com.umc.homefit.data.dto.recruitment.RecruitmentStatus
+import com.umc.homefit.presentation.theme.BookmarkActive
+import com.umc.homefit.presentation.theme.BookmarkInactive
+import com.umc.homefit.presentation.theme.CompetitionRateBackground
+import com.umc.homefit.presentation.theme.CompetitionRateText
+import com.umc.homefit.presentation.theme.RecruitmentBorder
+import com.umc.homefit.presentation.theme.RecruitmentTextGray
+import com.umc.homefit.presentation.theme.StatusClosingSoonBackground
+import com.umc.homefit.presentation.theme.StatusClosingSoonText
+import com.umc.homefit.presentation.theme.StatusRecruitingBackground
+import com.umc.homefit.presentation.theme.StatusRecruitingText
+import com.umc.homefit.presentation.theme.StatusScheduledBackground
+import com.umc.homefit.presentation.theme.StatusScheduledText
 import java.util.Locale
 
 @Composable

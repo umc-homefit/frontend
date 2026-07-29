@@ -1,9 +1,9 @@
-package com.umc.homefit.presentation.recruitment
+﻿package com.umc.homefit.presentation.recruitment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.umc.homefit.data.dto.RecruitmentDto
-import com.umc.homefit.data.repository.RecruitmentRepository
+import com.umc.homefit.data.dto.recruitment.RecruitmentDto
+import com.umc.homefit.domain.repository.recruitment.RecruitmentRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

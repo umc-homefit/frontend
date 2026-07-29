@@ -21,7 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.umc.homefit.ui.component.AppScaffold
+import com.umc.homefit.presentation.component.AppScaffold
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -45,8 +45,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.umc.homefit.presentation.finance.component.HelpTerm
-import com.umc.homefit.ui.component.StepBaseLayout
-import com.umc.homefit.ui.component.CompletionStep
+import com.umc.homefit.presentation.component.StepBaseLayout
+import com.umc.homefit.presentation.component.CompletionStep
 import kotlinx.serialization.Serializable
 import com.umc.homefit.R
 

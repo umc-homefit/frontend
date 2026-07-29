@@ -1,7 +1,7 @@
-package com.umc.homefit.di
+﻿package com.umc.homefit.di
 
-import com.umc.homefit.util.DummyTokenProvider
-import com.umc.homefit.util.TokenProvider
+import com.umc.homefit.data.local.DummyTokenProvider
+import com.umc.homefit.data.local.TokenProvider
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

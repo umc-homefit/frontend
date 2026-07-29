@@ -15,7 +15,7 @@ import com.umc.homefit.presentation.analysis.FinanceInfoRow
 import com.umc.homefit.presentation.analysis.FinanceInfoSection
 import com.umc.homefit.presentation.analysis.FinancialInfoContent
 import com.umc.homefit.presentation.analysis.FinancialInfoStep
-import com.umc.homefit.ui.component.AppScaffold
+import com.umc.homefit.presentation.component.AppScaffold
 
 @Composable
 fun MyFinanceScreenRoute(
