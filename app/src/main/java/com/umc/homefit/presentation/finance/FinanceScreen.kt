@@ -107,9 +107,6 @@ private fun FinanceSuccessContent(
         modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFFFFFFF)),
-        contentPadding = PaddingValues(
-            bottom = 140.dp
-        )
     ) {
         item {
             FinanceHeaderSection()

@@ -11,19 +11,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun RecommendedProductSearchBar(
@@ -37,59 +38,59 @@ fun RecommendedProductSearchBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp),
+            .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
                 .weight(1f)
-                .height(52.dp)
+                .height(48.dp)
         ) {
-            TextField(
+            BasicTextField(
                 value = searchQuery,
                 onValueChange = {
                     if (!readOnly) {
                         onSearchQueryChange(it)
                     }
                 },
-                modifier = Modifier.fillMaxSize(),
-                placeholder = {
-                    Text(
-                        text = "상품명, 은행명 등으로 검색"
-                    )
-                },
-                readOnly = readOnly,
+                modifier = Modifier
+                    .fillMaxSize(),
                 singleLine = true,
-                shape = RoundedCornerShape(
-                    topStart = 4.dp,
-                    bottomStart = 4.dp
+                textStyle = TextStyle(
+                    fontSize = 14.sp,
+                    color = Color.Black
                 ),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFF0F4F9),
-                    unfocusedContainerColor = Color(0xFFF0F4F9),
-                    disabledContainerColor = Color(0xFFF0F4F9),
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    focusedPlaceholderColor = Color(0xFF919AA4),
-                    unfocusedPlaceholderColor = Color(0xFF919AA4)
-                )
-            )
-
-            if (readOnly && onBarClick != null) {
-                Box(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .clickable {
-                            onBarClick()
+                decorationBox = { innerTextField ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Color(0xFFF0F4F9),
+                                RoundedCornerShape(
+                                    topStart = 4.dp,
+                                    bottomStart = 4.dp
+                                )
+                            )
+                            .padding(horizontal = 16.dp),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        if (searchQuery.isEmpty()) {
+                            Text(
+                                text = "상품명, 은행명 등으로 검색",
+                                fontSize = 14.sp,
+                                color = Color(0xFF919AA4)
+                            )
                         }
-                )
-            }
+
+                        innerTextField()
+                    }
+                }
+            )
         }
 
         Box(
             modifier = Modifier
-                .size(52.dp)
+                .size(48.dp)
                 .background(
                     brush = Brush.linearGradient(
                         colors = listOf(

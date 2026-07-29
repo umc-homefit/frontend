@@ -569,5 +569,3 @@ private fun RecommendedProductScreenPreview() {
         onNavigateToDetail = {}
     )
 }
-
-
