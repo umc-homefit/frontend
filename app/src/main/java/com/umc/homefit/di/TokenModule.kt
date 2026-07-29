@@ -1,7 +1,7 @@
 ﻿package com.umc.homefit.di
 
-import com.umc.homefit.data.local.DummyTokenProvider
 import com.umc.homefit.data.local.TokenProvider
+import com.umc.homefit.data.local.TokenProviderImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -13,5 +13,5 @@ import javax.inject.Singleton
 abstract class TokenModule {
     @Binds
     @Singleton
-    abstract fun bindTokenProvider(impl: DummyTokenProvider): TokenProvider
+    abstract fun bindTokenProvider(impl: TokenProviderImpl): TokenProvider
 }
