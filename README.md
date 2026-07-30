@@ -1,6 +1,6 @@
 # HomeFit Android
 
-> "이 집, 내가 실제로 들어갈 수 있을까?"  
+> "이 집, 내가 실제로 들어갈 수 있을까?"
 
 HomeFit은 사용자가 공공 청년주택 공고를 조회하고, 자신의 조건을 기반으로 입주 가능성을 분석하며, 조건에 맞는 금융상품을 추천받을 수 있도록 돕는 주거 금융 플랫폼입니다.
 
@@ -38,7 +38,12 @@ HomeFit은 사용자가 공공 청년주택 공고를 조회하고, 자신의 �
 ```text
 app/src/main/java/com/umc/homefit/
 ├── data/                  # 데이터 레이어 (통신, DB, DTO)
-│   ├── datasource/        # Local / Remote 데이터 소스
+│   ├── api/               # Retrofit ApiService (기능별 분리)
+│   │   ├── auth/
+│   │   ├── common/
+│   │   ├── finance/
+│   │   ├── home/
+│   │   └── recruitment/
 │   ├── dto/               # API 통신용 DTO (기능별 분리)
 │   │   ├── analysis/
 │   │   ├── auth/
@@ -75,7 +80,7 @@ app/src/main/java/com/umc/homefit/
 
 1. Repository Clone
 ```bash
-git clone https://github.com/[org이름]/homefit-android.git
+git clone https://github.com/umc-homefit/frontend.git
 ```
 2. Android Studio에서 프로젝트 Open
 3. `local.properties`에 필요한 환경 변수 설정
@@ -123,7 +128,7 @@ Home
 ├── 분석
 │   ├── 금융 정보 입력
 │   └── 입주 가능성 결과
-│       
+│
 ├── 금융
 │   └── 금융 상품
 │       └── 추천 상품 목록

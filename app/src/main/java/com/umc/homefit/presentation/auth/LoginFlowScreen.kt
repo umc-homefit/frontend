@@ -138,6 +138,8 @@ fun LoginFlowScreen(
                             PasswordStep(
                                 password = uiState.password,
                                 isValid = uiState.isPasswordValid,
+                                isLoading = uiState.isLoading,
+                                errorMessage = uiState.errorMessage,
                                 onPasswordChange = onPasswordChange,
                                 onNext = onPasswordNext
                             )
@@ -252,6 +254,8 @@ private fun EmailStep(
 private fun PasswordStep(
     password: String,
     isValid: Boolean,
+    isLoading: Boolean,
+    errorMessage: String?,
     onPasswordChange: (String) -> Unit,
     onNext: () -> Unit,
     modifier: Modifier = Modifier
@@ -259,10 +263,11 @@ private fun PasswordStep(
     StepBaseLayout(
         title = "비밀번호를 입력해주세요",
         onNext = onNext,
-        isNextEnabled = isValid,
+        isNextEnabled = isValid && !isLoading,
         bottomLinkText = "",
         onBottomLinkClick = {},
-        modifier = modifier
+        modifier = modifier,
+        buttonText = if (isLoading) "로그인 중..." else "다음"
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
@@ -308,8 +313,8 @@ private fun PasswordStep(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "비밀번호를 입력해주세요",
-                color = RecruitmentTextGray,
+                text = errorMessage ?: "비밀번호를 입력해주세요",
+                color = if (errorMessage != null) ValidationErrorText else RecruitmentTextGray,
                 fontSize = 12.sp
             )
         }

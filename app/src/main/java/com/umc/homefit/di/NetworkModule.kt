@@ -1,6 +1,7 @@
 package com.umc.homefit.di
 
-import com.umc.homefit.data.datasource.HealthApiService
+import com.umc.homefit.data.api.auth.AuthApiService
+import com.umc.homefit.data.api.common.HealthApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -77,4 +78,9 @@ object NetworkModule {
     @Singleton
     fun provideHealthApiService(retrofit: Retrofit): HealthApiService =
         retrofit.create(HealthApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideAuthApiService(retrofit: Retrofit): AuthApiService =
+        retrofit.create(AuthApiService::class.java)
 }

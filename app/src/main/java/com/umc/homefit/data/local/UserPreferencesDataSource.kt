@@ -1,4 +1,4 @@
-package com.umc.homefit.data.datasource.local
+package com.umc.homefit.data.local
 
 import android.content.Context
 import androidx.datastore.core.DataStore
