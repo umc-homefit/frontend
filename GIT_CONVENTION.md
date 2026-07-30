@@ -153,6 +153,8 @@ data class RecruitmentListUiState(
 
 ## 패키지 구조 규칙
 
+### presentation 계층
+
 ```
 presentation/recruitment/
 ├── RecruitmentListScreen.kt
@@ -161,6 +163,32 @@ presentation/recruitment/
 └── component/
     └── RecruitmentCard.kt
 ```
+
+### data / domain 계층
+
+```
+data/
+├── api/                 # Retrofit 인터페이스 (feature별)
+│   └── auth/
+│       └── AuthApiService.kt
+├── dto/                 # 요청/응답 DTO (feature별)
+│   └── auth/
+├── local/               # DataStore, TokenProvider 등 로컬 저장소
+├── mock/                # API 미연동 기능의 임시 데이터 (object)
+├── remote/              # NetworkResult, SafeApiCall
+└── repository/          # Repository 구현체 (feature별)
+    └── auth/
+        └── AuthRepositoryImpl.kt
+
+domain/
+└── repository/          # Repository 인터페이스 (feature별)
+    └── auth/
+        └── AuthRepository.kt
+```
+
+- ApiService는 `data/api/{feature}/`, DTO는 `data/dto/{feature}/`, Repository 구현체는 `data/repository/{feature}/`, Repository 인터페이스는 `domain/repository/{feature}/`에 각각 위치
+- RemoteDataSource, UseCase 계층은 추가하지 않음 — Repository Impl이 ApiService를 직접 호출 (자세한 연동 절차는 API_INTEGRATION_GUIDE.md 참고)
+- API가 아직 없는 기능은 `data/mock/{Feature}MockData.kt`에 임시 데이터를 두고 Repository Impl이 직접 참조
 
 ---
 

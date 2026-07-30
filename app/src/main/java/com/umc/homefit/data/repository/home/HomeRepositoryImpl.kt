@@ -1,6 +1,6 @@
 ﻿package com.umc.homefit.data.repository.home
 
-import com.umc.homefit.data.datasource.local.UserPreferencesDataSource
+import com.umc.homefit.data.local.UserPreferencesDataSource
 import com.umc.homefit.data.dto.recruitment.RecruitmentDto
 import com.umc.homefit.data.dto.recruitment.RecruitmentStatus
 import com.umc.homefit.domain.repository.home.HomeRepository
