@@ -1,5 +1,6 @@
 package com.umc.homefit.di
 
+import com.umc.homefit.data.api.analysis.AnalysisApiService
 import com.umc.homefit.data.api.auth.AuthApiService
 import com.umc.homefit.data.api.common.HealthApiService
 import com.umc.homefit.data.api.finance.FinanceApiService
@@ -84,12 +85,4 @@ object NetworkModule {
     @Singleton
     fun provideAuthApiService(retrofit: Retrofit): AuthApiService =
         retrofit.create(AuthApiService::class.java)
-
-    @Provides
-    @Singleton
-    fun provideFinanceApiService(
-        retrofit: Retrofit
-    ): FinanceApiService {
-        return retrofit.create(FinanceApiService::class.java)
-    }
 }

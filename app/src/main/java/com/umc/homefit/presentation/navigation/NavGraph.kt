@@ -393,7 +393,7 @@ fun MainScreen(
                 AnalysisScreenRoute(
                     viewModel = hiltViewModel(),
                     onNavigateToEdit = { step -> rootNavController.navigate(Route.FinancialInfoEdit(step)) },
-                    onNavigateToDetail = { recruitmentId -> rootNavController.navigate(Route.RecruitmentDetail(recruitmentId)) }
+                    onNavigateToDetail = { noticeId -> rootNavController.navigate(Route.RecruitmentDetail(noticeId)) }
                 )
             }
 

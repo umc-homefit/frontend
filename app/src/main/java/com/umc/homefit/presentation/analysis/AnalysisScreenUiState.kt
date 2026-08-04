@@ -15,12 +15,12 @@ enum class AnalysisTab(val title: String) {
 }
 
 data class RecordItem(
-    val recruitmentId: String,
+    val noticeId: String,
     val date: String,
     val title: String,
     val complexInfo: String,
     val areaInfo: String,
     val applyPeriod: String,
     val statusLabel: String,
-    val competitionRate: String
+    val competitionRate: String?
 )
