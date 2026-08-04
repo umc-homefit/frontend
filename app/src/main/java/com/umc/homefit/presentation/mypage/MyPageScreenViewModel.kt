@@ -32,7 +32,7 @@ class MyPageScreenViewModel @Inject constructor(
             if (profileResult is NetworkResult.Success && basicInfoResult is NetworkResult.Success) {
                 _uiState.value = MyPageScreenUiState.Success(
                     MyPageProfile(
-                        nickname = profileResult.data.nickname,
+                        nickname = profileResult.data.nickname ?: "닉네임을 설정해주세요",
                         email = basicInfoResult.data.email,
                         profileImageUrl = profileResult.data.profileImageUrl
                     )

@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ProfileResponse(
-    val nickname: String,
+    val nickname: String? = null,
     val birthDate: String? = null,
     val phoneNumber: String? = null,
     val profileImageUrl: String? = null,
