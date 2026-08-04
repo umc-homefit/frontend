@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 @HiltViewModel
 class MyPageScreenViewModel @Inject constructor(
@@ -26,8 +28,11 @@ class MyPageScreenViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = MyPageScreenUiState.Loading
 
-            val profileResult = myPageRepository.getProfile()
-            val basicInfoResult = myPageRepository.getBasicInfo()
+            val (profileResult, basicInfoResult) = coroutineScope {
+                val profileDeferred = async { myPageRepository.getProfile() }
+                val basicInfoDeferred = async { myPageRepository.getBasicInfo() }
+                profileDeferred.await() to basicInfoDeferred.await()
+            }
 
             if (profileResult is NetworkResult.Success && basicInfoResult is NetworkResult.Success) {
                 _uiState.value = MyPageScreenUiState.Success(
