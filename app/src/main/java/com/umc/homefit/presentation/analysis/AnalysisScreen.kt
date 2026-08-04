@@ -41,7 +41,7 @@ import androidx.compose.foundation.lazy.items
 fun AnalysisScreenRoute(
     viewModel: AnalysisScreenViewModel,
     onNavigateToEdit: (FinancialInfoStep) -> Unit,
-    onNavigateToDetail: (String) -> Unit,
+    onNavigateToDetail: (noticeId: String, analysisId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -57,7 +57,7 @@ fun AnalysisScreenRoute(
 fun AnalysisScreen(
     uiState: AnalysisScreenUiState,
     onNavigateToEdit: (FinancialInfoStep) -> Unit,
-    onRecordClick: (String) -> Unit,
+    onRecordClick: (noticeId: String, analysisId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(AnalysisTab.FINANCIAL_INFO) }
@@ -147,7 +147,7 @@ private fun AnalysisTabRow(
 @Composable
 private fun RecordListContent(
     records: List<RecordItem>,
-    onRecordClick: (String) -> Unit,
+    onRecordClick: (noticeId: String, analysisId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     // 기록 없는 경우
@@ -167,7 +167,7 @@ private fun RecordListContent(
         items(records) { record ->
             RecordCard(
                 record = record,
-                onClick = { onRecordClick(record.noticeId) }
+                onClick = { onRecordClick(record.noticeId, record.analysisId) }
             )
         }
     }
