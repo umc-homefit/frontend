@@ -116,12 +116,15 @@ fun RootNavGraph(
             )
         }
 
-        composable<Route.RecruitmentDetail> {
+        composable<Route.RecruitmentDetail> { backStackEntry ->
+            val args = backStackEntry.toRoute<Route.RecruitmentDetail>()
             RecruitmentDetailScreenRoute(
                 viewModel = hiltViewModel(),
+                analysisId = args.analysisId,
                 onBack = { navController.popBackStack() },
                 onNavigateToCompetition = { recruitmentId -> navController.navigate(Route.Competition(recruitmentId)) },
-                onNavigateToAnalysis = { navController.navigate(Route.FinancialInfo) }
+                onNavigateToAnalysis = { navController.navigate(Route.FinancialInfo) },
+                onNavigateToAnalysisResult = { analysisId -> navController.navigate(Route.AnalysisResult(analysisId)) }
             )
         }
 
@@ -393,7 +396,9 @@ fun MainScreen(
                 AnalysisScreenRoute(
                     viewModel = hiltViewModel(),
                     onNavigateToEdit = { step -> rootNavController.navigate(Route.FinancialInfoEdit(step)) },
-                    onNavigateToDetail = { noticeId -> rootNavController.navigate(Route.RecruitmentDetail(noticeId)) }
+                    onNavigateToDetail = { noticeId, analysisId ->
+                        rootNavController.navigate(Route.RecruitmentDetail(recruitmentId = noticeId, analysisId = analysisId))
+                    }
                 )
             }
 

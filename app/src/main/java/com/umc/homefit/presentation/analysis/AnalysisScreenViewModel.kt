@@ -88,6 +88,7 @@ class AnalysisScreenViewModel @Inject constructor(
 
 private fun EligibilityAnalysisHistoryItemDto.toRecordItem(): RecordItem = RecordItem(
     noticeId = noticeId.toString(),
+    analysisId = analysisId.toString(),
     date = analyzedAt.toDisplayDate(),
     title = noticeTitle,
     complexInfo = announcementNo?.let { "공고번호 | $it" } ?: unitName.orEmpty(),

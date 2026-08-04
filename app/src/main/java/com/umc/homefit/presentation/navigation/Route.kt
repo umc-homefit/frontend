@@ -22,7 +22,7 @@ sealed interface Route {
     data object RecruitmentFilter : Route
 
     @Serializable
-    data class RecruitmentDetail(val recruitmentId: String) : Route
+    data class RecruitmentDetail(val recruitmentId: String, val analysisId: String? = null) : Route
 
     @Serializable
     data class Competition(val recruitmentId: String) : Route
