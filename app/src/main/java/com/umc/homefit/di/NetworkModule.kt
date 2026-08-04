@@ -16,6 +16,7 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 import com.umc.homefit.data.api.mypage.MyPageApiService
+import com.umc.homefit.data.api.analysis.AnalysisApiService
 
 
 @Module
@@ -85,6 +86,11 @@ object NetworkModule {
     @Singleton
     fun provideAuthApiService(retrofit: Retrofit): AuthApiService =
         retrofit.create(AuthApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideAnalysisApiService(retrofit: Retrofit): AnalysisApiService =
+        retrofit.create(AnalysisApiService::class.java)
 
     @Provides
     @Singleton

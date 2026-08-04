@@ -1,4 +1,17 @@
 package com.umc.homefit.di
 
-class AnalysisRepositoryModule {
+import com.umc.homefit.data.repository.analysis.AnalysisRepositoryImpl
+import com.umc.homefit.domain.repository.analysis.AnalysisRepository
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class AnalysisRepositoryModule {
+    @Binds
+    @Singleton
+    abstract fun bindAnalysisRepository(impl: AnalysisRepositoryImpl): AnalysisRepository
 }

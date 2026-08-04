@@ -167,7 +167,7 @@ private fun RecordListContent(
         items(records) { record ->
             RecordCard(
                 record = record,
-                onClick = { onRecordClick(record.recruitmentId) }
+                onClick = { onRecordClick(record.noticeId) }
             )
         }
     }
@@ -209,8 +209,10 @@ private fun RecordCard(
                 Spacer(modifier = Modifier.height(9.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     StatusBadge(label = record.statusLabel)
-                    Spacer(modifier = Modifier.width(5.dp))
-                    CompetitionBadge(rate = record.competitionRate)
+                    if (!record.competitionRate.isNullOrBlank()) {
+                        Spacer(modifier = Modifier.width(5.dp))
+                        CompetitionBadge(rate = record.competitionRate)
+                    }
                 }
             }
         }
@@ -220,8 +222,17 @@ private fun RecordCard(
 @Composable
 private fun StatusBadge(label: String, modifier: Modifier = Modifier) {
     val isRecruiting = label == "모집중"
-    val bgColor = if (isRecruiting) Color(0xFFF1F0FF) else Color(0xFFF0F4F9)
-    val textColor = if (isRecruiting) Color(0xFF3C45F3) else Color(0xFF4A4F55)
+    val isClosingSoon = label == "마감임박"
+    val bgColor = when {
+        isRecruiting -> Color(0xFFF1F0FF)
+        isClosingSoon -> Color(0xFFFFF6F6)
+        else -> Color(0xFFF0F4F9)
+    }
+    val textColor = when {
+        isRecruiting -> Color(0xFF3C45F3)
+        isClosingSoon -> Color(0xFFFF5659)
+        else -> Color(0xFF4A4F55)
+    }
 
     Box(
         modifier = modifier
