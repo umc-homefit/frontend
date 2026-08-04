@@ -16,6 +16,7 @@ enum class AnalysisTab(val title: String) {
 
 data class RecordItem(
     val noticeId: String,
+    val analysisId: String,
     val date: String,
     val title: String,
     val complexInfo: String,

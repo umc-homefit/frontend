@@ -72,17 +72,21 @@ import java.util.Locale
 @Composable
 fun RecruitmentDetailScreenRoute(
     viewModel: RecruitmentDetailScreenViewModel,
+    analysisId: String?,
     onBack: () -> Unit,
     onNavigateToCompetition: (String) -> Unit,
     onNavigateToAnalysis: (String) -> Unit,
+    onNavigateToAnalysisResult: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     RecruitmentDetailScreen(
         uiState = uiState,
+        analysisId = analysisId,
         onBack = onBack,
         onNavigateToCompetition = onNavigateToCompetition,
         onNavigateToAnalysis = onNavigateToAnalysis,
+        onNavigateToAnalysisResult = onNavigateToAnalysisResult,
         onToggleBookmark = viewModel::toggleBookmark,
         modifier = modifier
     )
@@ -91,9 +95,11 @@ fun RecruitmentDetailScreenRoute(
 @Composable
 fun RecruitmentDetailScreen(
     uiState: RecruitmentDetailScreenUiState,
+    analysisId: String?,
     onBack: () -> Unit,
     onNavigateToCompetition: (String) -> Unit,
     onNavigateToAnalysis: (String) -> Unit,
+    onNavigateToAnalysisResult: (String) -> Unit,
     onToggleBookmark: () -> Unit,
 
     modifier: Modifier = Modifier
@@ -136,8 +142,10 @@ fun RecruitmentDetailScreen(
                 is RecruitmentDetailScreenUiState.Success -> {
                     RecruitmentDetailContent(
                         recruitment = uiState.recruitment,
+                        analysisId = analysisId,
                         onNavigateToCompetition = onNavigateToCompetition,
-                        onNavigateToAnalysis = onNavigateToAnalysis
+                        onNavigateToAnalysis = onNavigateToAnalysis,
+                        onNavigateToAnalysisResult = onNavigateToAnalysisResult
                     )
                 }
                 is RecruitmentDetailScreenUiState.Error -> {
@@ -153,8 +161,10 @@ fun RecruitmentDetailScreen(
 @Composable
 private fun RecruitmentDetailContent(
     recruitment: RecruitmentDto,
+    analysisId: String?,
     onNavigateToCompetition: (String) -> Unit,
-    onNavigateToAnalysis: (String) -> Unit
+    onNavigateToAnalysis: (String) -> Unit,
+    onNavigateToAnalysisResult: (String) -> Unit
 ) {
     var showFullScreenViewer by remember { mutableStateOf(false) }
     var selectedPhotoIndex by remember { mutableStateOf(0) }
@@ -217,8 +227,10 @@ private fun RecruitmentDetailContent(
         }
 
         BottomButtonBar(
+            analysisId = analysisId,
             onCompetitionClick = { onNavigateToCompetition(recruitment.id) },
-            onAnalysisClick = { onNavigateToAnalysis(recruitment.id) }
+            onAnalysisClick = { onNavigateToAnalysis(recruitment.id) },
+            onAnalysisResultClick = onNavigateToAnalysisResult
         )
     }
 
@@ -448,8 +460,10 @@ private fun AttachmentItem(fileName: String, registeredDate: String) {
 
 @Composable
 private fun BottomButtonBar(
+    analysisId: String?,
     onCompetitionClick: () -> Unit,
-    onAnalysisClick: () -> Unit
+    onAnalysisClick: () -> Unit,
+    onAnalysisResultClick: (String) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -474,10 +488,15 @@ private fun BottomButtonBar(
                 .weight(202f)
                 .height(48.dp)
                 .background(AnalysisButtonGradient, RoundedCornerShape(4.dp))
-                .clickable(onClick = onAnalysisClick),
+                .clickable(onClick = { analysisId?.let(onAnalysisResultClick) ?: onAnalysisClick() }),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "입주 분석 요청하기", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            Text(
+                text = if (analysisId != null) "입주 분석 결과보기" else "입주 분석 요청하기",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
         }
     }
 }
@@ -535,6 +554,7 @@ fun RecruitmentDetailScreenPreview() {
                 )
             )
         ),
-        onBack = {}, onNavigateToCompetition = {}, onNavigateToAnalysis = {}, onToggleBookmark = {}
+        analysisId = null,
+        onBack = {}, onNavigateToCompetition = {}, onNavigateToAnalysis = {}, onNavigateToAnalysisResult = {}, onToggleBookmark = {}
     )
 }
