@@ -98,12 +98,12 @@ fun FinancialInfoScreen(
             FinancialInfoStep.ASSET -> currentStep = FinancialInfoStep.INCOME
             FinancialInfoStep.DEBT -> currentStep = FinancialInfoStep.ASSET
             FinancialInfoStep.HOUSE -> currentStep = FinancialInfoStep.DEBT
-            FinancialInfoStep.COMPLETE -> currentStep = FinancialInfoStep.HOUSE
+            FinancialInfoStep.COMPLETE -> currentStep = FinancialInfoStep.INCOME
         }
     }
 
     AppScaffold(
-        title = null,
+        title = "",
         showBackButton = true,
         onBackClick = handleBackClick,
         modifier = modifier
