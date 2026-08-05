@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +30,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun InfoSnackbar(
     message: String,
+    isError: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -41,22 +43,19 @@ fun InfoSnackbar(
     ) {
         Text(text = message, fontSize = 14.sp, color = Color.White)
         Icon(
-            imageVector = Icons.Filled.Check,
+            imageVector = if (isError) Icons.Filled.Close else Icons.Filled.Check,
             contentDescription = null,
-            tint = Color(0xFF2ACA47)
+            tint = if (isError) Color(0xFFE53E3E) else Color(0xFF2ACA47)
         )
     }
 }
 
-/**
- * [visible]이 true가 되면 [bottomPadding]만큼 하단에서 띄운 위치에 [InfoSnackbar]를 표시하고,
- * [durationMillis] 후 자동으로 [onDismiss]를 호출한다.
- */
 @Composable
 fun BoxScope.AutoDismissInfoSnackbar(
     visible: Boolean,
     message: String,
     onDismiss: () -> Unit,
+    isError: Boolean = false,
     bottomPadding: Dp = 33.dp,
     durationMillis: Long = 2000L
 ) {
@@ -75,6 +74,6 @@ fun BoxScope.AutoDismissInfoSnackbar(
             .align(Alignment.BottomCenter)
             .padding(horizontal = 16.dp, vertical = bottomPadding)
     ) {
-        InfoSnackbar(message = message)
+        InfoSnackbar(message = message, isError = isError)
     }
 }

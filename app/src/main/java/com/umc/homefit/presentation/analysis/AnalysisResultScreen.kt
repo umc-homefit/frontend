@@ -3,7 +3,6 @@
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -26,9 +25,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import com.umc.homefit.R
 import com.umc.homefit.presentation.component.AppTopBar
@@ -47,8 +48,8 @@ fun AnalysisResultScreenRoute(
     onBack: () -> Unit,
     onNavigateToHome: () -> Unit,
     onNavigateToRecommendedProduct: () -> Unit,
-    fromRecord: Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fromRecord: Boolean = false
 ) {
     val uiState by viewModel.uiState.collectAsState()
     AnalysisResultScreen(
@@ -68,32 +69,35 @@ fun AnalysisResultScreen(
     onBack: () -> Unit,
     onNavigateToHome: () -> Unit,
     onNavigateToRecommendedProduct: () -> Unit,
-    fromRecord: Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fromRecord: Boolean = false
 ) {
     var isSaved by remember { mutableStateOf(false) }
     var isSavingImage by remember { mutableStateOf(false) }
-    var showSavedSnackbar by remember { mutableStateOf(false) }
+    var snackbarMessage by remember { mutableStateOf<String?>(null) }
+    var isSnackbarError by remember { mutableStateOf(false) }
+
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val graphicsLayer = rememberGraphicsLayer()
 
     suspend fun saveResultImage() {
         isSavingImage = true
-        val bitmap = graphicsLayer.toImageBitmap().asAndroidBitmap()
-        val saved = withContext(Dispatchers.IO) {
-            ImageSaveUtil.saveBitmapToGallery(
-                context = context,
-                bitmap = bitmap,
-                displayName = "HomeFit_입주분석결과_${System.currentTimeMillis()}"
-            )
+        val saved = try {
+            val bitmap = graphicsLayer.toImageBitmap().asAndroidBitmap()
+            withContext(Dispatchers.IO) {
+                ImageSaveUtil.saveBitmapToGallery(
+                    context = context,
+                    bitmap = bitmap,
+                    displayName = "HomeFit_입주분석결과_${System.currentTimeMillis()}"
+                )
+            }
+        } catch (e: Exception) {
+            false
         }
         isSavingImage = false
-        if (saved) {
-            showSavedSnackbar = true
-        } else {
-            Toast.makeText(context, "이미지 저장에 실패했습니다", Toast.LENGTH_SHORT).show()
-        }
+        isSnackbarError = !saved
+        snackbarMessage = if (saved) "입주 분석 결과 이미지가 저장되었습니다" else "이미지 저장에 실패했습니다"
     }
 
     val storagePermissionLauncher = rememberLauncherForActivityResult(
@@ -102,7 +106,8 @@ fun AnalysisResultScreen(
         if (granted) {
             coroutineScope.launch { saveResultImage() }
         } else {
-            Toast.makeText(context, "저장 권한이 필요합니다", Toast.LENGTH_SHORT).show()
+            isSnackbarError = true
+            snackbarMessage = "저장 권한이 필요합니다"
         }
     }
 
@@ -224,26 +229,35 @@ fun AnalysisResultScreen(
                 is AnalysisResultScreenUiState.Success -> {
                     SuccessContent(data = uiState.data)
 
-                    // 갤러리 저장용 캡처 대상: 스크롤 없이 전체 높이로 렌더링해 화면 밖(오프스크린)에 그린다.
+                    // 갤러리 저장용 캡처 대상
                     if (fromRecord) {
                         Box(
                             modifier = Modifier
                                 .offset(x = 4000.dp)
                                 .width(maxWidth)
+                                .layout { measurable, constraints ->
+                                    val unboundedConstraints = constraints.copy(maxHeight = Constraints.Infinity)
+                                    val placeable = measurable.measure(unboundedConstraints)
+                                    layout(placeable.width, placeable.height) {
+                                        placeable.placeRelative(0, 0)
+                                    }
+                                }
                                 .drawWithContent {
                                     graphicsLayer.record { this@drawWithContent.drawContent() }
                                 }
+                                .background(Color.White)
                         ) {
-                            SuccessContent(data = uiState.data, scrollable = false)
+                            SuccessContent(data = uiState.data, scrollable = false, forceExpanded = true)
                         }
                     }
                 }
             }
 
             AutoDismissInfoSnackbar(
-                visible = showSavedSnackbar,
-                message = "입주 분석 결과 이미지가 저장되었습니다",
-                onDismiss = { showSavedSnackbar = false },
+                visible = snackbarMessage != null,
+                message = snackbarMessage ?: "",
+                isError = isSnackbarError,
+                onDismiss = { snackbarMessage = null },
                 bottomPadding = 12.dp
             )
         }
@@ -251,8 +265,12 @@ fun AnalysisResultScreen(
 }
 
 @Composable
-private fun SuccessContent(data: AnalysisResultData, scrollable: Boolean = true) {
-    var isAccordionExpanded by remember { mutableStateOf(false) }
+private fun SuccessContent(
+    data: AnalysisResultData,
+    scrollable: Boolean = true,
+    forceExpanded: Boolean = false
+) {
+    var isAccordionExpanded by remember { mutableStateOf(forceExpanded) }
 
     Column(
         modifier = Modifier
