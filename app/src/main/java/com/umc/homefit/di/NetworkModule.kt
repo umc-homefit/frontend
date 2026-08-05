@@ -97,4 +97,11 @@ object NetworkModule {
     @Singleton
     fun provideMyPageApiService(retrofit: Retrofit): MyPageApiService =
         retrofit.create(MyPageApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideFinanceApiService(
+        retrofit: Retrofit
+    ): FinanceApiService =
+        retrofit.create(FinanceApiService::class.java)
 }
