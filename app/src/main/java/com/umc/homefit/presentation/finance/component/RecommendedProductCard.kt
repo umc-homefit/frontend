@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,116 +25,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material3.Surface
 import com.umc.homefit.R
-import com.umc.homefit.data.dto.home.RecommendedProductDto
+import com.umc.homefit.data.dto.finance.FinanceProductDto
 
-@Composable
-fun RecommendedProductCard(
-    product: RecommendedProductDto,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFFFFFF)
-        ),
-        border = BorderStroke(
-            width = 1.dp,
-            color = Color(0xFFD8E0E8)
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            Image(
-                painter = painterResource(id = product.iconRes),
-                contentDescription = product.title,
-                modifier = Modifier.size(56.dp)
-            )
-
-            Spacer(
-                modifier = Modifier.width(14.dp)
-            )
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = product.title,
-                        color = Color(0xFF18191B),
-                        fontSize = 16.sp,
-                        lineHeight = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-
-                    Spacer(
-                        modifier = Modifier.width(12.dp)
-                    )
-
-                    ProductTypeBadge(
-                        text = product.productType
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(2.dp))
-
-                Text(
-                    text = product.interestRate,
-                    color = Color(0xFF3C45F3),
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                    lineHeight = 13.sp
-                )
-
-                Spacer(modifier = Modifier.height(2.dp))
-
-                Text(
-                    text = product.amountDescription,
-                    color = Color(0xFF919AA4),
-                    fontSize = 13.sp,
-                    lineHeight = 13.sp
-                )
-
-                Spacer(modifier = Modifier.height(2.dp))
-
-                Text(
-                    text = product.targetDescription,
-                    color = Color(0xFF919AA4),
-                    fontSize = 13.sp,
-                    lineHeight = 13.sp
-                )
-
-                if (product.tags.isNotEmpty()) {
-                    Row(
-                        modifier = Modifier.padding(top = 6.dp),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        product.tags.take(2).forEach { tag ->
-                            ProductTag(
-                                text = tag
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
 @Composable
 private fun ProductTypeBadge(
@@ -144,7 +37,7 @@ private fun ProductTypeBadge(
 ) {
     Surface(
         modifier = modifier,
-        color = Color(0xFFFFFFFF),
+        color = Color.White,
         shape = RoundedCornerShape(20.dp),
         border = BorderStroke(
             width = 1.dp,
@@ -187,6 +80,189 @@ private fun ProductTag(
     }
 }
 
+@Composable
+fun RecommendedProductCard(
+    product: FinanceProductDto,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val tags = product.toDisplayTags()
+
+    Card(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = Color(0xFFD8E0E8)
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.dp
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            // TODO: 금융기관별 이미지 필드 또는 매핑이 정해지면 변경
+            Image(
+                painter = painterResource(
+                    id = R.drawable.img_shinhan_logo
+                ),
+                contentDescription = product.productName,
+                modifier = Modifier.size(56.dp)
+            )
+
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = product.productName,
+                        modifier = Modifier.weight(1f),
+                        color = Color(0xFF18191B),
+                        fontSize = 16.sp,
+                        lineHeight = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    ProductTypeBadge(
+                        text = product.providerType.toDisplayName()
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = product.rateRange,
+                    color = Color(0xFF3C45F3),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    lineHeight = 18.sp
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Text(
+                    text = "최대 ${product.maxLimitAmount.toWonText()}",
+                    color = Color(0xFF919AA4),
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Text(
+                    text = product.toConditionDescription(),
+                    color = Color(0xFF919AA4),
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                if (tags.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.padding(top = 6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        tags.take(2).forEach { tag ->
+                            ProductTag(text = tag)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun String.toDisplayName(): String {
+    return when (this) {
+        "POLICY" -> "정책상품"
+        "BANK" -> "은행상품"
+        else -> this
+    }
+}
+
+private fun Long.toWonText(): String {
+    val billion = 100_000_000L
+    val tenThousand = 10_000L
+
+    return when {
+        this % billion == 0L ->
+            "${this / billion}억원"
+
+        this >= billion ->
+            "${this / billion}억 ${(this % billion) / tenThousand}만원"
+
+        else ->
+            "${this / tenThousand}만원"
+    }
+}
+
+private fun FinanceProductDto.toConditionDescription(): String {
+    val conditions = buildList {
+        maxIncome?.let {
+            add("소득 ${it.toWonText()} 이하")
+        }
+
+        if (requireNoHouse) {
+            add("무주택자")
+        }
+
+        if (minAge != null || maxAge != null) {
+            val ageCondition = when {
+                minAge != null && maxAge != null ->
+                    "만 ${minAge}~${maxAge}세"
+
+                minAge != null ->
+                    "만 ${minAge}세 이상"
+
+                else ->
+                    "만 ${maxAge}세 이하"
+            }
+
+            add(ageCondition)
+        }
+
+        if (firstTimeBuyerOnly) {
+            add("생애최초 구매자")
+        }
+    }
+
+    return conditions
+        .takeIf { it.isNotEmpty() }
+        ?.joinToString(" · ")
+        ?: providerName
+}
+
+private fun FinanceProductDto.toDisplayTags(): List<String> {
+    return buildList {
+        add(providerName)
+
+        when (productCategory) {
+            "JEONSE_LOAN" -> add("전세자금")
+            "MORTGAGE_LOAN" -> add("주택담보")
+            "SAVINGS" -> add("저축")
+            "SUBSCRIPTION" -> add("청약")
+        }
+    }.distinct()
+}
+
 @Preview(
     showBackground = true,
     widthDp = 390
@@ -194,18 +270,28 @@ private fun ProductTag(
 @Composable
 private fun RecommendedProductCardPreview() {
     RecommendedProductCard(
-        product = RecommendedProductDto(
-            productId = 106,
-            title = "주택청약종합저축",
-            iconRes = R.drawable.img_shinhan_logo,
-            productType = "정부지원",
-            interestRate = "연 최대 4.50%",
-            amountDescription = "월 납입 | 최대 50만 원",
-            targetDescription = "가입대상 | 무주택 청년",
-            tags = listOf(
-                "청약",
-                "소득공제"
-            )
+        product = FinanceProductDto(
+            productId = 101L,
+            productName = "청년전용 버팀목전세자금",
+            providerType = "POLICY",
+            productCategory = "JEONSE_LOAN",
+            providerName = "주택도시기금",
+            rateRange = "1.5% ~ 2.7%",
+            maxIncome = 60_000_000L,
+            firstTimeBuyerOnly = false,
+            maxLimitAmount = 200_000_000L,
+            minAge = 19,
+            maxAge = 34,
+            requireNoHouse = true,
+            minMonthlyDeposit = null,
+            maxMonthlyDeposit = null,
+            isEligible = true,
+            ageCheckSkipped = false,
+            householdHeadCheckSkipped = false,
+            marriedCheckSkipped = false,
+            newbornCheckSkipped = false,
+            firstTimeBuyerCheckSkipped = false,
+            ineligibleReasons = emptyList()
         ),
         onClick = {},
         modifier = Modifier.padding(16.dp)

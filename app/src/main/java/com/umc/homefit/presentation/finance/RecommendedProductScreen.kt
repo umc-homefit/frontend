@@ -41,8 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.umc.homefit.data.dto.home.RecommendedProductDto
-import com.umc.homefit.data.mock.FinanceMockData
+import com.umc.homefit.data.dto.finance.FinanceProductDto
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
 import com.umc.homefit.presentation.finance.component.RecommendedProductSearchBar
 import com.umc.homefit.presentation.component.AppScaffold
@@ -310,26 +309,25 @@ private fun RecommendedProductContent(
             }
 
             is RecommendedProductScreenUiState.Success -> {
-                val filteredProducts =
-                    uiState.products.filter { product ->
-                        val matchesCategory =
-                            selectedKeyword == null ||
-                                productMatchesKeyword(
-                                    product = product,
-                                    keyword = selectedKeyword.orEmpty()
-                                )
+                val filteredProducts = uiState.products.filter { product ->
+                    val matchesCategory =
+                        selectedKeyword == null ||
+                            productMatchesKeyword(
+                                product = product,
+                                keyword = selectedKeyword.orEmpty()
+                            )
 
-                        val matchesSearch =
-                            searchQuery.isBlank() ||
-                                productMatchesKeyword(
-                                    product = product,
-                                    keyword = searchQuery
-                                )
+                    val matchesSearch =
+                        searchQuery.isBlank() ||
+                            productMatchesKeyword(
+                                product = product,
+                                keyword = searchQuery
+                            )
 
-                        matchesCategory && matchesSearch
-                    }
+                    product.isEligible && matchesCategory && matchesSearch
+                }
 
-                val sortedProducts: List<RecommendedProductDto> =
+                val sortedProducts: List<FinanceProductDto> =
                     when (selectedSort) {
                         ProductSort.RECOMMENDED,
                         ProductSort.LATEST -> {
@@ -339,16 +337,14 @@ private fun RecommendedProductContent(
                         ProductSort.LOWEST_RATE -> {
                             filteredProducts.sortedBy { product ->
                                 parseMinimumInterestRate(
-                                    product.interestRate
+                                    product.rateRange
                                 )
                             }
                         }
 
                         ProductSort.HIGHEST_AMOUNT -> {
                             filteredProducts.sortedByDescending { product ->
-                                parseLoanAmount(
-                                    product.amountDescription
-                                )
+                                product.maxLimitAmount
                             }
                         }
                     }
@@ -368,12 +364,8 @@ private fun RecommendedProductContent(
                         totalCount = sortedProducts.size,
                         selectedSort = selectedSort,
                         expanded = expanded,
-                        onExpandedChange = { isExpanded ->
-                            expanded = isExpanded
-                        },
-                        onSortSelected = { sort ->
-                            selectedSort = sort
-                        }
+                        onExpandedChange = { expanded = it },
+                        onSortSelected = { selectedSort = it }
                     )
 
                     LazyColumn(
@@ -386,16 +378,12 @@ private fun RecommendedProductContent(
                     ) {
                         items(
                             items = sortedProducts,
-                            key = { product ->
-                                product.productId
-                            }
+                            key = { product -> product.productId }
                         ) { product ->
                             RecommendedProductCard(
                                 product = product,
                                 onClick = {
-                                    onNavigateToDetail(
-                                        product.productId
-                                    )
+                                    onNavigateToDetail(product.productId)
                                 }
                             )
                         }
@@ -457,35 +445,29 @@ private fun ProductFilterChip(
 }
 
 private fun productMatchesKeyword(
-    product: RecommendedProductDto,
+    product: FinanceProductDto,
     keyword: String
 ): Boolean {
-    return product.title.contains(
+    if (keyword.isBlank()) {
+        return true
+    }
+
+    return product.productName.contains(
         other = keyword,
         ignoreCase = true
     ) ||
-        product.productType.contains(
+        product.providerName.contains(
             other = keyword,
             ignoreCase = true
         ) ||
-        product.interestRate.contains(
+        product.providerType.contains(
             other = keyword,
             ignoreCase = true
         ) ||
-        product.amountDescription.contains(
+        product.productCategory.contains(
             other = keyword,
             ignoreCase = true
-        ) ||
-        product.targetDescription.contains(
-            other = keyword,
-            ignoreCase = true
-        ) ||
-        product.tags.any { tag ->
-            tag.contains(
-                other = keyword,
-                ignoreCase = true
-            )
-        }
+        )
 }
 
 private fun parseMinimumInterestRate(
@@ -498,61 +480,6 @@ private fun parseMinimumInterestRate(
         ?: Double.MAX_VALUE
 }
 
-private fun parseLoanAmount(
-    amountDescription: String
-): Long {
-    val amountText = amountDescription
-        .substringAfter("|", amountDescription)
-        .replace(",", "")
-        .replace(" ", "")
-
-    var totalAmount = 0L
-
-    Regex("""(\d+)억""")
-        .find(amountText)
-        ?.groupValues
-        ?.getOrNull(1)
-        ?.toLongOrNull()
-        ?.let { value ->
-            totalAmount += value * 100_000_000L
-        }
-
-    Regex("""(\d+)천만""")
-        .find(amountText)
-        ?.groupValues
-        ?.getOrNull(1)
-        ?.toLongOrNull()
-        ?.let { value ->
-            totalAmount += value * 10_000_000L
-        }
-
-    Regex("""(\d+)백만""")
-        .find(amountText)
-        ?.groupValues
-        ?.getOrNull(1)
-        ?.toLongOrNull()
-        ?.let { value ->
-            totalAmount += value * 1_000_000L
-        }
-
-    if (
-        "억" !in amountText &&
-        "천만" !in amountText &&
-        "백만" !in amountText
-    ) {
-        Regex("""(\d+)만""")
-            .find(amountText)
-            ?.groupValues
-            ?.getOrNull(1)
-            ?.toLongOrNull()
-            ?.let { value ->
-                totalAmount += value * 10_000L
-            }
-    }
-
-    return totalAmount
-}
-
 @Preview(
     showBackground = true,
     widthDp = 390,
@@ -562,7 +489,54 @@ private fun parseLoanAmount(
 private fun RecommendedProductScreenPreview() {
     RecommendedProductScreen(
         uiState = RecommendedProductScreenUiState.Success(
-            products = FinanceMockData.recommendedProducts
+            products = listOf(
+                FinanceProductDto(
+                    productId = 101L,
+                    productName = "청년전용 버팀목전세자금",
+                    providerType = "POLICY",
+                    productCategory = "JEONSE_LOAN",
+                    providerName = "주택도시기금",
+                    rateRange = "1.5% ~ 2.7%",
+                    maxIncome = 60_000_000L,
+                    firstTimeBuyerOnly = false,
+                    maxLimitAmount = 200_000_000L,
+                    minAge = 19,
+                    maxAge = 34,
+                    requireNoHouse = true,
+                    minMonthlyDeposit = null,
+                    maxMonthlyDeposit = null,
+                    isEligible = true,
+                    ageCheckSkipped = false,
+                    householdHeadCheckSkipped = false,
+                    marriedCheckSkipped = false,
+                    newbornCheckSkipped = false,
+                    firstTimeBuyerCheckSkipped = false,
+                    ineligibleReasons = emptyList()
+                ),
+                FinanceProductDto(
+                    productId = 108L,
+                    productName = "신혼부부전용 전세자금",
+                    providerType = "POLICY",
+                    productCategory = "JEONSE_LOAN",
+                    providerName = "주택도시기금",
+                    rateRange = "1.2% ~ 2.1%",
+                    maxIncome = 75_000_000L,
+                    firstTimeBuyerOnly = false,
+                    maxLimitAmount = 300_000_000L,
+                    minAge = null,
+                    maxAge = null,
+                    requireNoHouse = true,
+                    minMonthlyDeposit = null,
+                    maxMonthlyDeposit = null,
+                    isEligible = true,
+                    ageCheckSkipped = false,
+                    householdHeadCheckSkipped = false,
+                    marriedCheckSkipped = true,
+                    newbornCheckSkipped = false,
+                    firstTimeBuyerCheckSkipped = false,
+                    ineligibleReasons = emptyList()
+                )
+            )
         ),
         searchQuery = "",
         onNavigateToSearch = {},

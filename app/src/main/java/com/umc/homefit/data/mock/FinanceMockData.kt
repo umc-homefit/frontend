@@ -1,88 +1,97 @@
 ﻿package com.umc.homefit.data.mock
 
-import com.umc.homefit.R
-import com.umc.homefit.data.dto.home.RecommendedProductDto
+import com.umc.homefit.data.dto.finance.FinanceProductDto
 
 object FinanceMockData {
 
-    val recommendedProducts = listOf(
-        RecommendedProductDto(
-            productId = 101,
-            title = "디딤돌 대출",
-            iconRes = R.drawable.img_kookmin_logo,
-            productType = "정부지원",
-            interestRate = "연 2.15% ~ 3.00%",
-            amountDescription = "대출한도 | 최대 2억 5천만 원",
-            targetDescription = "연소득 | 6천만 원 이하",
-            tags = listOf(
-                "무주택자",
-                "생애최초"
-            )
+    val recommendedProducts: List<FinanceProductDto> = listOf(
+        createFinanceProduct(
+            productId = 101L,
+            productName = "청년전용 버팀목전세자금",
+            rateRange = "1.5% ~ 2.7%",
+            maxIncome = 60_000_000L,
+            maxLimitAmount = 200_000_000L,
+            minAge = 19,
+            maxAge = 34
         ),
-        RecommendedProductDto(
-            productId = 102,
-            title = "버팀목 전세대출",
-            iconRes = R.drawable.img_hana_logo,
-            productType = "정부지원",
-            interestRate = "연 2.10% ~ 2.90%",
-            amountDescription = "대출한도 | 최대 1억 2천만 원",
-            targetDescription = "연소득 | 5천만 원 이하",
-            tags = listOf(
-                "무주택자",
-                "청년"
-            )
+        createFinanceProduct(
+            productId = 102L,
+            productName = "신혼부부전용 전세자금",
+            rateRange = "1.2% ~ 2.1%",
+            maxIncome = 75_000_000L,
+            maxLimitAmount = 300_000_000L,
+            minAge = null,
+            maxAge = null
         ),
-        RecommendedProductDto(
-            productId = 103,
-            title = "주택청약종합저축",
-            iconRes = R.drawable.img_shinhan_logo,
-            productType = "정부지원",
-            interestRate = "연 최대 4.50%",
-            amountDescription = "월 납입 | 최대 50만 원",
-            targetDescription = "가입대상 | 무주택 청년",
-            tags = listOf(
-                "청약",
-                "소득공제"
-            )
+        createFinanceProduct(
+            productId = 103L,
+            productName = "신생아 특례 버팀목전세자금",
+            rateRange = "1.0% ~ 1.8%",
+            maxIncome = 130_000_000L,
+            maxLimitAmount = 500_000_000L,
+            minAge = null,
+            maxAge = null
         ),
-        RecommendedProductDto(
-            productId = 104,
-            title = "디딤돌 대출",
-            iconRes = R.drawable.img_kookmin_logo,
-            productType = "정부지원",
-            interestRate = "연 2.15% ~ 3.00%",
-            amountDescription = "대출한도 | 최대 2억 5천만 원",
-            targetDescription = "연소득 | 6천만 원 이하",
-            tags = listOf(
-                "무주택자",
-                "생애최초"
-            )
+        createFinanceProduct(
+            productId = 104L,
+            productName = "청년전용 버팀목전세자금",
+            rateRange = "1.5% ~ 2.7%",
+            maxIncome = 60_000_000L,
+            maxLimitAmount = 200_000_000L,
+            minAge = 19,
+            maxAge = 34
         ),
-        RecommendedProductDto(
-            productId = 105,
-            title = "버팀목 전세대출",
-            iconRes = R.drawable.img_hana_logo,
-            productType = "정부지원",
-            interestRate = "연 2.10% ~ 2.90%",
-            amountDescription = "대출한도 | 최대 1억 2천만 원",
-            targetDescription = "연소득 | 5천만 원 이하",
-            tags = listOf(
-                "무주택자",
-                "청년"
-            )
+        createFinanceProduct(
+            productId = 105L,
+            productName = "신혼부부전용 전세자금",
+            rateRange = "1.2% ~ 2.1%",
+            maxIncome = 75_000_000L,
+            maxLimitAmount = 300_000_000L,
+            minAge = null,
+            maxAge = null
         ),
-        RecommendedProductDto(
-            productId = 106,
-            title = "주택청약종합저축",
-            iconRes = R.drawable.img_shinhan_logo,
-            productType = "정부지원",
-            interestRate = "연 최대 4.50%",
-            amountDescription = "월 납입 | 최대 50만 원",
-            targetDescription = "가입대상 | 무주택 청년",
-            tags = listOf(
-                "청약",
-                "소득공제"
-            )
+        createFinanceProduct(
+            productId = 106L,
+            productName = "신생아 특례 버팀목전세자금",
+            rateRange = "1.0% ~ 1.8%",
+            maxIncome = 130_000_000L,
+            maxLimitAmount = 500_000_000L,
+            minAge = null,
+            maxAge = null
         )
     )
+
+    private fun createFinanceProduct(
+        productId: Long,
+        productName: String,
+        rateRange: String,
+        maxIncome: Long?,
+        maxLimitAmount: Long,
+        minAge: Int?,
+        maxAge: Int?
+    ): FinanceProductDto {
+        return FinanceProductDto(
+            productId = productId,
+            productName = productName,
+            providerType = "POLICY",
+            productCategory = "JEONSE_LOAN",
+            providerName = "주택도시기금",
+            rateRange = rateRange,
+            maxIncome = maxIncome,
+            firstTimeBuyerOnly = false,
+            maxLimitAmount = maxLimitAmount,
+            minAge = minAge,
+            maxAge = maxAge,
+            requireNoHouse = true,
+            minMonthlyDeposit = null,
+            maxMonthlyDeposit = null,
+            isEligible = true,
+            ageCheckSkipped = false,
+            householdHeadCheckSkipped = false,
+            marriedCheckSkipped = false,
+            newbornCheckSkipped = false,
+            firstTimeBuyerCheckSkipped = false,
+            ineligibleReasons = emptyList()
+        )
+    }
 }
