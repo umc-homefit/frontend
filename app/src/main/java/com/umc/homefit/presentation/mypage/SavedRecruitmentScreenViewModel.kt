@@ -58,40 +58,42 @@ class SavedRecruitmentScreenViewModel @Inject constructor(
         isLoading = true
 
         viewModelScope.launch {
-            val current = _uiState.value
-            if (isLoadMore && current is SavedRecruitmentScreenUiState.Success) {
-                _uiState.value = current.copy(isLoadingMore = true)
-            } else if (!isLoadMore) {
-                _uiState.value = SavedRecruitmentScreenUiState.Loading
-            }
-
-            // TODO: 현재 LATEST(최신순)만 지원해서 일단 고정, 기타 옵션 추가 지원되면 sortOption 반영
-            when (val result = savedNoticeRepository.getSavedNotices(sort = "LATEST", page = page, size = PAGE_SIZE)) {
-                is NetworkResult.Success -> {
-                    currentPage = page
-                    val newItems = result.data.savedNotices.map { it.toSavedRecruitmentItem() }
-                    val previousItems = if (isLoadMore && current is SavedRecruitmentScreenUiState.Success) current.items else emptyList()
-                    val sortOption = if (current is SavedRecruitmentScreenUiState.Success) current.sortOption else SortOption.LATEST
-
-                    _uiState.value = SavedRecruitmentScreenUiState.Success(
-                        items = previousItems + newItems,
-                        sortOption = sortOption,
-                        isLoadingMore = false,
-                        hasNext = result.data.pageInfo.hasNext
-                    )
+            try {
+                val current = _uiState.value
+                if (isLoadMore && current is SavedRecruitmentScreenUiState.Success) {
+                    _uiState.value = current.copy(isLoadingMore = true)
+                } else if (!isLoadMore) {
+                    _uiState.value = SavedRecruitmentScreenUiState.Loading
                 }
-                is NetworkResult.Error -> {
-                    if (isLoadMore && current is SavedRecruitmentScreenUiState.Success) {
-                        _uiState.value = current.copy(isLoadingMore = false)
-                    } else {
-                        _uiState.value = SavedRecruitmentScreenUiState.Error(result.message)
+
+                // TODO: 현재 LATEST(최신순)만 지원해서 일단 고정, 기타 옵션 추가 지원되면 sortOption 반영
+                when (val result = savedNoticeRepository.getSavedNotices(sort = "LATEST", page = page, size = PAGE_SIZE)) {
+                    is NetworkResult.Success -> {
+                        currentPage = page
+                        val newItems = result.data.savedNotices.map { it.toSavedRecruitmentItem() }
+                        val previousItems = if (isLoadMore && current is SavedRecruitmentScreenUiState.Success) current.items else emptyList()
+                        val sortOption = if (current is SavedRecruitmentScreenUiState.Success) current.sortOption else SortOption.LATEST
+
+                        _uiState.value = SavedRecruitmentScreenUiState.Success(
+                            items = previousItems + newItems,
+                            sortOption = sortOption,
+                            isLoadingMore = false,
+                            hasNext = result.data.pageInfo.hasNext
+                        )
+                    }
+                    is NetworkResult.Error -> {
+                        if (isLoadMore && current is SavedRecruitmentScreenUiState.Success) {
+                            _uiState.value = current.copy(isLoadingMore = false)
+                        } else {
+                            _uiState.value = SavedRecruitmentScreenUiState.Error(result.message)
+                        }
                     }
                 }
+            } finally {
+                isLoading = false
             }
-            isLoading = false
         }
     }
-
     private fun SavedNoticeResponse.toSavedRecruitmentItem(): SavedRecruitmentItem {
         return SavedRecruitmentItem(
             id = noticeId.toString(),
