@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 import com.umc.homefit.data.api.mypage.MyPageApiService
 import com.umc.homefit.data.api.analysis.AnalysisApiService
+import com.umc.homefit.data.api.recruitment.NoticeApiService
 
 
 @Module
@@ -96,4 +97,9 @@ object NetworkModule {
     @Singleton
     fun provideMyPageApiService(retrofit: Retrofit): MyPageApiService =
         retrofit.create(MyPageApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideNoticeApiService(retrofit: Retrofit): NoticeApiService =
+        retrofit.create(NoticeApiService::class.java)
 }
