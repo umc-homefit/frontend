@@ -28,12 +28,36 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.R
 import com.umc.homefit.data.dto.home.RecommendedProductDto
+import com.umc.homefit.presentation.finance.FinanceRecommendedProductUiModel
 
 @Composable
 fun RecommendedProductCard(
     product: RecommendedProductDto,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
+) {
+    RecommendedProductCard(
+        product = FinanceRecommendedProductUiModel(
+            productId = product.productId,
+            title = product.title,
+            productType = product.productType,
+            interestRate = product.interestRate,
+            amountDescription = product.amountDescription,
+            targetDescription = product.targetDescription,
+            tags = product.tags
+        ),
+        onClick = onClick,
+        modifier = modifier,
+        iconRes = product.iconRes
+    )
+}
+
+@Composable
+fun RecommendedProductCard(
+    product: FinanceRecommendedProductUiModel,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    iconRes: Int = R.drawable.img_shinhan_logo
 ) {
     Card(
         onClick = onClick,
@@ -57,7 +81,7 @@ fun RecommendedProductCard(
             verticalAlignment = Alignment.Top
         ) {
             Image(
-                painter = painterResource(id = product.iconRes),
+                painter = painterResource(id = iconRes),
                 contentDescription = product.title,
                 modifier = Modifier.size(56.dp)
             )
@@ -194,10 +218,9 @@ private fun ProductTag(
 @Composable
 private fun RecommendedProductCardPreview() {
     RecommendedProductCard(
-        product = RecommendedProductDto(
+        product = FinanceRecommendedProductUiModel(
             productId = 106,
             title = "주택청약종합저축",
-            iconRes = R.drawable.img_shinhan_logo,
             productType = "정부지원",
             interestRate = "연 최대 4.50%",
             amountDescription = "월 납입 | 최대 50만 원",
