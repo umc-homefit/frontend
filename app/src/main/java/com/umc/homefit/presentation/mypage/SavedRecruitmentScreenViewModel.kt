@@ -100,7 +100,7 @@ class SavedRecruitmentScreenViewModel @Inject constructor(
             exclusiveArea = unitSummary ?: "-",
             deposit = formatDeposit(depositMin, depositMax),
             applicationPeriod = "${applicationStartAt?.toDateText() ?: "-"} ~ ${applicationEndAt?.toDateText() ?: "-"}",
-            status = RecruitmentStatus.valueOf(status),
+            status = status.toRecruitmentStatus(),
             competitionRate = null
         )
     }
@@ -119,5 +119,9 @@ class SavedRecruitmentScreenViewModel @Inject constructor(
 
     private companion object {
         const val PAGE_SIZE = 10
+    }
+
+    private fun String.toRecruitmentStatus(): RecruitmentStatus {
+        return RecruitmentStatus.entries.find { it.name == this } ?: RecruitmentStatus.CLOSED
     }
 }
