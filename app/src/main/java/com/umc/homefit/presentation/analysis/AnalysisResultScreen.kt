@@ -1,5 +1,12 @@
 ﻿package com.umc.homefit.presentation.analysis
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,14 +21,23 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.umc.homefit.R
 import com.umc.homefit.presentation.component.AppTopBar
+import com.umc.homefit.presentation.component.AutoDismissInfoSnackbar
 import com.umc.homefit.presentation.component.TopBarAction
+import com.umc.homefit.util.ImageSaveUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private val BorderColor = Color(0xFFD2D9E2)
 
@@ -31,6 +47,7 @@ fun AnalysisResultScreenRoute(
     onBack: () -> Unit,
     onNavigateToHome: () -> Unit,
     onNavigateToRecommendedProduct: () -> Unit,
+    fromRecord: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -39,6 +56,7 @@ fun AnalysisResultScreenRoute(
         onBack = onBack,
         onNavigateToHome = onNavigateToHome,
         onNavigateToRecommendedProduct = onNavigateToRecommendedProduct,
+        fromRecord = fromRecord,
         modifier = modifier
     )
 }
@@ -50,9 +68,57 @@ fun AnalysisResultScreen(
     onBack: () -> Unit,
     onNavigateToHome: () -> Unit,
     onNavigateToRecommendedProduct: () -> Unit,
+    fromRecord: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     var isSaved by remember { mutableStateOf(false) }
+    var isSavingImage by remember { mutableStateOf(false) }
+    var showSavedSnackbar by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val graphicsLayer = rememberGraphicsLayer()
+
+    suspend fun saveResultImage() {
+        isSavingImage = true
+        val bitmap = graphicsLayer.toImageBitmap().asAndroidBitmap()
+        val saved = withContext(Dispatchers.IO) {
+            ImageSaveUtil.saveBitmapToGallery(
+                context = context,
+                bitmap = bitmap,
+                displayName = "HomeFit_입주분석결과_${System.currentTimeMillis()}"
+            )
+        }
+        isSavingImage = false
+        if (saved) {
+            showSavedSnackbar = true
+        } else {
+            Toast.makeText(context, "이미지 저장에 실패했습니다", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val storagePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            coroutineScope.launch { saveResultImage() }
+        } else {
+            Toast.makeText(context, "저장 권한이 필요합니다", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun onSaveClick() {
+        val needsPermission = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+
+        if (needsPermission) {
+            storagePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        } else {
+            coroutineScope.launch { saveResultImage() }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -99,7 +165,8 @@ fun AnalysisResultScreen(
                     }
 
                     Button(
-                        onClick = onNavigateToRecommendedProduct,
+                        onClick = if (fromRecord) ::onSaveClick else onNavigateToRecommendedProduct,
+                        enabled = !isSavingImage,
                         modifier = Modifier
                             .weight(1.7f)
                             .height(48.dp)
@@ -119,14 +186,22 @@ fun AnalysisResultScreen(
                             pressedElevation = 0.dp
                         )
                     ) {
-                        Text("추천 금융상품 보기", fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(
+                            text = if (fromRecord) {
+                                if (isSavingImage) "저장 중..." else "저장하기"
+                            } else {
+                                "추천 금융상품 보기"
+                            },
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
                     }
                 }
             }
         },
         modifier = modifier
     ) { innerPadding ->
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFFFFFFF))
@@ -148,20 +223,40 @@ fun AnalysisResultScreen(
                 }
                 is AnalysisResultScreenUiState.Success -> {
                     SuccessContent(data = uiState.data)
+
+                    // 갤러리 저장용 캡처 대상: 스크롤 없이 전체 높이로 렌더링해 화면 밖(오프스크린)에 그린다.
+                    if (fromRecord) {
+                        Box(
+                            modifier = Modifier
+                                .offset(x = 4000.dp)
+                                .width(maxWidth)
+                                .drawWithContent {
+                                    graphicsLayer.record { this@drawWithContent.drawContent() }
+                                }
+                        ) {
+                            SuccessContent(data = uiState.data, scrollable = false)
+                        }
+                    }
                 }
             }
+
+            AutoDismissInfoSnackbar(
+                visible = showSavedSnackbar,
+                message = "입주 분석 결과 이미지가 저장되었습니다",
+                onDismiss = { showSavedSnackbar = false },
+                bottomPadding = 12.dp
+            )
         }
     }
 }
 
 @Composable
-private fun SuccessContent(data: AnalysisResultData) {
+private fun SuccessContent(data: AnalysisResultData, scrollable: Boolean = true) {
     var isAccordionExpanded by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            .then(if (scrollable) Modifier.fillMaxSize().verticalScroll(rememberScrollState()) else Modifier.fillMaxWidth())
             .padding(start = 16.dp, top = 20.dp, end = 16.dp, bottom = 8.dp)
     ) {
         // 입주 가능성 카드

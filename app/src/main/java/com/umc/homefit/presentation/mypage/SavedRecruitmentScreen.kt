@@ -1,10 +1,5 @@
 ﻿package com.umc.homefit.presentation.mypage
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,7 +20,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -37,7 +31,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,7 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.presentation.component.AppScaffold
-import kotlinx.coroutines.delay
+import com.umc.homefit.presentation.component.AutoDismissInfoSnackbar
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 
@@ -89,13 +82,6 @@ fun SavedRecruitmentScreen(
 ) {
     var showRemovedMessage by remember { mutableStateOf(false) }
 
-    LaunchedEffect(showRemovedMessage) {
-        if (showRemovedMessage) {
-            delay(2000)
-            showRemovedMessage = false
-        }
-    }
-
     AppScaffold(
         title = "관심 공고 관리",
         showBackButton = true,
@@ -129,36 +115,12 @@ fun SavedRecruitmentScreen(
                 }
             }
 
-            AnimatedVisibility(
+            AutoDismissInfoSnackbar(
                 visible = showRemovedMessage,
-                enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
-                exit = fadeOut() + slideOutVertically(targetOffsetY = { it }),
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(horizontal = 16.dp, vertical = 45.dp)
-            ) {
-                RemovedSnackbar(message = "관심 공고에서 삭제되었습니다")
-            }
+                message = "관심 공고에서 삭제되었습니다",
+                onDismiss = { showRemovedMessage = false }
+            )
         }
-    }
-}
-
-@Composable
-private fun RemovedSnackbar(message: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color(0xFF4A4F55), RoundedCornerShape(4.dp))
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(text = message, fontSize = 14.sp, color = Color.White)
-        Icon(
-            imageVector = Icons.Filled.Check,
-            contentDescription = null,
-            tint = Color(0xFF34A853)
-        )
     }
 }
 
