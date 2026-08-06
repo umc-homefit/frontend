@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.umc.homefit.data.dto.analysis.EligibilityAnalysisHistoryItemDto
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.analysis.AnalysisRepository
+import com.umc.homefit.domain.repository.finance.ConditionProfileRepository
 import com.umc.homefit.util.logError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,65 +25,48 @@ private val DISPLAY_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd")
 
 @HiltViewModel
 class AnalysisScreenViewModel @Inject constructor(
-    private val analysisRepository: AnalysisRepository
+    private val analysisRepository: AnalysisRepository,
+    private val conditionProfileRepository: ConditionProfileRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<AnalysisScreenUiState>(AnalysisScreenUiState.Loading)
     val uiState: StateFlow<AnalysisScreenUiState> = _uiState.asStateFlow()
 
     init {
-        val sampleSections = listOf(
-            FinanceInfoSection(
-                title = "소득 정보",
-                step = FinancialInfoStep.INCOME,
-                rows = listOf(
-                    FinanceInfoRow("연간 총소득", "4,800만 원"),
-                    FinanceInfoRow("소득 유형", "근로소득")
-                )
-            ),
-            FinanceInfoSection(
-                title = "자산 정보",
-                step = FinancialInfoStep.ASSET,
-                rows = listOf(
-                    FinanceInfoRow("총 보유 자산", "6,500만 원"),
-                    FinanceInfoRow("금융 자산", "2,800만 원")
-                )
-            ),
-            FinanceInfoSection(
-                title = "부채 정보",
-                step = FinancialInfoStep.DEBT,
-                rows = listOf(
-                    FinanceInfoRow("총 부채 금액", "1,800만 원"),
-                    FinanceInfoRow("월 상환액", "35만 원")
-                )
-            ),
-            FinanceInfoSection(
-                title = "주택 보유 여부",
-                step = FinancialInfoStep.HOUSE,
-                rows = listOf(
-                    FinanceInfoRow("본인 무주택")
-                )
-            )
-        )
-
-        _uiState.value = AnalysisScreenUiState.Success(sections = sampleSections)
-        loadRecords(sampleSections)
+        loadConditionProfileSections()
+        loadRecords()
     }
 
-    private fun loadRecords(sections: List<FinanceInfoSection>) {
+    /** 금융 정보 관리 탭 요약 섹션. 프로필이 없는 계정(대부분 FINANCE404)은 "없음"으로 채운다. */
+    private fun loadConditionProfileSections() {
+        viewModelScope.launch {
+            val sections = when (val result = conditionProfileRepository.getConditionProfile()) {
+                is NetworkResult.Success -> result.data.toFinanceInfoSections()
+                is NetworkResult.Error -> emptyFinanceInfoSections()
+            }
+            updateSuccessState { it.copy(sections = sections) }
+        }
+    }
+
+    private fun loadRecords() {
         viewModelScope.launch {
             when (val result = analysisRepository.getMyEligibilityAnalyses(page = 0, size = RECORD_PAGE_SIZE)) {
                 is NetworkResult.Success -> {
-                    _uiState.value = AnalysisScreenUiState.Success(
-                        sections = sections,
-                        records = result.data.analyses.map { it.toRecordItem() }
-                    )
+                    updateSuccessState { it.copy(records = result.data.analyses.map { item -> item.toRecordItem() }) }
                 }
                 is NetworkResult.Error -> {
                     logError("기록 목록 조회 실패: ${result.message}")
-                    _uiState.value = AnalysisScreenUiState.Success(sections = sections, records = emptyList())
+                    updateSuccessState { it.copy(records = emptyList()) }
                 }
             }
         }
+    }
+
+    /** records/sections가 서로 독립된 코루틴에서 도착하므로, 서로를 덮어쓰지 않도록 병합해서 갱신한다. */
+    private fun updateSuccessState(
+        transform: (AnalysisScreenUiState.Success) -> AnalysisScreenUiState.Success
+    ) {
+        val current = _uiState.value as? AnalysisScreenUiState.Success ?: AnalysisScreenUiState.Success()
+        _uiState.value = transform(current)
     }
 }
 

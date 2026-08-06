@@ -81,8 +81,7 @@ fun MyFinanceScreenPreview() {
                     title = "소득 정보",
                     step = FinancialInfoStep.INCOME,
                     rows = listOf(
-                        FinanceInfoRow("연간 총소득", "4,800만 원"),
-                        FinanceInfoRow("소득 유형", "근로소득")
+                        FinanceInfoRow("연간 총소득", "4,800만 원")
                     )
                 )
             )

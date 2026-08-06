@@ -24,11 +24,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.umc.homefit.data.dto.analysis.ConditionProfileResponse
+import com.umc.homefit.util.mapToHouseOption
+import java.text.NumberFormat
+import java.util.Locale
 
 private val CardBorderColor = Color(0xFFD2D9E2)
 private val EditLinkColor = Color(0xFF3C45F3)
 private val LabelTextColor = Color(0xFF4A4F55)
 private val ValueTextColor = Color(0xFF919AA4)
+
+private const val NOT_ENTERED_LABEL = "없음"
+private val KOREAN_NUMBER_FORMAT = NumberFormat.getNumberInstance(Locale.KOREA)
 
 
 data class FinanceInfoSection(
@@ -40,6 +47,81 @@ data class FinanceInfoSection(
 data class FinanceInfoRow(
     val label: String,
     val value: String? = null
+)
+
+/** "원" 단위 금액을 "OOO만 원" 형태(콤마 포함)로 표시용 포맷한다. */
+private fun formatManWon(wonAmount: Long): String =
+    "${KOREAN_NUMBER_FORMAT.format(wonAmount / 10_000)}만 원"
+
+/**
+ * GET /api/users/me/condition-profile 응답을 마이페이지/분석 탭 요약 리스트용 섹션으로 변환한다.
+ * (IncomeStep에서 소득 유형 입력이 빠졌으므로 소득 정보는 "연간 총소득" 한 행만 보여준다)
+ */
+fun ConditionProfileResponse.toFinanceInfoSections(): List<FinanceInfoSection> = listOf(
+    FinanceInfoSection(
+        title = "소득 정보",
+        step = FinancialInfoStep.INCOME,
+        rows = listOf(
+            // toAnnualIncomeText()와 동일한 순서(÷10,000 후 ×12)로 계산하되, 표시용으로 콤마 포맷을 더한다.
+            FinanceInfoRow("연간 총소득", "${KOREAN_NUMBER_FORMAT.format((monthlyIncomeAmount / 10_000) * 12)}만 원")
+        )
+    ),
+    FinanceInfoSection(
+        title = "자산 정보",
+        step = FinancialInfoStep.ASSET,
+        rows = listOf(
+            FinanceInfoRow("총 보유 자산", formatManWon(totalAssetAmount)),
+            FinanceInfoRow("금융 자산", formatManWon(cashSavings))
+        )
+    ),
+    FinanceInfoSection(
+        title = "부채 정보",
+        step = FinancialInfoStep.DEBT,
+        rows = listOf(
+            FinanceInfoRow("총 부채 금액", formatManWon(totalDebtAmount)),
+            FinanceInfoRow("월 상환액", formatManWon(monthlyDebtPaymentAmount))
+        )
+    ),
+    FinanceInfoSection(
+        title = "주택 보유 여부",
+        step = FinancialInfoStep.HOUSE,
+        rows = listOf(
+            FinanceInfoRow(mapToHouseOption(housingOwnershipStatus.name) ?: NOT_ENTERED_LABEL)
+        )
+    )
+)
+
+/**
+ * 금융 정보 프로필 조회가 실패했을 때(주로 아직 입력한 적 없는 계정, FINANCE404) 쓰는 빈 섹션.
+ * [toFinanceInfoSections]와 같은 섹션/타이틀 구조를 유지하되 모든 값을 "없음"으로 채운다.
+ */
+fun emptyFinanceInfoSections(): List<FinanceInfoSection> = listOf(
+    FinanceInfoSection(
+        title = "소득 정보",
+        step = FinancialInfoStep.INCOME,
+        rows = listOf(FinanceInfoRow("연간 총소득", NOT_ENTERED_LABEL))
+    ),
+    FinanceInfoSection(
+        title = "자산 정보",
+        step = FinancialInfoStep.ASSET,
+        rows = listOf(
+            FinanceInfoRow("총 보유 자산", NOT_ENTERED_LABEL),
+            FinanceInfoRow("금융 자산", NOT_ENTERED_LABEL)
+        )
+    ),
+    FinanceInfoSection(
+        title = "부채 정보",
+        step = FinancialInfoStep.DEBT,
+        rows = listOf(
+            FinanceInfoRow("총 부채 금액", NOT_ENTERED_LABEL),
+            FinanceInfoRow("월 상환액", NOT_ENTERED_LABEL)
+        )
+    ),
+    FinanceInfoSection(
+        title = "주택 보유 여부",
+        step = FinancialInfoStep.HOUSE,
+        rows = listOf(FinanceInfoRow(NOT_ENTERED_LABEL))
+    )
 )
 
 /**
