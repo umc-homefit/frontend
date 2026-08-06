@@ -1,6 +1,5 @@
 package com.umc.homefit.di
 
-import com.umc.homefit.data.api.analysis.AnalysisApiService
 import com.umc.homefit.data.api.auth.AuthApiService
 import com.umc.homefit.data.api.common.HealthApiService
 import dagger.Module
@@ -16,6 +15,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+import com.umc.homefit.data.api.mypage.MyPageApiService
+import com.umc.homefit.data.api.analysis.AnalysisApiService
+import com.umc.homefit.data.api.recruitment.NoticeApiService
+
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -89,4 +92,14 @@ object NetworkModule {
     @Singleton
     fun provideAnalysisApiService(retrofit: Retrofit): AnalysisApiService =
         retrofit.create(AnalysisApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideMyPageApiService(retrofit: Retrofit): MyPageApiService =
+        retrofit.create(MyPageApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideNoticeApiService(retrofit: Retrofit): NoticeApiService =
+        retrofit.create(NoticeApiService::class.java)
 }
