@@ -1,6 +1,7 @@
 ﻿package com.umc.homefit.presentation.home
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,8 +21,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,11 +46,9 @@ import androidx.compose.ui.unit.sp
 import com.umc.homefit.R
 import com.umc.homefit.presentation.component.TopBarAction
 import androidx.compose.foundation.layout.offset
-import androidx.compose.runtime.collectAsState
-import com.umc.homefit.data.dto.recruitment.RecruitmentDto
-import com.umc.homefit.data.dto.recruitment.RecruitmentStatus
-import com.umc.homefit.presentation.recruitment.component.RecruitmentCard
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.umc.homefit.domain.model.home.FeaturedNoticeStatus
 import com.umc.homefit.presentation.component.AppScaffold
 
 @Suppress("UNUSED_PARAMETER")
@@ -60,12 +65,11 @@ fun HomeScreenRoute(
     onFinanceClick: () -> Unit = {},
     onGuideClick: () -> Unit = {}
 ) {
-    val recommendedAnnouncements by
-    viewModel.recommendedAnnouncements.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     HomeScreen(
         userName = "길동",
-        recommendedAnnouncements = recommendedAnnouncements,
+        uiState = uiState,
         hasNotifications = true,
         onNotificationClick = onNotificationClick,
         onSearchClick = onSearchClick,
@@ -76,6 +80,7 @@ fun HomeScreenRoute(
         onGuideClick = onGuideClick,
         onNavigateToDetail = onNavigateToDetail,
         onToggleBookmark = viewModel::toggleBookmark,
+        onRetry = viewModel::loadFeaturedNotices,
         modifier = modifier
     )
 }
@@ -83,13 +88,14 @@ fun HomeScreenRoute(
 @Composable
 fun HomeScreen(
     userName: String,
-    recommendedAnnouncements: List<RecruitmentDto>,
+    uiState: HomeScreenUiState,
     hasNotifications: Boolean,
     onNotificationClick: () -> Unit,
     onSearchClick: () -> Unit,
     onAllAnnouncementClick: () -> Unit,
     onFavoriteClick: () -> Unit,
-    onToggleBookmark: (String) -> Unit,
+    onToggleBookmark: (Long) -> Unit,
+    onRetry: () -> Unit,
     onAnalysisClick: () -> Unit,
     onFinanceClick: () -> Unit,
     onGuideClick: () -> Unit,
@@ -179,7 +185,7 @@ fun HomeScreen(
 
             item {
                 Text(
-                    text = "추천 공고",
+                    text = "주요 공고",
                     modifier = Modifier.padding(
                         start = 16.dp,
                         top = 20.dp,
@@ -192,25 +198,71 @@ fun HomeScreen(
                 )
             }
 
-            items(
-                items = recommendedAnnouncements,
-                key = { recruitment ->
-                    recruitment.id
+            when (uiState) {
+                HomeScreenUiState.Loading -> item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(160.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
-            ) { recruitment ->
-                RecruitmentCard(
-                    recruitment = recruitment,
-                    onClick = {
-                        onNavigateToDetail(recruitment.id)
-                    },
-                    onToggleBookmark = {
-                        onToggleBookmark(recruitment.id)
-                    },
-                    modifier = Modifier.padding(
-                        horizontal = 16.dp,
-                        vertical = 6.dp
-                    )
-                )
+
+                is HomeScreenUiState.Error -> item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = uiState.message,
+                            color = Color(0xFF9298A2),
+                            fontSize = 14.sp
+                        )
+                        Text(
+                            text = "다시 시도",
+                            modifier = Modifier
+                                .padding(top = 12.dp)
+                                .clickable(onClick = onRetry),
+                            color = Color(0xFF3C45F3),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                is HomeScreenUiState.Success -> {
+                    if (uiState.notices.isEmpty()) {
+                        item {
+                            Text(
+                                text = "조회된 주요 공고가 없습니다.",
+                                modifier = Modifier.padding(24.dp),
+                                color = Color(0xFF9298A2)
+                            )
+                        }
+                    } else {
+                        items(
+                            items = uiState.notices,
+                            key = HomeNoticeUiModel::noticeId
+                        ) { notice ->
+                            HomeNoticeCard(
+                                notice = notice,
+                                onClick = {
+                                    onNavigateToDetail(notice.noticeId.toString())
+                                },
+                                onToggleBookmark = {
+                                    onToggleBookmark(notice.noticeId)
+                                },
+                                modifier = Modifier.padding(
+                                    horizontal = 16.dp,
+                                    vertical = 6.dp
+                                )
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -450,82 +502,133 @@ private fun HomeMenuItem(
 }
 
 
-val sampleAnnouncements = listOf(
-    RecruitmentDto(
-        id = "1",
-        title = "강동구 고덕강일 청년안심주택",
-        company = "서울주택도시공사",
-        location = "서울특별시 강동구",
-        rentType = "전세",
-        depositMin = 32_000_000L,
-        depositMax = 32_000_000L,
-        monthlyRentMin = 0L,
-        monthlyRentMax = 0L,
-        announcementDate = "2024-07-01",
-        announcementNumber = "2024-강동-031",
-        area = 59.0,
-        applicationStartDate = "2024-07-10",
-        applicationEndDate = "2024-07-20",
-        status = RecruitmentStatus.RECRUITING,
-        competitionRate = "12:1",
-        isBookmarked = true
-    ),
-    RecruitmentDto(
-        id = "2",
-        title = "강동구 고덕강일 청년안심주택",
-        company = "서울주택도시공사",
-        location = "서울특별시 강동구",
-        rentType = "전세",
-        depositMin = 32_000_000L,
-        depositMax = 32_000_000L,
-        monthlyRentMin = 0L,
-        monthlyRentMax = 0L,
-        announcementDate = "2024-07-01",
-        announcementNumber = "2024-강동-031",
-        area = 59.0,
-        applicationStartDate = "2024-07-10",
-        applicationEndDate = "2024-07-20",
-        status = RecruitmentStatus.CLOSING_SOON,
-        competitionRate = "12:1",
-        isBookmarked = false
-    ),
-    RecruitmentDto(
-        id = "3",
-        title = "강동구 고덕강일 청년안심주택",
-        company = "서울주택도시공사",
-        location = "서울특별시 강동구",
-        rentType = "전세",
-        depositMin = 32_000_000L,
-        depositMax = 32_000_000L,
-        monthlyRentMin = 0L,
-        monthlyRentMax = 0L,
-        announcementDate = "2024-07-01",
-        announcementNumber = "2024-강동-031",
-        area = 59.0,
-        applicationStartDate = "2024-07-10",
-        applicationEndDate = "2024-07-20",
-        status = RecruitmentStatus.CLOSING_SOON,
-        competitionRate = "12:1",
-        isBookmarked = false
-    ),
-    RecruitmentDto(
-        id = "4",
-        title = "강동구 고덕강일 청년안심주택",
-        company = "서울주택도시공사",
-        location = "서울특별시 강동구",
-        rentType = "전세",
-        depositMin = 32_000_000L,
-        depositMax = 32_000_000L,
-        monthlyRentMin = 0L,
-        monthlyRentMax = 0L,
-        announcementDate = "2024-07-01",
-        announcementNumber = "2024-강동-031",
-        area = 59.0,
-        applicationStartDate = "2024-07-10",
-        applicationEndDate = "2024-07-20",
-        status = RecruitmentStatus.RECRUITING,
-        competitionRate = "12:1",
-        isBookmarked = false
+@Composable
+private fun HomeNoticeCard(
+    notice: HomeNoticeUiModel,
+    onClick: () -> Unit,
+    onToggleBookmark: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, Color(0xFFE1E5EB))
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = notice.title,
+                    modifier = Modifier.weight(1f),
+                    color = Color.Black,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Icon(
+                    imageVector = if (notice.isSaved) {
+                        Icons.Default.Favorite
+                    } else {
+                        Icons.Default.FavoriteBorder
+                    },
+                    contentDescription = if (notice.isSaved) "저장 해제" else "저장",
+                    tint = if (notice.isSaved) Color(0xFFFF5A5F) else Color(0xFFB5BBC4),
+                    modifier = Modifier.clickable(onClick = onToggleBookmark)
+                )
+            }
+
+            Column(
+                modifier = Modifier.padding(top = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = "지역 | ${notice.location}",
+                    color = Color(0xFF707781),
+                    fontSize = 14.sp
+                )
+                Row {
+                    Text(
+                        text = "전용 | ${notice.unitSummary}",
+                        color = Color(0xFF707781),
+                        fontSize = 14.sp
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "보증금 | ${notice.deposit}",
+                        color = Color(0xFF707781),
+                        fontSize = 14.sp
+                    )
+                }
+                Text(
+                    text = "청약접수 ${notice.applicationPeriod}",
+                    color = Color(0xFF707781),
+                    fontSize = 14.sp
+                )
+            }
+
+            Row(
+                modifier = Modifier.padding(top = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                HomeNoticeStatusBadge(notice)
+                notice.dDayText?.let { dDayText ->
+                    Surface(
+                        color = Color(0xFFFFF0E8),
+                        shape = RoundedCornerShape(percent = 50)
+                    ) {
+                        Text(
+                            text = dDayText,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                            color = Color(0xFFFF6B35),
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HomeNoticeStatusBadge(notice: HomeNoticeUiModel) {
+    val (backgroundColor, textColor) = when (notice.status) {
+        FeaturedNoticeStatus.RECRUITING -> Color(0xFFE9F8EF) to Color(0xFF149B4A)
+        FeaturedNoticeStatus.SCHEDULED -> Color(0xFFEFF1FF) to Color(0xFF3C45F3)
+        FeaturedNoticeStatus.CLOSING_SOON -> Color(0xFFFFEDEC) to Color(0xFFE5484D)
+        FeaturedNoticeStatus.CLOSED -> Color(0xFFF0F2F5) to Color(0xFF707781)
+        FeaturedNoticeStatus.UNKNOWN -> Color(0xFFF0F2F5) to Color(0xFF707781)
+    }
+
+    Surface(
+        color = backgroundColor,
+        shape = RoundedCornerShape(percent = 50)
+    ) {
+        Text(
+            text = notice.statusDisplayText,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+            color = textColor,
+            fontSize = 12.sp
+        )
+    }
+}
+
+private val sampleNotices = listOf(
+    HomeNoticeUiModel(
+        noticeId = 1,
+        title = "강동구 청년안심주택 추가모집",
+        location = "서울 강동구",
+        unitSummary = "전용 24㎡",
+        deposit = "3,200만원 ~ 4,800만원",
+        applicationPeriod = "2026.07.01 ~ 2026.07.10",
+        status = FeaturedNoticeStatus.CLOSING_SOON,
+        statusDisplayText = "마감임박",
+        dDayText = "D-3",
+        isSaved = false
     )
 )
 
@@ -538,13 +641,14 @@ val sampleAnnouncements = listOf(
 private fun HomeScreenPreview() {
     HomeScreen(
         userName = "길동",
-        recommendedAnnouncements = sampleAnnouncements,
+        uiState = HomeScreenUiState.Success(sampleNotices),
         hasNotifications = true,
         onNotificationClick = {},
         onSearchClick = {},
         onAllAnnouncementClick = {},
         onFavoriteClick = {},
         onToggleBookmark = {},
+        onRetry = {},
         onAnalysisClick = {},
         onFinanceClick = {},
         onGuideClick = {},

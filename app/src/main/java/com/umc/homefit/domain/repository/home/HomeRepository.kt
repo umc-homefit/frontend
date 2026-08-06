@@ -1,10 +1,13 @@
-﻿package com.umc.homefit.domain.repository.home
+package com.umc.homefit.domain.repository.home
 
-import com.umc.homefit.data.dto.recruitment.RecruitmentDto
-import kotlinx.coroutines.flow.Flow
+import com.umc.homefit.data.remote.NetworkResult
+import com.umc.homefit.domain.model.home.FeaturedNotice
 
 interface HomeRepository {
-    suspend fun fetchFeaturedRecruitments(): List<RecruitmentDto>
-    fun getSavedRecruitmentIds(): Flow<List<String>>
-    suspend fun saveRecruitmentId(id: String)
+    suspend fun getNotices(
+        status: String,
+        sort: String,
+        page: Int,
+        size: Int
+    ): NetworkResult<List<FeaturedNotice>>
 }

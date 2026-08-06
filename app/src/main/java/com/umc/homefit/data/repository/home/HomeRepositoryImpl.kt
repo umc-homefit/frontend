@@ -1,44 +1,66 @@
-﻿package com.umc.homefit.data.repository.home
+package com.umc.homefit.data.repository.home
 
-import com.umc.homefit.data.local.UserPreferencesDataSource
-import com.umc.homefit.data.dto.recruitment.RecruitmentDto
-import com.umc.homefit.data.dto.recruitment.RecruitmentStatus
+import com.umc.homefit.data.api.recruitment.NoticeApiService
+import com.umc.homefit.data.dto.recruitment.NoticeSummaryResponse
+import com.umc.homefit.data.remote.NetworkResult
+import com.umc.homefit.data.remote.safeApiCall
+import com.umc.homefit.domain.model.home.FeaturedNotice
+import com.umc.homefit.domain.model.home.FeaturedNoticeStatus
 import com.umc.homefit.domain.repository.home.HomeRepository
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class HomeRepositoryImpl @Inject constructor(
-    private val userPreferencesDataSource: UserPreferencesDataSource
+    private val noticeApiService: NoticeApiService
 ) : HomeRepository {
 
-    override suspend fun fetchFeaturedRecruitments(): List<RecruitmentDto> {
-        return listOf(
-            RecruitmentDto(
-                id = "1",
-                title = "행복주택 서울가좌역",
-                company = "LH한국토지주택공사",
-                location = "서울특별시 마포구",
-                rentType = "행복주택",
-                depositMin = 50000000L,
-                depositMax = 50000000L,
-                monthlyRentMin = 150000L,
-                monthlyRentMax = 150000L,
-                announcementDate = "2026-07-11",
-                announcementNumber = "2026-마포-003",
-                area = 39.87,
-                applicationStartDate = "2026-07-12",
-                applicationEndDate = "2026-07-16",
-                status = RecruitmentStatus.RECRUITING,
-                competitionRate = "8.2:1"
+    override suspend fun getNotices(
+        status: String,
+        sort: String,
+        page: Int,
+        size: Int
+    ): NetworkResult<List<FeaturedNotice>> =
+        when (
+            val result = safeApiCall {
+                noticeApiService.getNotices(
+                    status = status,
+                    sort = sort,
+                    page = page,
+                    size = size
+                )
+            }
+        ) {
+            is NetworkResult.Success -> NetworkResult.Success(
+                result.data.notices.map(NoticeSummaryResponse::toDomain)
             )
-        )
-    }
+            is NetworkResult.Error -> result
+        }
+}
 
-    override fun getSavedRecruitmentIds(): Flow<List<String>> {
-        return userPreferencesDataSource.savedRecruitmentIds
-    }
+private fun NoticeSummaryResponse.toDomain(): FeaturedNotice = FeaturedNotice(
+    noticeId = noticeId,
+    title = title,
+    region = region,
+    district = district,
+    unitSummary = unitSummary,
+    depositMin = depositMin,
+    depositMax = depositMax,
+    monthlyRentMin = monthlyRentMin,
+    monthlyRentMax = monthlyRentMax,
+    status = status.toFeaturedNoticeStatus(),
+    statusDisplayText = statusDisplayText,
+    isAdditionalRecruitment = isAdditionalRecruitment,
+    applicationStartAt = applicationStartAt,
+    applicationEndAt = applicationEndAt,
+    dDayText = dDayText,
+    views = views,
+    interestedCount = interestedCount,
+    isSaved = isSaved
+)
 
-    override suspend fun saveRecruitmentId(id: String) {
-        userPreferencesDataSource.saveRecruitmentId(id)
-    }
+private fun String.toFeaturedNoticeStatus(): FeaturedNoticeStatus = when (this) {
+    "RECRUITING" -> FeaturedNoticeStatus.RECRUITING
+    "SCHEDULED" -> FeaturedNoticeStatus.SCHEDULED
+    "CLOSING_SOON" -> FeaturedNoticeStatus.CLOSING_SOON
+    "CLOSED" -> FeaturedNoticeStatus.CLOSED
+    else -> FeaturedNoticeStatus.UNKNOWN
 }

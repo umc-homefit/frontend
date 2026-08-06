@@ -1,6 +1,7 @@
 package com.umc.homefit.data.api.recruitment
 
 import com.umc.homefit.data.dto.common.BaseResponse
+import com.umc.homefit.data.dto.recruitment.NoticeListResponse
 import com.umc.homefit.data.dto.recruitment.SavedNoticeListResponse
 import com.umc.homefit.data.dto.recruitment.UnsaveNoticeResultResponse
 import retrofit2.http.DELETE
@@ -9,6 +10,14 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface NoticeApiService {
+
+    @GET("notices")
+    suspend fun getNotices(
+        @Query("status") status: String,
+        @Query("sort") sort: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int
+    ): BaseResponse<NoticeListResponse>
 
     @GET("users/me/saved-notices")
     suspend fun getSavedNotices(
