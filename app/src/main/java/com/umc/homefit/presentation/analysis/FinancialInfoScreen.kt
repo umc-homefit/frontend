@@ -36,7 +36,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
@@ -235,6 +239,46 @@ fun QuickAmountChipGroup(
     }
 }
 
+/**
+ * 숫자만 있는 입력값(예: "4000000")에 천 단위 콤마를 붙여서 보여준다 ("4,000,000").
+ * 실제 상태값(value)은 콤마 없는 숫자 그대로 유지하고, 화면 표시만 바꾸는 용도라
+ * toApiAmount() 등 계산 로직에는 영향이 없다.
+ */
+private object ThousandsSeparatorVisualTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val original = text.text
+        if (original.isEmpty()) return TransformedText(text, OffsetMapping.Identity)
+
+        val formatted = buildString {
+            original.forEachIndexed { index, char ->
+                val digitsFromEnd = original.length - index
+                if (index != 0 && digitsFromEnd % 3 == 0) append(',')
+                append(char)
+            }
+        }
+
+        // 원본 문자열의 각 위치가 콤마 삽입 후 어디로 옮겨가는지 미리 계산해둔다 (커서 위치 매핑용).
+        val originalToTransformed = IntArray(original.length + 1)
+        var originalIndex = 0
+        formatted.forEachIndexed { formattedIndex, char ->
+            if (char != ',') {
+                originalIndex++
+                originalToTransformed[originalIndex] = formattedIndex + 1
+            }
+        }
+
+        val offsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int =
+                originalToTransformed[offset.coerceIn(0, original.length)]
+
+            override fun transformedToOriginal(offset: Int): Int =
+                formatted.take(offset.coerceIn(0, formatted.length)).count { it != ',' }
+        }
+
+        return TransformedText(AnnotatedString(formatted), offsetMapping)
+    }
+}
+
 // 금액 입력 필드 컴포넌트
 @Composable
 fun FinancialInputField(
@@ -278,6 +322,7 @@ fun FinancialInputField(
                 )
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            visualTransformation = ThousandsSeparatorVisualTransformation,
             singleLine = true,
             textStyle = if (value.isNotEmpty()) {
                 TextStyle(

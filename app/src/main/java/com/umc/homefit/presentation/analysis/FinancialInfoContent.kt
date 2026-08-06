@@ -26,11 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.data.dto.analysis.ConditionProfileResponse
 import com.umc.homefit.util.mapToHouseOption
+import com.umc.homefit.util.toAnnualIncomeText
 import java.text.NumberFormat
 import java.util.Locale
 
 private val CardBorderColor = Color(0xFFD2D9E2)
-private val EditLinkColor = Color(0xFF3C45F3)
+private val EditLinkColor = Color(0xFF636AF5)
 private val LabelTextColor = Color(0xFF4A4F55)
 private val ValueTextColor = Color(0xFF919AA4)
 
@@ -62,8 +63,8 @@ fun ConditionProfileResponse.toFinanceInfoSections(): List<FinanceInfoSection> =
         title = "소득 정보",
         step = FinancialInfoStep.INCOME,
         rows = listOf(
-            // toAnnualIncomeText()와 동일한 순서(÷10,000 후 ×12)로 계산하되, 표시용으로 콤마 포맷을 더한다.
-            FinanceInfoRow("연간 총소득", "${KOREAN_NUMBER_FORMAT.format((monthlyIncomeAmount / 10_000) * 12)}만 원")
+            // toAnnualIncomeText()로 계산한 값(반올림 처리됨)에 표시용 콤마 포맷만 더한다.
+            FinanceInfoRow("연간 총소득", "${KOREAN_NUMBER_FORMAT.format(toAnnualIncomeText(monthlyIncomeAmount).toLong())}만 원")
         )
     ),
     FinanceInfoSection(

@@ -25,16 +25,17 @@ fun toApiAmount(uiAmount: String): Long {
  * IncomeStep에서 입력받는 "연간 총소득"(만 원 단위) 텍스트를
  * 백엔드 monthlyIncomeAmount(월 총소득, 원 단위)로 변환한다.
  *
- * 연간(만 원) -> 월(만 원)으로 먼저 12로 나눈 뒤, "원" 단위로 맞추기 위해 10,000을 곱한다.
- * 예: "4800" (연 4,800만 원) -> 4800 / 12 = 400(월 400만 원) -> 400 * 10,000 = 4,000,000원
+ * "만 원" 단위에서 먼저 12로 나누면(예: 4800/12=400) 12로 안 떨어지는 값(예: 4000/12=333.33)에서
+ * 소수점이 버려져 왕복 변환 시 오차가 커진다(4000만 원 입력 -> 3996만 원으로 보이는 문제).
+ * 그래서 반드시 "원" 단위로 먼저 환산한 뒤 12로 나누고, 반올림해서 오차를 최소화한다.
+ * 예: "4000" (연 4,000만 원) -> 40,000,000원 / 12 = 3,333,333.33... -> 반올림 -> 3,333,333원
  *
  * 입력값이 비어있거나 숫자가 아니면 0을 반환한다.
- * 12로 나눈 나머지(연 소득이 12로 안 떨어지는 경우)는 버림 처리된다.
  */
 fun toMonthlyIncomeAmount(annualIncomeText: String): Long {
     val annualManWon = annualIncomeText.toLongOrNull() ?: 0L
-    val monthlyManWon = annualManWon / 12
-    return monthlyManWon * 10_000
+    val annualWon = annualManWon * 10_000
+    return Math.round(annualWon / 12.0)
 }
 
 /**
@@ -77,12 +78,14 @@ fun toDisplayAmount(apiAmount: Long): String = (apiAmount / 10_000).toString()
  * 백엔드 monthlyIncomeAmount(월 총소득, 원 단위)를
  * IncomeStep의 "연간 총소득"(만 원 단위) 입력란에 채울 문자열로 변환한다. (toMonthlyIncomeAmount의 반대 방향)
  *
- * 먼저 "원"을 "만 원"으로 바꾸기 위해 10,000으로 나눈 뒤, 월 -> 연으로 12를 곱한다. (순서 주의)
- * 예: 4,000,000원 -> 4,000,000 / 10,000 = 400(월 400만 원) -> 400 * 12 = 4800(연 4,800만 원) -> "4800"
+ * "원"을 먼저 "만 원"으로 내림 처리해버리면(예: 3,330,000/10,000=333) 그다음 12를 곱해도
+ * 원래 입력했던 값으로 못 돌아온다. 그래서 12를 먼저 곱해 "원" 단위로 정밀하게 계산한 뒤,
+ * 맨 마지막에만 "만 원" 단위로 반올림한다.
+ * 예: 3,333,333원 -> 3,333,333 * 12 = 39,999,996 -> / 10,000 = 3999.9996 -> 반올림 -> "4000"
  */
 fun toAnnualIncomeText(monthlyIncomeAmount: Long): String {
-    val monthlyManWon = monthlyIncomeAmount / 10_000
-    val annualManWon = monthlyManWon * 12
+    val annualWon = monthlyIncomeAmount * 12
+    val annualManWon = Math.round(annualWon / 10_000.0)
     return annualManWon.toString()
 }
 
