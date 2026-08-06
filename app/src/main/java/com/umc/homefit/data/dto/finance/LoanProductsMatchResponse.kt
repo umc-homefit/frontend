@@ -3,6 +3,21 @@ package com.umc.homefit.data.dto.finance
 import kotlinx.serialization.Serializable
 
 @Serializable
+enum class FinanceProviderType {
+    POLICY,
+    BANK,
+    UNKNOWN
+}
+
+@Serializable
+enum class FinanceProductCategory {
+    MORTGAGE_LOAN,
+    JEONSE_LOAN,
+    SUBSCRIPTION_SAVINGS,
+    UNKNOWN
+}
+
+@Serializable
 data class LoanProductsMatchResponse(
     val matchedCount: Int,
     val minRate: String,
@@ -14,8 +29,8 @@ data class LoanProductsMatchResponse(
 data class LoanProductResponse(
     val productId: Long,
     val productName: String,
-    val providerType: String,
-    val productCategory: String,
+    val providerType: FinanceProviderType = FinanceProviderType.UNKNOWN,
+    val productCategory: FinanceProductCategory = FinanceProductCategory.UNKNOWN,
     val providerName: String,
     val rateRange: String,
     val maxIncome: Long? = null,

@@ -11,6 +11,6 @@ interface FinanceApiService {
         @Query("providerType") providerType: String? = null,
         @Query("productCategory") productCategory: String? = null,
         @Query("keyword") keyword: String? = null,
-        @Query("sort") sort: String? = "RECOMMENDED"
+        @Query("sort") sort: String?
     ): BaseResponse<LoanProductsMatchResponse>
 }

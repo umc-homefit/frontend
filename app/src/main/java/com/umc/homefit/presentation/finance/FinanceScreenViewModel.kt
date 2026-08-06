@@ -2,10 +2,10 @@ package com.umc.homefit.presentation.finance
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.umc.homefit.data.dto.finance.FinanceProductCategory
+import com.umc.homefit.data.dto.finance.FinanceProviderType
+import com.umc.homefit.data.dto.finance.LoanProductResponse
 import com.umc.homefit.data.remote.NetworkResult
-import com.umc.homefit.domain.model.finance.FinanceProductCategory
-import com.umc.homefit.domain.model.finance.FinanceProviderType
-import com.umc.homefit.domain.model.finance.LoanProduct
 import com.umc.homefit.domain.repository.finance.FinanceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.NumberFormat
@@ -35,7 +35,8 @@ class FinanceScreenViewModel @Inject constructor(
                     matchedCount = "${result.data.matchedCount}가지",
                     minRate = "연 ${result.data.minRate}",
                     maxLimitAmount = "최대 ${result.data.maxLimitAmount.toKoreanAmount()}",
-                    products = result.data.products.take(MAX_VISIBLE_PRODUCTS).map(LoanProduct::toUiModel)
+                    products = result.data.products.take(MAX_VISIBLE_PRODUCTS)
+                        .map(LoanProductResponse::toUiModel)
                 )
                 is NetworkResult.Error -> FinanceScreenUiState.Error(result.message)
             }
@@ -47,7 +48,7 @@ class FinanceScreenViewModel @Inject constructor(
     }
 }
 
-private fun LoanProduct.toUiModel(): FinanceRecommendedProductUiModel =
+private fun LoanProductResponse.toUiModel(): FinanceRecommendedProductUiModel =
     FinanceRecommendedProductUiModel(
         productId = productId,
         title = productName,
