@@ -1,14 +1,27 @@
-﻿package com.umc.homefit.presentation.analysis
+package com.umc.homefit.presentation.analysis
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.umc.homefit.data.dto.analysis.EligibilityAnalysisResultDto
+import com.umc.homefit.data.remote.NetworkResult
+import com.umc.homefit.domain.repository.analysis.AnalysisRepository
+import com.umc.homefit.util.toWonText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AnalysisResultScreenViewModel @Inject constructor() : ViewModel() {
+class AnalysisResultScreenViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val analysisRepository: AnalysisRepository
+) : ViewModel() {
+
+    private val analysisId: Long = checkNotNull(savedStateHandle["analysisId"]).toString().toLong()
+
     private val _uiState = MutableStateFlow<AnalysisResultScreenUiState>(AnalysisResultScreenUiState.Loading)
     val uiState: StateFlow<AnalysisResultScreenUiState> = _uiState.asStateFlow()
 
@@ -17,23 +30,55 @@ class AnalysisResultScreenViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun loadAnalysisResult() {
-        // 실제 API 연동 시 이곳에서 Repository를 호출하여 데이터를 받아올 것
-        // 현재는 기획서 시안 기반의 초기 성공 데이터를 세팅해 둔 상태
-        _uiState.value = AnalysisResultScreenUiState.Success(
-            data = AnalysisResultData(
-                probabilityGrade = "높음",
-                percentileText = "상위 20~30%",
-                score = 72,
-                expectedDeposit = "3,200만 원",
-                expectedMonthlyRent = "42만 원",
-                infoTags = listOf("전용 36m² · 2순위 기준 추정", "보증금 1,000만 원 전환 기준"),
-                criteriaStatus = listOf(
-                    CriteriaItem("소득 기준", "적합", true),
-                    CriteriaItem("자산 기준", "적합", true),
-                    CriteriaItem("거주 지역", "적합", true),
-                    CriteriaItem("청약 자격", "확인 필요", false)
-                )
-            )
-        )
+        viewModelScope.launch {
+            _uiState.value = AnalysisResultScreenUiState.Loading
+            when (val result = analysisRepository.getEligibilityAnalysis(analysisId)) {
+                is NetworkResult.Success -> {
+                    _uiState.value = AnalysisResultScreenUiState.Success(data = result.data.toUiModel())
+                }
+                is NetworkResult.Error -> {
+                    _uiState.value = AnalysisResultScreenUiState.Error(result.message)
+                }
+            }
+        }
     }
+}
+
+private fun EligibilityAnalysisResultDto.toUiModel(): AnalysisResultData {
+    return AnalysisResultData(
+        probabilityGrade = resultLevel.toGradeText(),
+        // TODO: #72 문의 1 — 백분위 필드가 API에 없음. 답변 오면 채우기
+        percentileText = "",
+        score = eligibilityScore,
+        expectedDeposit = expectedDepositAmount.toWonText(),
+        expectedMonthlyRent = expectedMonthlyRentAmount.toWonText(),
+        // TODO: #72 문의 4·6 — 신청 순위/전환 이율 필드가 API에 없어 태그를 못 채움. 답변 오면 채우기
+        infoTags = emptyList(),
+        criteriaStatus = conditionResults.map { condition ->
+            CriteriaItem(
+                title = condition.conditionName,
+                statusText = condition.resultStatus.toStatusText(),
+                isSuitable = condition.resultStatus == "PASS"
+            )
+        },
+        inputInfoRows = conditionResults
+            .filter { !it.userValue.isNullOrBlank() }
+            .map { condition -> InfoRowItem(title = condition.conditionName, value = condition.userValue!!) }
+    )
+}
+
+private fun String.toGradeText(): String = when (this) {
+    "HIGH" -> "높음"
+    "MEDIUM" -> "보통"
+    "LOW" -> "낮음"
+    "NOT_ELIGIBLE" -> "해당 없음"
+    "NEED_CHECK" -> "확인 필요"
+    else -> this
+}
+
+private fun String.toStatusText(): String = when (this) {
+    "PASS" -> "적합"
+    "FAIL" -> "부적합"
+    "NEED_CHECK" -> "확인 필요"
+    else -> this
 }

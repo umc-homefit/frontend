@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.umc.homefit.R
 import com.umc.homefit.presentation.component.AppTopBar
 import com.umc.homefit.presentation.component.TopBarAction
@@ -166,7 +167,12 @@ private fun SuccessContent(data: AnalysisResultData) {
     ) {
         // 입주 가능성 카드
         Column {
-            Text("입주 가능성", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                "입주 가능성",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF161616)
+            )
             Spacer(modifier = Modifier.height(17.dp))
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -232,28 +238,31 @@ private fun SuccessContent(data: AnalysisResultData) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .align(Alignment.CenterStart)
-                            .padding(start = 28.dp)
+                            .padding(start = 26.dp)
                     ) {
-                        Surface(
-                            shape = RoundedCornerShape(200.dp),
-                            color = Color(0xFFF1F0FF)
-                        ) {
-                            Text(
-                                text = data.percentileText,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
-                                color = Color(0xFF3C45F3),
-                                fontWeight = FontWeight.SemiBold,
-                                style = MaterialTheme.typography.labelLarge
-                            )
-                        }
+                        // TODO: #72 문의 1 — 백분위 필드가 API에 없어 값이 오기 전까진 숨김 처리
+                        if (data.percentileText.isNotBlank()) {
+                            Surface(
+                                shape = RoundedCornerShape(200.dp),
+                                color = Color(0xFFF1F0FF)
+                            ) {
+                                Text(
+                                    text = data.percentileText,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+                                    color = Color(0xFF3C45F3),
+                                    fontWeight = FontWeight.SemiBold,
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                            }
 
-                        Spacer(modifier = Modifier.height(5.dp))
+                            Spacer(modifier = Modifier.height(5.dp))
+                        }
 
                         Text(
                             text = data.probabilityGrade,
-                            style = MaterialTheme.typography.displayMedium,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Color(0xFF3C45F3)
+                            fontSize = 38.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF636AF5)
                         )
                     }
 
@@ -276,8 +285,8 @@ private fun SuccessContent(data: AnalysisResultData) {
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .offset(y = 6.dp),
-                            style = MaterialTheme.typography.displayMedium,
-                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 43.sp,
+                            fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
                     }
@@ -289,7 +298,12 @@ private fun SuccessContent(data: AnalysisResultData) {
 
         // 예상 비용 카드
         Column {
-            Text("예상 비용", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                "예상 비용",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF161616)
+            )
             Spacer(modifier = Modifier.height(17.dp))
             Card(
                 modifier = Modifier
@@ -311,13 +325,14 @@ private fun SuccessContent(data: AnalysisResultData) {
                     ) {
                         Text(
                             text = "보증금",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Color.Gray
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF919AA4)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = data.expectedDeposit,
-                            style = MaterialTheme.typography.titleLarge,
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF4A4F55)
                         )
@@ -336,13 +351,14 @@ private fun SuccessContent(data: AnalysisResultData) {
                     ) {
                         Text(
                             text = "월세",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Color.Gray
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF919AA4)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = data.expectedMonthlyRent,
-                            style = MaterialTheme.typography.titleLarge,
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF4A4F55)
                         )
@@ -369,9 +385,9 @@ private fun SuccessContent(data: AnalysisResultData) {
                     ) {
                         Text(
                             text = data.infoTags.getOrElse(0) { "" },
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Color(0xFF919AA4),
-                            fontWeight = FontWeight.Medium
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF919AA4)
                         )
                     }
 
@@ -400,7 +416,12 @@ private fun SuccessContent(data: AnalysisResultData) {
 
         // 조건 충족 현황 리스트
         Column {
-            Text("조건 충족 현황", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                "조건 충족 현황",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF161616)
+            )
             Spacer(modifier = Modifier.height(17.dp))
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -417,11 +438,16 @@ private fun SuccessContent(data: AnalysisResultData) {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(item.title, style = MaterialTheme.typography.bodyMedium, color = Color(0xFF1A1A1A))
+                            Text(
+                                item.title,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color(0xFF4A4F55)
+                            )
                             Text(
                                 text = item.statusText,
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
                                 color = if (item.isSuitable) Color(0xFF299251) else Color(0xFFFFC300)
                             )
                         }
@@ -451,7 +477,12 @@ private fun SuccessContent(data: AnalysisResultData) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("입주 분석 기준", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium, color = Color(0xFF919AA4))
+                Text(
+                    "입주 분석 기준",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF919AA4)
+                )
                 Icon(
                     imageVector = if (isAccordionExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
@@ -464,19 +495,17 @@ private fun SuccessContent(data: AnalysisResultData) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         text = "입력 정보",
-                        style = MaterialTheme.typography.titleSmall,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF4A4F55)
                     )
 
                     Spacer(modifier = Modifier.height(25.dp))
 
-                    AnalysisInfoRow("연간 총소득", "3,840만 원")
-                    AnalysisInfoRow("총 보유 자산", "8,000만 원")
-                    AnalysisInfoRow("금융 자산", "2,500만 원")
-                    AnalysisInfoRow("총 부채", "1,500만 원")
-                    AnalysisInfoRow("월 상환액", "35만 원")
-                    AnalysisInfoRow("주택 보유 여부", "무주택")
+                    // 서버 conditionResults의 userValue 기반 (월 상환액 등 일부 항목은 #72 문의 11 답변 전까진 안 나올 수 있음)
+                    data.inputInfoRows.forEach { row ->
+                        AnalysisInfoRow(row.title, row.value)
+                    }
 
                     Spacer(modifier = Modifier.height(26.dp))
 
@@ -486,13 +515,15 @@ private fun SuccessContent(data: AnalysisResultData) {
 
                     Text(
                         text = "산정 기준",
-                        style = MaterialTheme.typography.titleSmall,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF4A4F55)
                     )
 
                     Spacer(modifier = Modifier.height(25.dp))
 
+                    // TODO: #72 문의 2·3·4·5·6 — 적용기준일/공급유형/신청유형/신청순위/비교공고/전환이율
+                    // 전용 면적을 제외하면 현재 백엔드 API에 대응 필드가 없어 임시 하드코딩 유지. 답변 오면 실데이터로 교체.
                     AnalysisInfoRow("적용 기준일", "2025.06")
                     AnalysisInfoRow("공급 유형", "청년안심주택")
                     AnalysisInfoRow("신청 유형", "특별 공급")
@@ -518,14 +549,14 @@ private fun SuccessContent(data: AnalysisResultData) {
             ) {
                 Text(
                     text = "*유의사항",
-                    style = MaterialTheme.typography.labelMedium,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
                     color = Color(0xFFE53E3E).copy(alpha = 0.5f),
-                    fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "위 결과는 입력하신 정보를 기반으로 산출한 예상 결과입니다.\n실제 심사 결과와 다를 수 있습니다.",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color(0xFFE53E3E).copy(alpha = 0.5f),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
                     lineHeight = MaterialTheme.typography.labelSmall.lineHeight * 1.3f
                 )
             }
@@ -547,15 +578,16 @@ private fun AnalysisInfoRow(
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
             color = Color(0xFF4A4F55)
         )
 
         Text(
             text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color(0xFF919AA4),
-            fontWeight = FontWeight.Medium
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color(0xFF919AA4)
         )
     }
 }
