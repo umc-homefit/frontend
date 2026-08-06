@@ -1,9 +1,9 @@
 package com.umc.homefit.data.repository.finance
 
 import com.umc.homefit.data.api.finance.ConditionProfileApiService
-import com.umc.homefit.data.dto.analysis.ConditionProfileResultDto
-import com.umc.homefit.data.dto.analysis.UpdateConditionProfileRequestDto
-import com.umc.homefit.data.dto.analysis.UpdateConditionProfileResultDto
+import com.umc.homefit.data.dto.analysis.ConditionProfileResponse
+import com.umc.homefit.data.dto.analysis.UpdateConditionProfileRequest
+import com.umc.homefit.data.dto.analysis.UpdateConditionProfileResponse
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.data.remote.safeApiCall
 import com.umc.homefit.domain.repository.finance.ConditionProfileRepository
@@ -14,10 +14,10 @@ class ConditionProfileRepositoryImpl @Inject constructor(
 ) : ConditionProfileRepository {
 
     override suspend fun updateConditionProfile(
-        request: UpdateConditionProfileRequestDto
-    ): NetworkResult<UpdateConditionProfileResultDto> =
+        request: UpdateConditionProfileRequest
+    ): NetworkResult<UpdateConditionProfileResponse> =
         safeApiCall { conditionProfileApiService.updateConditionProfile(request) }
 
-    override suspend fun getConditionProfile(): NetworkResult<ConditionProfileResultDto> =
+    override suspend fun getConditionProfile(): NetworkResult<ConditionProfileResponse> =
         safeApiCall { conditionProfileApiService.getConditionProfile() }
 }

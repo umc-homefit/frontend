@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
  * 현재 UI에서 입력받지 않으므로 DTO에 포함하지 않는다. (스웨거 required 필드만 포함)
  */
 @Serializable
-data class UpdateConditionProfileRequestDto(
+data class UpdateConditionProfileRequest(
     val monthlyIncomeAmount: Long,      // 월 총소득
     val totalAssetAmount: Long,         // 총 보유 자산
     val totalDebtAmount: Long,          // 총 부채 금액

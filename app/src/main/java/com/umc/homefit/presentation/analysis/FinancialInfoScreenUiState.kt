@@ -3,7 +3,7 @@ package com.umc.homefit.presentation.analysis
 /**
  * INCOME/ASSET/DEBT/HOUSE 스텝에서 입력받은 값을 누적 보관하는 draft.
  * HOUSE 스텝 완료 시 이 값들을 FinancialInfoMapper의 함수들로 변환해
- * UpdateConditionProfileRequestDto를 조립하는 데 쓰인다.
+ * UpdateConditionProfileRequest를 조립하는 데 쓰인다.
  * (금액 필드는 아직 "만 원" 단위 UI 원문 텍스트 그대로 보관 — 변환은 제출 시점에 수행)
  */
 data class ConditionProfileDraft(

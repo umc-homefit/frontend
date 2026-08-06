@@ -2,9 +2,9 @@ package com.umc.homefit.presentation.analysis
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.umc.homefit.data.dto.analysis.ConditionProfileResultDto
+import com.umc.homefit.data.dto.analysis.ConditionProfileResponse
 import com.umc.homefit.data.dto.analysis.HousingOwnershipStatus
-import com.umc.homefit.data.dto.analysis.UpdateConditionProfileRequestDto
+import com.umc.homefit.data.dto.analysis.UpdateConditionProfileRequest
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.finance.ConditionProfileRepository
 import com.umc.homefit.util.calculateIsHomeless
@@ -63,7 +63,7 @@ class FinancialInfoScreenViewModel @Inject constructor(
         }
     }
 
-    private fun ConditionProfileResultDto.toDraft(): ConditionProfileDraft = ConditionProfileDraft(
+    private fun ConditionProfileResponse.toDraft(): ConditionProfileDraft = ConditionProfileDraft(
         annualIncomeText = toAnnualIncomeText(monthlyIncomeAmount),
         totalAssetText = toDisplayAmount(totalAssetAmount),
         financialAssetText = toDisplayAmount(cashSavings),
@@ -93,7 +93,7 @@ class FinancialInfoScreenViewModel @Inject constructor(
 
     /**
      * HOUSE 스텝 완료: 그동안 누적된 draft + 이번에 선택된 housingStatus로
-     * UpdateConditionProfileRequestDto를 조립해 PUT을 호출한다.
+     * UpdateConditionProfileRequest를 조립해 PUT을 호출한다.
      * 성공하면 isSubmitted = true (화면에서 COMPLETE 스텝으로 이동),
      * 실패하면 Error 상태로 전환한다 (draft는 보존해서 재입력 없이 복구 가능).
      */
@@ -129,13 +129,13 @@ class FinancialInfoScreenViewModel @Inject constructor(
         }
     }
 
-    private fun buildRequest(draft: ConditionProfileDraft): UpdateConditionProfileRequestDto? {
+    private fun buildRequest(draft: ConditionProfileDraft): UpdateConditionProfileRequest? {
         val housingStatusText = draft.housingStatus ?: return null
         val housingOwnershipStatus = runCatching {
             HousingOwnershipStatus.valueOf(housingStatusText)
         }.getOrNull() ?: return null
 
-        return UpdateConditionProfileRequestDto(
+        return UpdateConditionProfileRequest(
             monthlyIncomeAmount = toMonthlyIncomeAmount(draft.annualIncomeText),
             totalAssetAmount = toApiAmount(draft.totalAssetText),
             totalDebtAmount = toApiAmount(draft.totalDebtText),

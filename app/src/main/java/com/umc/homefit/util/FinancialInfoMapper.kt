@@ -2,7 +2,7 @@ package com.umc.homefit.util
 
 /**
  * FinancialInfoScreen(소득/자산/부채/주택 정보 입력)에서 수집한 UI 입력값을
- * UpdateConditionProfileRequestDto 필드 값으로 변환하는 순수 함수 모음.
+ * UpdateConditionProfileRequest 필드 값으로 변환하는 순수 함수 모음.
  *
  * 프로젝트에 별도 도메인 모델/Mapper 클래스/UseCase 계층이 없으므로(CLAUDE.md 참고),
  * 상태 없는 top-level 함수로 두고 ViewModel/RepositoryImpl에서 바로 호출해서 쓴다.
