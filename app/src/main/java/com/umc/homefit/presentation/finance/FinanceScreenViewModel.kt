@@ -3,6 +3,8 @@ package com.umc.homefit.presentation.finance
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.umc.homefit.data.remote.NetworkResult
+import com.umc.homefit.domain.model.finance.FinanceProductCategory
+import com.umc.homefit.domain.model.finance.FinanceProviderType
 import com.umc.homefit.domain.model.finance.LoanProduct
 import com.umc.homefit.domain.repository.finance.FinanceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,9 +52,9 @@ private fun LoanProduct.toUiModel(): FinanceRecommendedProductUiModel =
         productId = productId,
         title = productName,
         productType = when (providerType) {
-            "POLICY" -> "정부지원"
-            "BANK" -> "은행"
-            else -> providerType
+            FinanceProviderType.POLICY -> "정부지원"
+            FinanceProviderType.BANK -> "은행"
+            FinanceProviderType.UNKNOWN -> "기타"
         },
         interestRate = "금리 | $rateRange",
         amountDescription = maxLimitAmount?.let { "대출한도 | 최대 ${it.toKoreanAmount()}" }
@@ -67,11 +69,11 @@ private fun LoanProduct.toUiModel(): FinanceRecommendedProductUiModel =
         }.distinct()
     )
 
-private fun String.toCategoryLabel(): String = when (this) {
-    "MORTGAGE_LOAN" -> "주택담보대출"
-    "JEONSE_LOAN" -> "전세대출"
-    "SUBSCRIPTION_SAVINGS" -> "청약저축"
-    else -> this
+private fun FinanceProductCategory.toCategoryLabel(): String = when (this) {
+    FinanceProductCategory.MORTGAGE_LOAN -> "주택담보대출"
+    FinanceProductCategory.JEONSE_LOAN -> "전세대출"
+    FinanceProductCategory.SUBSCRIPTION_SAVINGS -> "청약저축"
+    FinanceProductCategory.UNKNOWN -> "기타"
 }
 
 private fun Long.toKoreanAmount(): String {

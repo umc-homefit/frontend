@@ -4,6 +4,8 @@ import com.umc.homefit.data.api.finance.FinanceApiService
 import com.umc.homefit.data.dto.finance.LoanProductResponse
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.data.remote.safeApiCall
+import com.umc.homefit.domain.model.finance.FinanceProductCategory
+import com.umc.homefit.domain.model.finance.FinanceProviderType
 import com.umc.homefit.domain.model.finance.LoanProduct
 import com.umc.homefit.domain.model.finance.LoanProductsMatch
 import com.umc.homefit.domain.repository.finance.FinanceRepository
@@ -43,8 +45,8 @@ class FinanceRepositoryImpl @Inject constructor(
 private fun LoanProductResponse.toDomain(): LoanProduct = LoanProduct(
     productId = productId,
     productName = productName,
-    providerType = providerType,
-    productCategory = productCategory,
+    providerType = providerType.toProviderType(),
+    productCategory = productCategory.toProductCategory(),
     providerName = providerName,
     rateRange = rateRange,
     maxIncome = maxIncome,
@@ -64,3 +66,18 @@ private fun LoanProductResponse.toDomain(): LoanProduct = LoanProduct(
     firstTimeBuyerCheckSkipped = firstTimeBuyerCheckSkipped,
     ineligibleReasons = ineligibleReasons
 )
+
+private fun String.toProviderType(): FinanceProviderType =
+    when (this) {
+        "POLICY" -> FinanceProviderType.POLICY
+        "BANK" -> FinanceProviderType.BANK
+        else -> FinanceProviderType.UNKNOWN
+    }
+
+private fun String.toProductCategory(): FinanceProductCategory =
+    when (this) {
+        "MORTGAGE_LOAN" -> FinanceProductCategory.MORTGAGE_LOAN
+        "JEONSE_LOAN" -> FinanceProductCategory.JEONSE_LOAN
+        "SUBSCRIPTION_SAVINGS" -> FinanceProductCategory.SUBSCRIPTION_SAVINGS
+        else -> FinanceProductCategory.UNKNOWN
+    }
