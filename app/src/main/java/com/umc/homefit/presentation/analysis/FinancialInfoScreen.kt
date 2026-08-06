@@ -681,8 +681,11 @@ fun FinancialInfoEditScreenRoute(
     FinancialInfoEditScreen(
         step = step,
         uiState = uiState,
-        onSave = onBack,
         onBack = onBack,
+        onIncomeSave = viewModel::onIncomeEditSave,
+        onAssetSave = viewModel::onAssetEditSave,
+        onDebtSave = viewModel::onDebtEditSave,
+        onHouseSave = viewModel::onHouseNextAndSubmit,
         modifier = modifier
     )
 }
@@ -691,10 +694,21 @@ fun FinancialInfoEditScreenRoute(
 fun FinancialInfoEditScreen(
     step: FinancialInfoStep,
     uiState: FinancialInfoScreenUiState,
-    onSave: () -> Unit,
     onBack: () -> Unit,
+    onIncomeSave: (annualIncomeText: String) -> Unit,
+    onAssetSave: (totalAssetText: String, financialAssetText: String) -> Unit,
+    onDebtSave: (totalDebtText: String, monthlyRepaymentText: String) -> Unit,
+    onHouseSave: (housingStatus: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // PUT 저장이 성공하면(uiState.isSubmitted) 자동으로 뒤로 이동한다.
+    LaunchedEffect(uiState) {
+        val state = uiState
+        if (state is FinancialInfoScreenUiState.Success && state.isSubmitted) {
+            onBack()
+        }
+    }
+
     AppScaffold(
         title = null,
         showBackButton = true,
@@ -714,27 +728,27 @@ fun FinancialInfoEditScreen(
                     val draft = uiState.draft
                     when (step) {
                         FinancialInfoStep.INCOME -> IncomeStep(
-                            onNext = { _ -> onSave() },
+                            onNext = onIncomeSave,
                             buttonText = "완료",
                             initialAmount = draft.annualIncomeText,
                             autoAdvanceOnEmpty = false
                         )
                         FinancialInfoStep.ASSET -> AssetStep(
-                            onNext = { _, _ -> onSave() },
+                            onNext = onAssetSave,
                             buttonText = "완료",
                             initialTotalAsset = draft.totalAssetText,
                             initialFinancialAsset = draft.financialAssetText,
                             autoAdvanceOnEmpty = false
                         )
                         FinancialInfoStep.DEBT -> DebtStep(
-                            onNext = { _, _ -> onSave() },
+                            onNext = onDebtSave,
                             buttonText = "완료",
                             initialTotalDebt = draft.totalDebtText,
                             initialMonthlyRepayment = draft.monthlyRepaymentText,
                             autoAdvanceOnEmpty = false
                         )
                         FinancialInfoStep.HOUSE -> HouseStep(
-                            onNext = { _ -> onSave() },
+                            onNext = onHouseSave,
                             buttonText = "완료",
                             initialOption = draft.housingStatus?.let { mapToHouseOption(it) }
                         )

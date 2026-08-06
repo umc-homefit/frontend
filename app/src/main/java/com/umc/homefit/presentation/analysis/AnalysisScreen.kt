@@ -23,6 +23,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +46,13 @@ fun AnalysisScreenRoute(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    // 수정 화면에서 저장하고 돌아올 때마다 이 화면이 다시 컴포지션에 들어오므로,
+    // 그때마다 금융 정보 섹션을 다시 조회한다. (기록 목록은 수정과 무관해 재조회하지 않는다)
+    LaunchedEffect(Unit) {
+        viewModel.loadConditionProfileSections()
+    }
+
     AnalysisScreen(
         uiState = uiState,
         onNavigateToEdit = onNavigateToEdit,

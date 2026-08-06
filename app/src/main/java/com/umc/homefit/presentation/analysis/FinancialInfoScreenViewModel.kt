@@ -92,13 +92,39 @@ class FinancialInfoScreenViewModel @Inject constructor(
     }
 
     /**
-     * HOUSE 스텝 완료: 그동안 누적된 draft + 이번에 선택된 housingStatus로
-     * UpdateConditionProfileRequest를 조립해 PUT을 호출한다.
-     * 성공하면 isSubmitted = true (화면에서 COMPLETE 스텝으로 이동),
-     * 실패하면 Error 상태로 전환한다 (draft는 보존해서 재입력 없이 복구 가능).
+     * HOUSE 스텝 완료: 그동안 누적된 draft + 이번에 선택된 housingStatus로 PUT을 호출한다.
+     * (마법사 플로우의 마지막 스텝이자, 수정 화면에서 주택 정보만 고칠 때도 재사용)
      */
     fun onHouseNextAndSubmit(housingStatus: String) {
-        val draft = currentDraft().copy(housingStatus = housingStatus)
+        updateDraftAndSubmit { it.copy(housingStatus = housingStatus) }
+    }
+
+    /** 수정 화면(FinancialInfoEditScreen)에서 소득 항목만 고쳐서 저장할 때 쓴다. */
+    fun onIncomeEditSave(annualIncomeText: String) {
+        updateDraftAndSubmit { it.copy(annualIncomeText = annualIncomeText) }
+    }
+
+    /** 수정 화면에서 자산 항목만 고쳐서 저장할 때 쓴다. */
+    fun onAssetEditSave(totalAssetText: String, financialAssetText: String) {
+        updateDraftAndSubmit {
+            it.copy(totalAssetText = totalAssetText, financialAssetText = financialAssetText)
+        }
+    }
+
+    /** 수정 화면에서 부채 항목만 고쳐서 저장할 때 쓴다. */
+    fun onDebtEditSave(totalDebtText: String, monthlyRepaymentText: String) {
+        updateDraftAndSubmit {
+            it.copy(totalDebtText = totalDebtText, monthlyRepaymentText = monthlyRepaymentText)
+        }
+    }
+
+    /**
+     * draft를 transform으로 갱신한 뒤 UpdateConditionProfileRequest를 조립해 PUT을 호출한다.
+     * 성공하면 isSubmitted = true (화면에서 COMPLETE 이동 또는 자동으로 뒤로가기 처리),
+     * 실패하면 Error 상태로 전환한다 (draft는 보존해서 재입력 없이 복구 가능).
+     */
+    private fun updateDraftAndSubmit(transform: (ConditionProfileDraft) -> ConditionProfileDraft) {
+        val draft = transform(currentDraft())
         _uiState.value = FinancialInfoScreenUiState.Success(draft = draft, isSubmitting = true)
 
         val request = buildRequest(draft)

@@ -24,8 +24,12 @@ class MyFinanceScreenViewModel @Inject constructor(
         loadConditionProfile()
     }
 
-    /** 프로필이 없는 계정(대부분 FINANCE404)도 에러로 취급하지 않고 "없음"으로 채운 섹션을 보여준다. */
-    private fun loadConditionProfile() {
+    /**
+     * 프로필이 없는 계정(대부분 FINANCE404)도 에러로 취급하지 않고 "없음"으로 채운 섹션을 보여준다.
+     * 화면 최초 진입 시 [init]에서 한 번 호출되고, 수정 화면에서 돌아올 때마다
+     * [MyFinanceScreenRoute]가 다시 호출해서 최신 값으로 갱신한다.
+     */
+    fun loadConditionProfile() {
         viewModelScope.launch {
             val sections = when (val result = conditionProfileRepository.getConditionProfile()) {
                 is NetworkResult.Success -> result.data.toFinanceInfoSections()
