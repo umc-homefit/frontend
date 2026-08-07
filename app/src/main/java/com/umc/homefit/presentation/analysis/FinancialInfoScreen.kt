@@ -311,7 +311,8 @@ fun FinancialInputField(
             Text(
                 text = title,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF161616)
             )
             Spacer(modifier = Modifier.weight(1f))
             if (showHelpIcon) {
@@ -715,7 +716,6 @@ private fun HouseOptionRow(
             fontSize = 16.sp,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
             color = Color(0xFF161616),
-            lineHeight = 16.sp
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -748,7 +748,7 @@ private fun CustomRadioButton(
         if (selected) {
             Box(
                 modifier = Modifier
-                    .size(10.dp)
+                    .size(16.dp)
                     .clip(CircleShape)
                     .background(Color(0xFF3C45F3))
             )

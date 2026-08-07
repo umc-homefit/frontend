@@ -46,6 +46,9 @@ fun StepBaseLayout(
     onBottomLinkClick: () -> Unit,
     modifier: Modifier = Modifier,
     buttonText: String = "다음",
+    // 타이틀과 콘텐츠 사이 간격. 입력 스텝 화면들은 고정 간격이 필요하지만(기본값 유지),
+    // CompletionStep처럼 콘텐츠를 타이틀~버튼 사이 정중앙에 놓고 싶은 화면은 0.dp로 넘기면 된다.
+    contentSpacing: Dp = 76.dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val primaryColor = Color(0xFF3C45F3)
@@ -63,12 +66,13 @@ fun StepBaseLayout(
                 .fillMaxWidth()
                 .weight(1f)
                 .padding(top = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(76.dp)
+            verticalArrangement = Arrangement.spacedBy(contentSpacing)
         ) {
             Text(
                 text = title,
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF161616)
             )
             content()
         }
@@ -148,20 +152,21 @@ fun CompletionStep(
         bottomLinkText = "",
         onBottomLinkClick = {},
         modifier = modifier,
-        buttonText = buttonText
+        buttonText = buttonText,
+        contentSpacing = 0.dp
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
+                .weight(1f),
         ) {
-            // 가운데 캐릭터
+            // 캐릭터
             Image(
                 painter = painterResource(id = R.drawable.ic_analysis_result),
                 contentDescription = null,
                 modifier = Modifier
-                    .align(Alignment.Center)
                     .size(180.dp)
+                    .align(Alignment.Center)
             )
 
             // 흩어진 별들 (목표 위치)
