@@ -60,6 +60,7 @@ fun SignUpScreenRoute(
         onBack = onBack,
         onNavigateToHome = onNavigateToHome,
         onSignup = viewModel::signup,
+        onEmailChanged = viewModel::resetState,
         modifier = modifier
     )
 }
@@ -70,6 +71,7 @@ fun SignUpScreen(
     onBack: () -> Unit,
     onNavigateToHome: () -> Unit,
     onSignup: (String, String) -> Unit,
+    onEmailChanged: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var currentStep by rememberSaveable { mutableStateOf(SignUpStep.EMAIL) }
@@ -79,17 +81,17 @@ fun SignUpScreen(
     LaunchedEffect(uiState) {
         when (uiState) {
             is SignUpScreenUiState.Success -> currentStep = SignUpStep.COMPLETE
-            is SignUpScreenUiState.EmailDuplicateError,
-            is SignUpScreenUiState.Error -> currentStep = SignUpStep.EMAIL
+            is SignUpScreenUiState.EmailDuplicateError -> currentStep = SignUpStep.EMAIL
             else -> Unit
         }
     }
 
     val emailErrorMessage = when (uiState) {
         is SignUpScreenUiState.EmailDuplicateError -> "이미 가입된 이메일입니다"
-        is SignUpScreenUiState.Error -> uiState.message
         else -> null
     }
+
+    val signupErrorMessage = (uiState as? SignUpScreenUiState.Error)?.message
 
     val handleBackClick = {
         when (currentStep) {
@@ -143,7 +145,8 @@ fun SignUpScreen(
                                     savedEmail = enteredEmail
                                     currentStep = SignUpStep.PASSWORD
                                 },
-                                serverErrorMessage = emailErrorMessage
+                                serverErrorMessage = emailErrorMessage,
+                                onEmailChanged = onEmailChanged
                             )
                         }
 
@@ -160,6 +163,7 @@ fun SignUpScreen(
                             PasswordConfirmStep(
                                 originalPassword = savedPassword,
                                 isLoading = uiState is SignUpScreenUiState.Loading,
+                                errorMessage = signupErrorMessage,
                                 onNext = { onSignup(savedEmail, savedPassword) }
                             )
                         }
@@ -182,7 +186,8 @@ fun SignUpScreen(
 private fun EmailStep(
     onNext: (String) -> Unit,
     modifier: Modifier = Modifier,
-    serverErrorMessage: String? = null
+    serverErrorMessage: String? = null,
+    onEmailChanged: () -> Unit = {}
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     val emailRegex = remember { Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$") }
@@ -208,7 +213,10 @@ private fun EmailStep(
 
             TextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = {
+                    email = it
+                    onEmailChanged()
+                },
                 placeholder = {
                     Text(
                         text = "example@email.com",
@@ -297,7 +305,7 @@ private fun PasswordStep(
 ) {
     var password by rememberSaveable { mutableStateOf("") }
     val passwordRegex = remember {
-        Regex("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#\$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{8,}$")
+        Regex("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#\$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?])(?!.*\\s).{8,}$")
     }
     val isValidFormat = passwordRegex.matches(password)
 
@@ -402,7 +410,8 @@ private fun PasswordConfirmStep(
     originalPassword: String,
     isLoading: Boolean,
     onNext: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    errorMessage: String? = null
 ) {
     var passwordConfirm by rememberSaveable { mutableStateOf("") }
     val isMatching = passwordConfirm.isNotEmpty() && passwordConfirm == originalPassword
@@ -491,6 +500,23 @@ private fun PasswordConfirmStep(
                     }
                 }
             }
+            if (errorMessage != null) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_signup_wrong),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = errorMessage,
+                        color = Color(0x80FF5659),
+                        fontSize = 12.sp
+                    )
+                }
+            }
         }
     }
 }
@@ -502,6 +528,7 @@ fun SignUpScreenPreview() {
         uiState = SignUpScreenUiState.Idle,
         onBack = {},
         onNavigateToHome = {},
-        onSignup = { _, _ -> }
+        onSignup = { _, _ -> },
+        onEmailChanged = {}
     )
 }
