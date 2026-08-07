@@ -1,7 +1,5 @@
 package com.umc.homefit.presentation.home
 
-import com.umc.homefit.domain.model.home.FeaturedNoticeStatus
-
 sealed interface HomeScreenUiState {
     data object Loading : HomeScreenUiState
 
@@ -19,8 +17,16 @@ data class HomeNoticeUiModel(
     val unitSummary: String,
     val deposit: String,
     val applicationPeriod: String,
-    val status: FeaturedNoticeStatus,
+    val status: HomeNoticeStatus,
     val statusDisplayText: String,
     val dDayText: String?,
     val isSaved: Boolean
 )
+
+enum class HomeNoticeStatus {
+    RECRUITING,
+    SCHEDULED,
+    CLOSING_SOON,
+    CLOSED,
+    UNKNOWN
+}

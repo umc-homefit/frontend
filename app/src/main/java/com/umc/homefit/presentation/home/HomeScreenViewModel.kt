@@ -2,8 +2,8 @@ package com.umc.homefit.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.umc.homefit.data.dto.recruitment.NoticeSummaryResponse
 import com.umc.homefit.data.remote.NetworkResult
-import com.umc.homefit.domain.model.home.FeaturedNotice
 import com.umc.homefit.domain.repository.home.HomeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.NumberFormat
@@ -42,7 +42,8 @@ class HomeScreenViewModel @Inject constructor(
                     _uiState.value = HomeScreenUiState.Error(closingSoonResult.message)
                 }
                 is NetworkResult.Success -> {
-                    val closingSoonNotices = closingSoonResult.data.take(MAX_FEATURED_NOTICES)
+                    val closingSoonNotices = closingSoonResult.data.notices
+                        .take(MAX_FEATURED_NOTICES)
                     val remainingCount = MAX_FEATURED_NOTICES - closingSoonNotices.size
 
                     if (remainingCount == 0) {
@@ -63,8 +64,8 @@ class HomeScreenViewModel @Inject constructor(
                         }
                         is NetworkResult.Success -> {
                             updateSuccess(
-                                notices = (closingSoonNotices + recruitingResult.data)
-                                    .distinctBy(FeaturedNotice::noticeId)
+                                notices = (closingSoonNotices + recruitingResult.data.notices)
+                                    .distinctBy(NoticeSummaryResponse::noticeId)
                                     .take(MAX_FEATURED_NOTICES)
                             )
                         }
@@ -89,9 +90,9 @@ class HomeScreenViewModel @Inject constructor(
         )
     }
 
-    private fun updateSuccess(notices: List<FeaturedNotice>) {
+    private fun updateSuccess(notices: List<NoticeSummaryResponse>) {
         _uiState.value = HomeScreenUiState.Success(
-            notices = notices.map(FeaturedNotice::toUiModel)
+            notices = notices.map(NoticeSummaryResponse::toUiModel)
         )
     }
 
@@ -104,18 +105,26 @@ class HomeScreenViewModel @Inject constructor(
     }
 }
 
-private fun FeaturedNotice.toUiModel(): HomeNoticeUiModel = HomeNoticeUiModel(
+private fun NoticeSummaryResponse.toUiModel(): HomeNoticeUiModel = HomeNoticeUiModel(
     noticeId = noticeId,
     title = title,
     location = listOfNotNull(region, district).joinToString(" "),
     unitSummary = unitSummary ?: "-",
     deposit = formatAmountRange(depositMin, depositMax),
     applicationPeriod = "${applicationStartAt.toDateText()} ~ ${applicationEndAt.toDateText()}",
-    status = status,
+    status = status.toHomeNoticeStatus(),
     statusDisplayText = statusDisplayText.ifBlank { "기타" },
     dDayText = dDayText,
     isSaved = isSaved
 )
+
+private fun String.toHomeNoticeStatus(): HomeNoticeStatus = when (this) {
+    "RECRUITING" -> HomeNoticeStatus.RECRUITING
+    "SCHEDULED" -> HomeNoticeStatus.SCHEDULED
+    "CLOSING_SOON" -> HomeNoticeStatus.CLOSING_SOON
+    "CLOSED" -> HomeNoticeStatus.CLOSED
+    else -> HomeNoticeStatus.UNKNOWN
+}
 
 private fun formatAmountRange(min: Long?, max: Long?): String = when {
     min == null && max == null -> "-"

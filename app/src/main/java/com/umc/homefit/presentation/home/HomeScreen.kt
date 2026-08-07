@@ -48,7 +48,6 @@ import com.umc.homefit.presentation.component.TopBarAction
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.umc.homefit.domain.model.home.FeaturedNoticeStatus
 import com.umc.homefit.presentation.component.AppScaffold
 
 @Suppress("UNUSED_PARAMETER")
@@ -597,11 +596,11 @@ private fun HomeNoticeCard(
 @Composable
 private fun HomeNoticeStatusBadge(notice: HomeNoticeUiModel) {
     val (backgroundColor, textColor) = when (notice.status) {
-        FeaturedNoticeStatus.RECRUITING -> Color(0xFFE9F8EF) to Color(0xFF149B4A)
-        FeaturedNoticeStatus.SCHEDULED -> Color(0xFFEFF1FF) to Color(0xFF3C45F3)
-        FeaturedNoticeStatus.CLOSING_SOON -> Color(0xFFFFEDEC) to Color(0xFFE5484D)
-        FeaturedNoticeStatus.CLOSED -> Color(0xFFF0F2F5) to Color(0xFF707781)
-        FeaturedNoticeStatus.UNKNOWN -> Color(0xFFF0F2F5) to Color(0xFF707781)
+        HomeNoticeStatus.RECRUITING -> Color(0xFFE9F8EF) to Color(0xFF149B4A)
+        HomeNoticeStatus.SCHEDULED -> Color(0xFFEFF1FF) to Color(0xFF3C45F3)
+        HomeNoticeStatus.CLOSING_SOON -> Color(0xFFFFEDEC) to Color(0xFFE5484D)
+        HomeNoticeStatus.CLOSED -> Color(0xFFF0F2F5) to Color(0xFF707781)
+        HomeNoticeStatus.UNKNOWN -> Color(0xFFF0F2F5) to Color(0xFF707781)
     }
 
     Surface(
@@ -625,7 +624,7 @@ private val sampleNotices = listOf(
         unitSummary = "전용 24㎡",
         deposit = "3,200만원 ~ 4,800만원",
         applicationPeriod = "2026.07.01 ~ 2026.07.10",
-        status = FeaturedNoticeStatus.CLOSING_SOON,
+        status = HomeNoticeStatus.CLOSING_SOON,
         statusDisplayText = "마감임박",
         dDayText = "D-3",
         isSaved = false
