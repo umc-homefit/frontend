@@ -47,8 +47,6 @@ fun AnalysisScreenRoute(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // 수정 화면에서 저장하고 돌아올 때마다 이 화면이 다시 컴포지션에 들어오므로,
-    // 그때마다 금융 정보 섹션을 다시 조회한다. (기록 목록은 수정과 무관해 재조회하지 않는다)
     LaunchedEffect(Unit) {
         viewModel.loadConditionProfileSections()
     }

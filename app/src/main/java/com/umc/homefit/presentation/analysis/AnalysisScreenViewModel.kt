@@ -36,11 +36,6 @@ class AnalysisScreenViewModel @Inject constructor(
         loadRecords()
     }
 
-    /**
-     * 금융 정보 관리 탭 요약 섹션. 프로필이 없는 계정(대부분 FINANCE404)은 "없음"으로 채운다.
-     * 화면 최초 진입 시 [init]에서 한 번 호출되고, 수정 화면에서 돌아올 때마다
-     * [AnalysisScreenRoute]가 다시 호출해서 최신 값으로 갱신한다.
-     */
     fun loadConditionProfileSections() {
         viewModelScope.launch {
             val sections = when (val result = conditionProfileRepository.getConditionProfile()) {
@@ -65,7 +60,7 @@ class AnalysisScreenViewModel @Inject constructor(
         }
     }
 
-    /** records/sections가 서로 독립된 코루틴에서 도착하므로, 서로를 덮어쓰지 않도록 병합해서 갱신한다. */
+    /** records/sections가 서로 독립된 코루틴에서 도착하므로 서로를 덮어쓰지 않도록 병합해서 갱신 */
     private fun updateSuccessState(
         transform: (AnalysisScreenUiState.Success) -> AnalysisScreenUiState.Success
     ) {

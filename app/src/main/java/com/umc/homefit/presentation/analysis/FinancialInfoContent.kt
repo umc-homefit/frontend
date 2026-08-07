@@ -49,20 +49,14 @@ data class FinanceInfoRow(
     val value: String? = null
 )
 
-/** "원" 단위 금액을 "OOO만 원" 형태(콤마 포함)로 표시용 포맷한다. */
 private fun formatManWon(wonAmount: Long): String =
     "${KOREAN_NUMBER_FORMAT.format(wonAmount / 10_000)}만 원"
 
-/**
- * GET /api/users/me/condition-profile 응답을 마이페이지/분석 탭 요약 리스트용 섹션으로 변환한다.
- * (IncomeStep에서 소득 유형 입력이 빠졌으므로 소득 정보는 "연간 총소득" 한 행만 보여준다)
- */
 fun ConditionProfileResponse.toFinanceInfoSections(): List<FinanceInfoSection> = listOf(
     FinanceInfoSection(
         title = "소득 정보",
         step = FinancialInfoStep.INCOME,
         rows = listOf(
-            // toAnnualIncomeText()로 계산한 값(반올림 처리됨)에 표시용 콤마 포맷만 더한다.
             FinanceInfoRow("연간 총소득", "${KOREAN_NUMBER_FORMAT.format(toAnnualIncomeText(monthlyIncomeAmount).toLong())}만 원")
         )
     ),
@@ -92,8 +86,8 @@ fun ConditionProfileResponse.toFinanceInfoSections(): List<FinanceInfoSection> =
 )
 
 /**
- * 금융 정보 프로필 조회가 실패했을 때(주로 아직 입력한 적 없는 계정, FINANCE404) 쓰는 빈 섹션.
- * [toFinanceInfoSections]와 같은 섹션/타이틀 구조를 유지하되 모든 값을 "없음"으로 채운다.
+ * 금융 정보 프로필 조회가 실패했을 때 쓰는 빈 섹션
+ * [toFinanceInfoSections]와 같은 섹션/타이틀 구조를 유지하되 모든 값을 정보 없음으로 채움
  */
 fun emptyFinanceInfoSections(): List<FinanceInfoSection> = listOf(
     FinanceInfoSection(
@@ -125,9 +119,8 @@ fun emptyFinanceInfoSections(): List<FinanceInfoSection> = listOf(
 )
 
 /**
- * 마이페이지(MyFinanceScreenRoute)와 분석 탭(AnalysisScreen)에서 공용으로 쓰는
- * 금융 정보 요약 리스트. 뒤로가기/상단바는 각 화면에서 감싸서 처리하고,
- * 이 컴포저블은 순수 콘텐츠만 담당한다.
+ * 마이페이지(MyFinanceScreenRoute)와 분석 탭(AnalysisScreen)에서 공용으로 사용
+ * 뒤로가기/상단바는 각 화면에서 감싸서 처리하고 이 컴포저블은 순수 콘텐츠만 담당
  */
 @Composable
 fun FinancialInfoContent(

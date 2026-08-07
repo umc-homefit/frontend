@@ -34,8 +34,8 @@ import kotlinx.coroutines.launch
 
 /**
  * 여러 화면(금융정보 입력, 로그인, 회원가입 등)에서 공통으로 쓰이는
- * "상단 타이틀 + 콘텐츠 + 하단 링크 + 하단 버튼" 레이아웃.
- * FinancialInfoScreen의 각 Step에서도 동일하게 사용됩니다.
+ * "상단 타이틀 + 콘텐츠 + 하단 링크 + 하단 버튼" 레이아웃
+ * FinancialInfoScreen의 각 Step에서도 동일하게 사용
  */
 @Composable
 fun StepBaseLayout(
@@ -46,8 +46,6 @@ fun StepBaseLayout(
     onBottomLinkClick: () -> Unit,
     modifier: Modifier = Modifier,
     buttonText: String = "다음",
-    // 타이틀과 콘텐츠 사이 간격. 입력 스텝 화면들은 고정 간격이 필요하지만(기본값 유지),
-    // CompletionStep처럼 콘텐츠를 타이틀~버튼 사이 정중앙에 놓고 싶은 화면은 0.dp로 넘기면 된다.
     contentSpacing: Dp = 76.dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -133,10 +131,10 @@ fun StepBaseLayout(
 }
 
 /**
- * 완료 화면 공용 컴포넌트.
+ * 완료 화면 공용 컴포넌트
  * 금융정보 입력 완료, 로그인 완료, 회원가입 완료 등에서
- * title / buttonText / onButtonClick 만 바꿔서 재사용합니다.
- * 애니메이션(캐릭터 + 흩어지는 별)과 레이아웃은 항상 동일합니다.
+ * title / buttonText / onButtonClick 만 바꿔서 재사용
+ * 애니메이션과 레이아웃은 항상 동일
  */
 @Composable
 fun CompletionStep(
@@ -169,7 +167,6 @@ fun CompletionStep(
                     .align(Alignment.Center)
             )
 
-            // 흩어진 별들 (목표 위치)
             val starTargets = listOf(
                 80.dp to (-165).dp,     // 우상단
                 (-70).dp to (-240).dp,  // 좌상단
@@ -178,7 +175,6 @@ fun CompletionStep(
                 (-20).dp to 260.dp,     // 버튼 위
             )
 
-            // 별이 튀어나오는 출발 지점
             val startPoint = 0.dp to 320.dp
 
             starTargets.forEachIndexed { index, target ->
@@ -206,7 +202,6 @@ internal fun BoxScope.FireworkStar(
     LaunchedEffect(Unit) {
         delay(delayMillis.toLong())
         while (true) {
-            // 1) 아래에서 위로 튀어오르며 목표 위치까지 이동
             launch {
                 offsetX.animateTo(
                     targetOffset.first.value,
@@ -230,10 +225,8 @@ internal fun BoxScope.FireworkStar(
                 )
             )
 
-            // 2) 잠시 머무르기
             delay(1200)
 
-            // 3) 다시 버튼 쪽(아래)으로 사라지기
             launch {
                 offsetX.animateTo(
                     startOffset.first.value,
@@ -251,7 +244,6 @@ internal fun BoxScope.FireworkStar(
             }
             alpha.animateTo(0f, animationSpec = tween(durationMillis = 400))
 
-            // 4) 잠깐 쉬었다가 반복
             delay(400)
         }
     }

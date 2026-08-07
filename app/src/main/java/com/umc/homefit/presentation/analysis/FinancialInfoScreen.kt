@@ -147,7 +147,6 @@ fun FinancialInfoScreen(
                 }
 
                 is FinancialInfoScreenUiState.Success -> {
-                    // PM 요청: 이전에 입력한 값이 있으면(수정 화면과 동일한 draft) 그대로 채워서 보여준다.
                     val draft = uiState.draft
                     Crossfade(targetState = currentStep, label = "StepTransition") { step ->
                         when (step) {
@@ -185,7 +184,6 @@ fun FinancialInfoScreen(
 
                             FinancialInfoStep.HOUSE -> {
                                 HouseStep(
-                                    // 제출 성공 시 COMPLETE 이동은 위 LaunchedEffect(uiState)가 처리한다.
                                     onNext = { housingStatus -> onHouseNext(housingStatus) },
                                     initialOption = draft.housingStatus?.let { mapToHouseOption(it) }
                                 )
@@ -248,11 +246,6 @@ fun QuickAmountChipGroup(
     }
 }
 
-/**
- * 숫자만 있는 입력값(예: "4000000")에 천 단위 콤마를 붙여서 보여준다 ("4,000,000").
- * 실제 상태값(value)은 콤마 없는 숫자 그대로 유지하고, 화면 표시만 바꾸는 용도라
- * toApiAmount() 등 계산 로직에는 영향이 없다.
- */
 private object ThousandsSeparatorVisualTransformation : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         val original = text.text
@@ -266,7 +259,6 @@ private object ThousandsSeparatorVisualTransformation : VisualTransformation {
             }
         }
 
-        // 원본 문자열의 각 위치가 콤마 삽입 후 어디로 옮겨가는지 미리 계산해둔다 (커서 위치 매핑용).
         val originalToTransformed = IntArray(original.length + 1)
         var originalIndex = 0
         formatted.forEachIndexed { formattedIndex, char ->
@@ -785,7 +777,6 @@ fun FinancialInfoEditScreen(
     onHouseSave: (housingStatus: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // PUT 저장이 성공하면(uiState.isSubmitted) 자동으로 뒤로 이동한다.
     LaunchedEffect(uiState) {
         if (uiState is FinancialInfoScreenUiState.Success && uiState.isSubmitted) {
             onBack()

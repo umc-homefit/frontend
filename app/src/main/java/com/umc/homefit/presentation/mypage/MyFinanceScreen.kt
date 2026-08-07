@@ -27,9 +27,7 @@ fun MyFinanceScreenRoute(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // 수정 화면(FinancialInfoEdit)에서 저장하고 돌아올 때마다 이 화면이 다시 컴포지션에
-    // 들어오므로, 그때마다 최신 값을 다시 조회한다. (ViewModel은 뒤로가기로 재사용되기 때문에
-    // init{}의 최초 1회 호출만으로는 수정 후 값이 갱신되지 않는다)
+    // 수정 화면(FinancialInfoEdit)에서 저장하고 돌아올 때마다 최신 값을 다시 조회
     LaunchedEffect(Unit) {
         viewModel.loadConditionProfile()
     }
