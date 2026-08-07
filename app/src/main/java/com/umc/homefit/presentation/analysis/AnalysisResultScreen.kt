@@ -112,6 +112,8 @@ fun AnalysisResultScreen(
     }
 
     fun onSaveClick() {
+        if (isSavingImage) return
+
         val needsPermission = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
             ContextCompat.checkSelfPermission(
                 context,

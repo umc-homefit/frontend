@@ -26,7 +26,11 @@ object ImageSaveUtil {
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI
         }
 
-        val uri = resolver.insert(collection, contentValues) ?: return false
+        val uri = try {
+            resolver.insert(collection, contentValues)
+        } catch (e: Exception) {
+            null
+        } ?: return false
 
         return try {
             val written = resolver.openOutputStream(uri)?.use { output ->
