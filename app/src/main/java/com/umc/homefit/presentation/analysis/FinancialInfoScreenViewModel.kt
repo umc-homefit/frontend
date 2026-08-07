@@ -6,7 +6,7 @@ import com.umc.homefit.data.dto.analysis.ConditionProfileResponse
 import com.umc.homefit.data.dto.analysis.HousingOwnershipStatus
 import com.umc.homefit.data.dto.analysis.UpdateConditionProfileRequest
 import com.umc.homefit.data.remote.NetworkResult
-import com.umc.homefit.domain.repository.finance.ConditionProfileRepository
+import com.umc.homefit.domain.repository.analysis.ConditionProfileRepository
 import com.umc.homefit.util.calculateIsHomeless
 import com.umc.homefit.util.error.ErrorCode
 import com.umc.homefit.util.toAnnualIncomeText

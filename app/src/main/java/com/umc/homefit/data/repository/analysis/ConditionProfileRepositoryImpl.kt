@@ -1,12 +1,12 @@
-package com.umc.homefit.data.repository.finance
+package com.umc.homefit.data.repository.analysis
 
-import com.umc.homefit.data.api.finance.ConditionProfileApiService
+import com.umc.homefit.data.api.analysis.ConditionProfileApiService
 import com.umc.homefit.data.dto.analysis.ConditionProfileResponse
 import com.umc.homefit.data.dto.analysis.UpdateConditionProfileRequest
 import com.umc.homefit.data.dto.analysis.UpdateConditionProfileResponse
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.data.remote.safeApiCall
-import com.umc.homefit.domain.repository.finance.ConditionProfileRepository
+import com.umc.homefit.domain.repository.analysis.ConditionProfileRepository
 import javax.inject.Inject
 
 class ConditionProfileRepositoryImpl @Inject constructor(

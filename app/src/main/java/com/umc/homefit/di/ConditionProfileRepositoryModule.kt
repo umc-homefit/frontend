@@ -1,7 +1,7 @@
 package com.umc.homefit.di
 
-import com.umc.homefit.data.repository.finance.ConditionProfileRepositoryImpl
-import com.umc.homefit.domain.repository.finance.ConditionProfileRepository
+import com.umc.homefit.data.repository.analysis.ConditionProfileRepositoryImpl
+import com.umc.homefit.domain.repository.analysis.ConditionProfileRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

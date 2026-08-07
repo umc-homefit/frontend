@@ -3,7 +3,7 @@ package com.umc.homefit.presentation.mypage
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.umc.homefit.data.remote.NetworkResult
-import com.umc.homefit.domain.repository.finance.ConditionProfileRepository
+import com.umc.homefit.domain.repository.analysis.ConditionProfileRepository
 import com.umc.homefit.presentation.analysis.emptyFinanceInfoSections
 import com.umc.homefit.presentation.analysis.toFinanceInfoSections
 import dagger.hilt.android.lifecycle.HiltViewModel

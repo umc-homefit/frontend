@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.umc.homefit.data.dto.analysis.EligibilityAnalysisHistoryItemDto
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.analysis.AnalysisRepository
-import com.umc.homefit.domain.repository.finance.ConditionProfileRepository
+import com.umc.homefit.domain.repository.analysis.ConditionProfileRepository
 import com.umc.homefit.util.logError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

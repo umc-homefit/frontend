@@ -1,4 +1,4 @@
-package com.umc.homefit.domain.repository.finance
+package com.umc.homefit.domain.repository.analysis
 
 import com.umc.homefit.data.dto.analysis.ConditionProfileResponse
 import com.umc.homefit.data.dto.analysis.UpdateConditionProfileRequest

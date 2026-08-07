@@ -97,8 +97,6 @@ fun FinancialInfoScreen(
 ) {
     var currentStep by remember { mutableStateOf(FinancialInfoStep.INCOME) }
 
-    // PUT 제출이 성공하면(uiState.isSubmitted) COMPLETE 스텝으로 이동한다.
-    // 🟢 변경 후 (경고 해결)
     LaunchedEffect(uiState) {
         if (uiState is FinancialInfoScreenUiState.Success && uiState.isSubmitted) {
             currentStep = FinancialInfoStep.COMPLETE
