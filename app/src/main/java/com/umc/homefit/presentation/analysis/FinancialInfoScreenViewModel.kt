@@ -38,8 +38,10 @@ class FinancialInfoScreenViewModel @Inject constructor(
      * 기존 금융 정보 프로필을 조회해 draft를 채운다. (화면 진입 시 자동 호출)
      *
      * 실패 응답의 errorCode로 "진짜 없음"과 "진짜 오류"를 구분한다 (공통 오류 코드 규격 기준):
-     * - FINANCE404("등록된 금융 조건 정보 없음"): 아직 프로필을 등록한 적 없는 신규 사용자 -> 정상,
-     *   빈 draft(신규 입력 상태)로 시작한다.
+     * - FINANCE404("등록된 금융 조건 정보 없음") 또는 COMMON404: 아직 프로필을 등록한 적 없는
+     *   신규 사용자 -> 정상, 빈 draft(신규 입력 상태)로 시작한다.
+     *   (공통 오류 코드 규격상 도메인별 코드가 없으면 COMMON404로 내려올 수 있고, 이 엔드포인트에서
+     *   404가 나는 이유는 사실상 "이 사용자 프로필이 없음" 하나뿐이라 둘 다 같은 케이스로 취급한다)
      * - 그 외(AUTH401, COMMON500, UNKNOWN 등): 진짜 오류 -> Error 상태로 전환한다.
      */
     fun loadConditionProfile() {
@@ -50,7 +52,7 @@ class FinancialInfoScreenViewModel @Inject constructor(
                     draft = result.data.toDraft()
                 )
                 is NetworkResult.Error -> {
-                    if (result.errorCode == ErrorCode.FINANCE404) {
+                    if (result.errorCode == ErrorCode.FINANCE404 || result.errorCode == ErrorCode.COMMON404) {
                         FinancialInfoScreenUiState.Success()
                     } else {
                         FinancialInfoScreenUiState.Error(
