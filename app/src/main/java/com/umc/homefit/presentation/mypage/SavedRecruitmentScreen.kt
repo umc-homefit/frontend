@@ -1,10 +1,5 @@
 ﻿package com.umc.homefit.presentation.mypage
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,9 +18,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -37,12 +32,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,7 +48,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.presentation.component.AppScaffold
-import kotlinx.coroutines.delay
+import com.umc.homefit.presentation.component.AutoDismissInfoSnackbar
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 
@@ -69,12 +66,13 @@ fun SavedRecruitmentScreenRoute(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     SavedRecruitmentScreen(
         uiState = uiState,
         onBack = onBack,
         onSortOptionSelected = viewModel::onSortOptionSelected,
         onRemoveClick = viewModel::onRemoveClick,
+        onLoadMore = viewModel::loadNextPage,
         modifier = modifier
     )
 }
@@ -85,16 +83,10 @@ fun SavedRecruitmentScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     onSortOptionSelected: (SortOption) -> Unit = {},
-    onRemoveClick: (String) -> Unit = {}
+    onRemoveClick: (String) -> Unit = {},
+    onLoadMore: () -> Unit = {}
 ) {
     var showRemovedMessage by remember { mutableStateOf(false) }
-
-    LaunchedEffect(showRemovedMessage) {
-        if (showRemovedMessage) {
-            delay(2000)
-            showRemovedMessage = false
-        }
-    }
 
     AppScaffold(
         title = "관심 공고 관리",
@@ -116,11 +108,13 @@ fun SavedRecruitmentScreen(
                     SavedRecruitmentContent(
                         items = uiState.items,
                         sortOption = uiState.sortOption,
+                        isLoadingMore = uiState.isLoadingMore,
                         onSortOptionSelected = onSortOptionSelected,
                         onRemoveClick = { id ->
                             onRemoveClick(id)
                             showRemovedMessage = true
                         },
+                        onLoadMore = onLoadMore,
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -129,36 +123,12 @@ fun SavedRecruitmentScreen(
                 }
             }
 
-            AnimatedVisibility(
+            AutoDismissInfoSnackbar(
                 visible = showRemovedMessage,
-                enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
-                exit = fadeOut() + slideOutVertically(targetOffsetY = { it }),
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(horizontal = 16.dp, vertical = 45.dp)
-            ) {
-                RemovedSnackbar(message = "관심 공고에서 삭제되었습니다")
-            }
+                message = "관심 공고에서 삭제되었습니다",
+                onDismiss = { showRemovedMessage = false }
+            )
         }
-    }
-}
-
-@Composable
-private fun RemovedSnackbar(message: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color(0xFF4A4F55), RoundedCornerShape(4.dp))
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(text = message, fontSize = 14.sp, color = Color.White)
-        Icon(
-            imageVector = Icons.Filled.Check,
-            contentDescription = null,
-            tint = Color(0xFF34A853)
-        )
     }
 }
 
@@ -166,11 +136,25 @@ private fun RemovedSnackbar(message: String) {
 private fun SavedRecruitmentContent(
     items: List<SavedRecruitmentItem>,
     sortOption: SortOption,
+    isLoadingMore: Boolean,
     onSortOptionSelected: (SortOption) -> Unit,
     onRemoveClick: (String) -> Unit,
+    onLoadMore: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(listState, items.size) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .collect { lastVisibleIndex ->
+                if (lastVisibleIndex != null && lastVisibleIndex >= items.size - 3) {
+                    onLoadMore()
+                }
+            }
+    }
+
     LazyColumn(
+        state = listState,
         modifier = modifier,
         contentPadding = PaddingValues(
             start = 16.dp,
@@ -201,6 +185,19 @@ private fun SavedRecruitmentContent(
                 Spacer(modifier = Modifier.height(10.dp))
             }
         }
+
+        if (isLoadingMore) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                }
+            }
+        }
     }
 }
 
@@ -211,6 +208,9 @@ private fun SortDropdown(
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
+
+    // TODO: 백엔드가 LATEST만 지원해서 우선 최신순만 노출, 다른 옵션 지원되면 SortOption.entries로 되돌리기
+    val availableOptions = listOf(SortOption.LATEST)
 
     Row(
         modifier = modifier.clickable { expanded = true },
@@ -235,7 +235,7 @@ private fun SortDropdown(
             containerColor = Color.White,
             tonalElevation = 0.dp
         ) {
-            SortOption.entries.forEach { option ->
+            availableOptions.forEach { option ->
                 DropdownMenuItem(
                     text = {
                         Text(
@@ -316,22 +316,24 @@ private fun SavedRecruitmentCard(
         Row(verticalAlignment = Alignment.CenterVertically) {
             StatusChip(status = item.status)
 
-            Spacer(modifier = Modifier.width(6.dp))
+            if (item.competitionRate != null) {
+                Spacer(modifier = Modifier.width(6.dp))
 
-            Box(
-                modifier = Modifier
-                    .height(24.dp)
-                    .clip(RoundedCornerShape(50))
-                    .background(GrayChipColor)
-                    .padding(horizontal = 10.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "\uD83D\uDD25경쟁률 ${item.competitionRate}",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = GrayChipTextColor
-                )
+                Box(
+                    modifier = Modifier
+                        .height(24.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(GrayChipColor)
+                        .padding(horizontal = 10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "\uD83D\uDD25경쟁률 ${item.competitionRate}",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = GrayChipTextColor
+                    )
+                }
             }
         }
     }
@@ -340,12 +342,14 @@ private fun SavedRecruitmentCard(
 @Composable
 private fun StatusChip(status: RecruitmentStatus) {
     val backgroundColor = when (status) {
-        RecruitmentStatus.SCHEDULED -> GrayChipColor
+        RecruitmentStatus.SCHEDULED, RecruitmentStatus.CLOSED -> GrayChipColor
         RecruitmentStatus.RECRUITING -> RecruitingChipColor
+        RecruitmentStatus.CLOSING_SOON -> Color(0xFFFFEBEE)
     }
     val textColor = when (status) {
-        RecruitmentStatus.SCHEDULED -> GrayChipTextColor
+        RecruitmentStatus.SCHEDULED, RecruitmentStatus.CLOSED -> GrayChipTextColor
         RecruitmentStatus.RECRUITING -> RecruitingTextColor
+        RecruitmentStatus.CLOSING_SOON -> Color(0xFFE53935)
     }
 
     Box(
@@ -389,7 +393,7 @@ fun SavedRecruitmentScreenPreview() {
                     deposit = "3,200만원",
                     applicationPeriod = "2026.07.05 ~ 2026.07.08",
                     status = RecruitmentStatus.RECRUITING,
-                    competitionRate = "12:1"
+                    competitionRate = null
                 )
             )
         ),
