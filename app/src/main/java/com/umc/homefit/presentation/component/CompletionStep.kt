@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -29,6 +28,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -55,19 +55,19 @@ fun StepBaseLayout(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .padding(top = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(48.dp)
+                .padding(top = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(76.dp)
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleLarge,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
             content()
@@ -81,7 +81,8 @@ fun StepBaseLayout(
             if (bottomLinkText.isNotEmpty()) {
                 Text(
                     text = bottomLinkText,
-                    style = MaterialTheme.typography.bodyMedium,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
                     color = Color(0xFF4A4F55),
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier.clickable { onBottomLinkClick() }
@@ -117,7 +118,11 @@ fun StepBaseLayout(
                     disabledContentColor = disabledButtonTextColor
                 )
             ) {
-                Text(text = buttonText, fontWeight = FontWeight.Bold)
+                Text(
+                    text = buttonText,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }

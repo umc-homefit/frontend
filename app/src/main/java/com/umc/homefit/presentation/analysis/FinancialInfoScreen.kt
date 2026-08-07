@@ -3,6 +3,7 @@
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -97,9 +98,9 @@ fun FinancialInfoScreen(
     var currentStep by remember { mutableStateOf(FinancialInfoStep.INCOME) }
 
     // PUT 제출이 성공하면(uiState.isSubmitted) COMPLETE 스텝으로 이동한다.
+    // 🟢 변경 후 (경고 해결)
     LaunchedEffect(uiState) {
-        val state = uiState
-        if (state is FinancialInfoScreenUiState.Success && state.isSubmitted) {
+        if (uiState is FinancialInfoScreenUiState.Success && uiState.isSubmitted) {
             currentStep = FinancialInfoStep.COMPLETE
         }
     }
@@ -212,27 +213,29 @@ fun QuickAmountChipGroup(
     modifier: Modifier = Modifier
 ) {
     val chipBackgroundColor = Color(0xFFF0F4F9)
+
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End
+        // 우측 정렬 및 칩 간 간격 12.dp 적용
+        horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End)
     ) {
         val quickAmounts = listOf(
             "+1,000만 원" to 1000L,
             "+100만 원" to 100L,
             "+10만 원" to 10L
         )
-        quickAmounts.forEachIndexed { index, (label, amount) ->
+        quickAmounts.forEach { (label, amount) ->
             Surface(
                 onClick = { onAmountClick(amount) },
-                shape = RoundedCornerShape(20.dp),
-                color = chipBackgroundColor,
-                modifier = Modifier.padding(start = if (index > 0) 8.dp else 0.dp)
+                shape = RoundedCornerShape(200.dp),
+                color = chipBackgroundColor
             ) {
                 Text(
                     text = label,
-                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
                     color = Color(0xFF4A4F55),
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                 )
             }
         }
@@ -299,8 +302,8 @@ fun FinancialInputField(
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.weight(1f))
             if (showHelpIcon) {
@@ -317,22 +320,20 @@ fun FinancialInputField(
             trailingIcon = {
                 Text(
                     text = "만 원",
-                    color = Color.Gray,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFFD2D9E2),
                     modifier = Modifier.padding(end = 4.dp)
                 )
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             visualTransformation = ThousandsSeparatorVisualTransformation,
             singleLine = true,
-            textStyle = if (value.isNotEmpty()) {
-                TextStyle(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4A4F55)
-                )
-            } else {
-                MaterialTheme.typography.bodyLarge
-            },
+            textStyle = TextStyle(
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF4A4F55)
+            ),
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
@@ -342,7 +343,7 @@ fun FinancialInputField(
             )
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         QuickAmountChipGroup(onAmountClick = onQuickAmountClick)
     }
@@ -529,7 +530,6 @@ fun AssetStep(
     var totalAssetText by remember { mutableStateOf(initialTotalAsset) }
     var financialAssetText by remember { mutableStateOf(initialFinancialAsset) }
 
-    @Suppress("AssignedValueIsNeverRead")
     StepBaseLayout(
         title = "내 자산 정보를 입력해주세요",
         onNext = { onNext(totalAssetText, financialAssetText) },
@@ -543,35 +543,38 @@ fun AssetStep(
         modifier = modifier,
         buttonText = buttonText
     ) {
-        // 총 보유 자산 입력 필드
-        FinancialInputField(
-            title = "총 보유 자산",
-            value = totalAssetText,
-            onValueChange = { totalAssetText = it },
-            onQuickAmountClick = { amount ->
-                val current = totalAssetText.toLongOrNull() ?: 0L
-                totalAssetText = (current + amount).toString()
-            },
-            helpTerms = listOf(
-                HelpTerm("총 보유 자산", "보유 중인 모든 자산의 합계 (부동산, 자동차, 금융자산 등)"),
-                HelpTerm("금융 자산", "금융기관에 보유한 자산 (예금, 적금, 주식, 펀드 등)")
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(46.dp)
+        ) {
+            FinancialInputField(
+                title = "총 보유 자산",
+                value = totalAssetText,
+                onValueChange = { totalAssetText = it },
+                onQuickAmountClick = { amount ->
+                    val current = totalAssetText.toLongOrNull() ?: 0L
+                    totalAssetText = (current + amount).toString()
+                },
+                helpTerms = listOf(
+                    HelpTerm("총 보유 자산", "보유 중인 모든 자산의 합계 (부동산, 자동차, 금융자산 등)"),
+                    HelpTerm("금융 자산", "금융기관에 보유한 자산 (예금, 적금, 주식, 펀드 등)")
+                )
             )
-        )
 
-        // 금융 자산 입력 필드
-        FinancialInputField(
-            title = "금융 자산",
-            value = financialAssetText,
-            onValueChange = { financialAssetText = it },
-            onQuickAmountClick = { amount ->
-                val current = financialAssetText.toLongOrNull() ?: 0L
-                financialAssetText = (current + amount).toString()
-            },
-            helpTerms = listOf(
-                HelpTerm("총 보유 자산", "보유 중인 모든 자산의 합계 (부동산, 자동차, 금융자산 등)"),
-                HelpTerm("금융 자산", "금융기관에 보유한 자산 (예금, 적금, 주식, 펀드 등)")
+            FinancialInputField(
+                title = "금융 자산",
+                value = financialAssetText,
+                onValueChange = { financialAssetText = it },
+                onQuickAmountClick = { amount ->
+                    val current = financialAssetText.toLongOrNull() ?: 0L
+                    financialAssetText = (current + amount).toString()
+                },
+                helpTerms = listOf(
+                    HelpTerm("총 보유 자산", "보유 중인 모든 자산의 합계 (부동산, 자동차, 금융자산 등)"),
+                    HelpTerm("금융 자산", "금융기관에 보유한 자산 (예금, 적금, 주식, 펀드 등)")
+                )
             )
-        )
+        }
     }
 }
 
@@ -588,7 +591,6 @@ fun DebtStep(
     var totalDebtText by remember { mutableStateOf(initialTotalDebt) }
     var monthlyRepaymentText by remember { mutableStateOf(initialMonthlyRepayment) }
 
-    @Suppress("AssignedValueIsNeverRead")
     StepBaseLayout(
         title = "내 부채 정보를 입력해주세요",
         onNext = { onNext(totalDebtText, monthlyRepaymentText) },
@@ -602,38 +604,40 @@ fun DebtStep(
         modifier = modifier,
         buttonText = buttonText
     ) {
-        // 총 부채 금액 입력 필드
-        FinancialInputField(
-            title = "총 부채 금액",
-            value = totalDebtText,
-            onValueChange = { totalDebtText = it },
-            onQuickAmountClick = { amount ->
-                val current = totalDebtText.toLongOrNull() ?: 0L
-                totalDebtText = (current + amount).toString()
-            },
-            helpTerms = listOf(
-                HelpTerm("총 부채 금액", "대출, 카드론 등 현재 보유한 부채의 총액"),
-                HelpTerm("월 상환액", "매월 상환하는 원금과 이자의 합계")
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(46.dp)
+        ) {
+            FinancialInputField(
+                title = "총 부채 금액",
+                value = totalDebtText,
+                onValueChange = { totalDebtText = it },
+                onQuickAmountClick = { amount ->
+                    val current = totalDebtText.toLongOrNull() ?: 0L
+                    totalDebtText = (current + amount).toString()
+                },
+                helpTerms = listOf(
+                    HelpTerm("총 부채 금액", "대출, 카드론 등 현재 보유한 부채의 총액"),
+                    HelpTerm("월 상환액", "매월 상환하는 원금과 이자의 합계")
+                )
             )
-        )
 
-        // 월 상환액 입력 필드
-        FinancialInputField(
-            title = "월 상환액",
-            value = monthlyRepaymentText,
-            onValueChange = { monthlyRepaymentText = it },
-            onQuickAmountClick = { amount ->
-                val current = monthlyRepaymentText.toLongOrNull() ?: 0L
-                monthlyRepaymentText = (current + amount).toString()
-            },
-            helpTerms = listOf(
-                HelpTerm("총 부채 금액", "대출, 카드론 등 현재 보유한 부채의 총액"),
-                HelpTerm("월 상환액", "매월 상환하는 원금과 이자의 합계")
+            FinancialInputField(
+                title = "월 상환액",
+                value = monthlyRepaymentText,
+                onValueChange = { monthlyRepaymentText = it },
+                onQuickAmountClick = { amount ->
+                    val current = monthlyRepaymentText.toLongOrNull() ?: 0L
+                    monthlyRepaymentText = (current + amount).toString()
+                },
+                helpTerms = listOf(
+                    HelpTerm("총 부채 금액", "대출, 카드론 등 현재 보유한 부채의 총액"),
+                    HelpTerm("월 상환액", "매월 상환하는 원금과 이자의 합계")
+                )
             )
-        )
+        }
     }
 }
-
 
 // 금융정보 입력_주택
 @Composable
@@ -663,7 +667,7 @@ fun HouseStep(
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(30.dp)
         ) {
             options.forEach { option ->
                 HouseOptionRow(
@@ -688,30 +692,59 @@ private fun HouseOptionRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onSelect() }
-            .padding(vertical = 4.dp),
+            .clickable { onSelect() },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RadioButton(
+        CustomRadioButton(
             selected = isSelected,
-            onClick = onSelect,
-            colors = RadioButtonDefaults.colors(
-                selectedColor = Color(0xFF3C45F3),
-                unselectedColor = Color(0xFFC2C6CC)
-            )
+            onClick = onSelect
         )
+
+        Spacer(modifier = Modifier.width(10.dp))
 
         Text(
             text = text,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-            color = Color(0xFF1A1A1A),
-            modifier = Modifier.padding(start = 4.dp)
+            fontSize = 16.sp,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+            color = Color(0xFF161616),
+            lineHeight = 16.sp
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
         HelpIconButton(terms = helpTerms)
+    }
+}
+
+@Composable
+private fun CustomRadioButton(
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val borderColor = if (selected) Color(0xFF3C45F3) else Color(0xFFD2D9E2)
+
+    Box(
+        modifier = modifier
+            .size(24.dp)
+            .clip(CircleShape)
+            .background(Color.White)
+            .border(
+                width = 1.dp,
+                color = borderColor,
+                shape = CircleShape
+            )
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        if (selected) {
+            Box(
+                modifier = Modifier
+                    .size(10.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF3C45F3))
+            )
+        }
     }
 }
 
@@ -748,8 +781,7 @@ fun FinancialInfoEditScreen(
 ) {
     // PUT 저장이 성공하면(uiState.isSubmitted) 자동으로 뒤로 이동한다.
     LaunchedEffect(uiState) {
-        val state = uiState
-        if (state is FinancialInfoScreenUiState.Success && state.isSubmitted) {
+        if (uiState is FinancialInfoScreenUiState.Success && uiState.isSubmitted) {
             onBack()
         }
     }

@@ -34,8 +34,7 @@ private val CardBorderColor = Color(0xFFD2D9E2)
 private val EditLinkColor = Color(0xFF636AF5)
 private val LabelTextColor = Color(0xFF4A4F55)
 private val ValueTextColor = Color(0xFF919AA4)
-
-private const val NOT_ENTERED_LABEL = "없음"
+private const val NOT_ENTERED_LABEL = "정보 없음"
 private val KOREAN_NUMBER_FORMAT = NumberFormat.getNumberInstance(Locale.KOREA)
 
 
@@ -175,8 +174,9 @@ private fun FinanceInfoCard(
         ) {
             Text(
                 text = section.title,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF4A4F55)
             )
             Text(
                 text = "수정",
@@ -187,7 +187,7 @@ private fun FinanceInfoCard(
             )
         }
 
-        Spacer(modifier = Modifier.height(17.5.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
         Box(
             modifier = Modifier
@@ -198,34 +198,37 @@ private fun FinanceInfoCard(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        section.rows.forEachIndexed { index, row ->
-            if (row.value != null) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(18.dp)
+        ) {
+            section.rows.forEach { row ->
+                if (row.value != null) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = row.label,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = LabelTextColor
+                        )
+                        Text(
+                            text = row.value,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = ValueTextColor
+                        )
+                    }
+                } else {
                     Text(
                         text = row.label,
                         fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
                         color = LabelTextColor
                     )
-                    Text(
-                        text = row.value,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = ValueTextColor
-                    )
                 }
-            } else {
-                Text(
-                    text = row.label,
-                    fontSize = 14.sp,
-                    color = LabelTextColor
-                )
-            }
-
-            if (index != section.rows.lastIndex) {
-                Spacer(modifier = Modifier.height(18.dp))
             }
         }
     }
