@@ -149,6 +149,8 @@ fun FinancialInfoScreen(
                 }
 
                 is FinancialInfoScreenUiState.Success -> {
+                    // PM 요청: 이전에 입력한 값이 있으면(수정 화면과 동일한 draft) 그대로 채워서 보여준다.
+                    val draft = uiState.draft
                     Crossfade(targetState = currentStep, label = "StepTransition") { step ->
                         when (step) {
                             FinancialInfoStep.INCOME -> {
@@ -156,7 +158,8 @@ fun FinancialInfoScreen(
                                     onNext = { annualIncome ->
                                         onIncomeNext(annualIncome)
                                         currentStep = FinancialInfoStep.ASSET
-                                    }
+                                    },
+                                    initialAmount = draft.annualIncomeText
                                 )
                             }
 
@@ -165,7 +168,9 @@ fun FinancialInfoScreen(
                                     onNext = { totalAsset, financialAsset ->
                                         onAssetNext(totalAsset, financialAsset)
                                         currentStep = FinancialInfoStep.DEBT
-                                    }
+                                    },
+                                    initialTotalAsset = draft.totalAssetText,
+                                    initialFinancialAsset = draft.financialAssetText
                                 )
                             }
 
@@ -174,14 +179,17 @@ fun FinancialInfoScreen(
                                     onNext = { totalDebt, monthlyRepayment ->
                                         onDebtNext(totalDebt, monthlyRepayment)
                                         currentStep = FinancialInfoStep.HOUSE
-                                    }
+                                    },
+                                    initialTotalDebt = draft.totalDebtText,
+                                    initialMonthlyRepayment = draft.monthlyRepaymentText
                                 )
                             }
 
                             FinancialInfoStep.HOUSE -> {
                                 HouseStep(
                                     // 제출 성공 시 COMPLETE 이동은 위 LaunchedEffect(uiState)가 처리한다.
-                                    onNext = { housingStatus -> onHouseNext(housingStatus) }
+                                    onNext = { housingStatus -> onHouseNext(housingStatus) },
+                                    initialOption = draft.housingStatus?.let { mapToHouseOption(it) }
                                 )
                             }
 
