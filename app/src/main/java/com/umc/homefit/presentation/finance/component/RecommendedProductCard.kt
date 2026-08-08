@@ -1,13 +1,13 @@
 ﻿package com.umc.homefit.presentation.finance.component
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -27,37 +28,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.R
-import com.umc.homefit.data.dto.home.RecommendedProductDto
 import com.umc.homefit.presentation.finance.FinanceRecommendedProductUiModel
-
-@Composable
-fun RecommendedProductCard(
-    product: RecommendedProductDto,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    RecommendedProductCard(
-        product = FinanceRecommendedProductUiModel(
-            productId = product.productId,
-            title = product.title,
-            productType = product.productType,
-            interestRate = product.interestRate,
-            amountDescription = product.amountDescription,
-            targetDescription = product.targetDescription,
-            tags = product.tags
-        ),
-        onClick = onClick,
-        modifier = modifier,
-        iconRes = product.iconRes
-    )
-}
+import coil.compose.AsyncImage
 
 @Composable
 fun RecommendedProductCard(
     product: FinanceRecommendedProductUiModel,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    iconRes: Int = R.drawable.img_shinhan_logo
+    iconRes: Int = R.drawable.ic_mypage_bank
 ) {
     Card(
         onClick = onClick,
@@ -80,10 +59,17 @@ fun RecommendedProductCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.Top
         ) {
-            Image(
-                painter = painterResource(id = iconRes),
+            AsyncImage(
+                model = product.providerLogoUrl,
                 contentDescription = product.title,
-                modifier = Modifier.size(56.dp)
+                modifier = Modifier
+                    .size(43.dp)
+                    .align(Alignment.Top)
+                    .offset(y = 8.dp),
+                placeholder = painterResource(id = iconRes),
+                error = painterResource(id = iconRes),
+                fallback = painterResource(id = iconRes),
+                contentScale = ContentScale.Fit
             )
 
             Spacer(
