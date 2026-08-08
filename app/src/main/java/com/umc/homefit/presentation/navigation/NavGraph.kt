@@ -417,6 +417,7 @@ fun MainScreen(
                 FinanceScreenRoute(
                     viewModel = hiltViewModel(),
                     onNavigateToRecommendedProducts = { tabNavController.navigate(TabRoute.RecommendedProduct) },
+                    onNavigateToFinancialInfo = { rootNavController.navigate(Route.FinancialInfo) },
                     onNavigateToDetail = { productId -> rootNavController.navigate(Route.ProductDetail(productId = productId)) }
                 )
             }
@@ -430,6 +431,7 @@ fun MainScreen(
                     viewModel = hiltViewModel(),
                     searchQuery = searchQuery,
                     onNavigateToSearch = { rootNavController.navigate(Route.ProductSearch) },
+                    onNavigateToFinancialInfo = { rootNavController.navigate(Route.FinancialInfo) },
                     onNavigateToDetail = { productId -> rootNavController.navigate(Route.ProductDetail(productId = productId)) }
                 )
             }

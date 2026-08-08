@@ -2,6 +2,7 @@ package com.umc.homefit.data.api.finance
 
 import com.umc.homefit.data.dto.common.BaseResponse
 import com.umc.homefit.data.dto.finance.LoanProductDetailResponse
+import com.umc.homefit.data.dto.finance.LoanProductDocumentResponse
 import com.umc.homefit.data.dto.finance.LoanProductsMatchResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -20,4 +21,9 @@ interface FinanceApiService {
     suspend fun getLoanProductDetail(
         @Path("productId") productId: Long
     ): BaseResponse<LoanProductDetailResponse>
+
+    @GET("loan-products/{productId}/documents")
+    suspend fun getLoanProductDocuments(
+        @Path("productId") productId: Long
+    ): BaseResponse<List<LoanProductDocumentResponse>>
 }

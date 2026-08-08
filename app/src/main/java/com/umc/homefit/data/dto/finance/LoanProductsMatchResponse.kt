@@ -32,6 +32,7 @@ data class LoanProductResponse(
     val providerType: FinanceProviderType = FinanceProviderType.UNKNOWN,
     val productCategory: FinanceProductCategory = FinanceProductCategory.UNKNOWN,
     val providerName: String,
+    val providerLogoUrl: String? = null,
     val rateRange: String,
     val maxIncome: Long? = null,
     val firstTimeBuyerOnly: Boolean? = null,

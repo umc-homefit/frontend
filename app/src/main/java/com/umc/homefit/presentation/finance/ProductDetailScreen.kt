@@ -668,7 +668,7 @@ private fun RequiredDocumentsBox(
         )
 
         Text(
-            text = "*서류는 신청 시점에 따라 추가될 수 있으니 기관에 확인하세요",
+            text = "*서류는 신청 시점에 따라 변경될 수 있으니 은행에 확인하세요",
             color = Color(0xFFC7D0DA),
             fontSize = 13.sp,
             lineHeight = 15.sp

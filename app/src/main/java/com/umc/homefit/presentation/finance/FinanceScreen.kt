@@ -35,12 +35,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Image
+import com.umc.homefit.presentation.finance.component.ConditionProfileRequiredContent
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
 
 @Composable
 fun FinanceScreenRoute(
     viewModel: FinanceScreenViewModel,
     onNavigateToRecommendedProducts: () -> Unit,
+    onNavigateToFinancialInfo: () -> Unit,
     onNavigateToDetail: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -49,6 +51,7 @@ fun FinanceScreenRoute(
     FinanceScreen(
         uiState = uiState,
         onNavigateToRecommendedProducts = onNavigateToRecommendedProducts,
+        onNavigateToFinancialInfo = onNavigateToFinancialInfo,
         onNavigateToDetail = onNavigateToDetail,
         modifier = modifier
     )
@@ -58,6 +61,7 @@ fun FinanceScreenRoute(
 fun FinanceScreen(
     uiState: FinanceScreenUiState,
     onNavigateToRecommendedProducts: () -> Unit,
+    onNavigateToFinancialInfo: () -> Unit,
     onNavigateToDetail: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -77,6 +81,13 @@ fun FinanceScreen(
                 onNavigateToRecommendedProducts =
                     onNavigateToRecommendedProducts,
                 onNavigateToDetail = onNavigateToDetail,
+                modifier = modifier
+            )
+        }
+
+        FinanceScreenUiState.ConditionProfileRequired -> {
+            ConditionProfileRequiredContent(
+                onNavigateToFinancialInfo = onNavigateToFinancialInfo,
                 modifier = modifier
             )
         }
@@ -379,6 +390,7 @@ private fun FinanceScreenPreview() {
             products = emptyList()
         ),
         onNavigateToRecommendedProducts = {},
+        onNavigateToFinancialInfo = {},
         onNavigateToDetail = {}
     )
 }

@@ -45,14 +45,29 @@ class ProductDetailScreenViewModel @Inject constructor(
             _uiState.value = ProductDetailScreenUiState.Loading
 
             _uiState.value = when (
-                val result = financeRepository.getLoanProductDetail(productId)
+                val detailResult = financeRepository.getLoanProductDetail(productId)
             ) {
-                is NetworkResult.Success -> ProductDetailScreenUiState.Success(
-                    product = result.data.toProductDetailData()
-                )
+                is NetworkResult.Success -> {
+                    when (
+                        val documentsResult =
+                            financeRepository.getLoanProductDocuments(productId)
+                    ) {
+                        is NetworkResult.Success -> ProductDetailScreenUiState.Success(
+                            product = detailResult.data.toProductDetailData(
+                                requiredDocuments = documentsResult.data.map { document ->
+                                    document.documentName
+                                }
+                            )
+                        )
+
+                        is NetworkResult.Error -> ProductDetailScreenUiState.Error(
+                            message = documentsResult.message
+                        )
+                    }
+                }
 
                 is NetworkResult.Error -> ProductDetailScreenUiState.Error(
-                    message = result.message
+                    message = detailResult.message
                 )
             }
         }
@@ -68,7 +83,9 @@ class ProductDetailScreenViewModel @Inject constructor(
     }
 }
 
-private fun LoanProductDetailResponse.toProductDetailData(): ProductDetailData =
+private fun LoanProductDetailResponse.toProductDetailData(
+    requiredDocuments: List<String>
+): ProductDetailData =
     ProductDetailData(
         productId = productId,
         productName = productName,
@@ -93,5 +110,6 @@ private fun LoanProductDetailResponse.toProductDetailData(): ProductDetailData =
         minMonthlyDeposit = minMonthlyDeposit,
         maxMonthlyDeposit = maxMonthlyDeposit,
         officialUrl = officialUrl,
-        description = description
+        description = description,
+        requiredDocuments = requiredDocuments
     )
