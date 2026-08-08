@@ -220,7 +220,6 @@ fun QuickAmountChipGroup(
 
     Row(
         modifier = modifier.fillMaxWidth(),
-        // 우측 정렬 및 칩 간 간격 12.dp 적용
         horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End)
     ) {
         val quickAmounts = listOf(
@@ -321,7 +320,7 @@ fun FinancialInputField(
                     text = "만 원",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFFD2D9E2),
+                    color = Color(0xFF919AA4),
                     modifier = Modifier.padding(end = 4.dp)
                 )
             },
@@ -342,7 +341,7 @@ fun FinancialInputField(
             )
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         QuickAmountChipGroup(onAmountClick = onQuickAmountClick)
     }
@@ -784,9 +783,10 @@ fun FinancialInfoEditScreen(
     }
 
     AppScaffold(
-        title = null,
+        title = "",
         showBackButton = true,
         onBackClick = onBack,
+        showDivider = true,
         modifier = modifier
     ) { innerPadding ->
         Box(
