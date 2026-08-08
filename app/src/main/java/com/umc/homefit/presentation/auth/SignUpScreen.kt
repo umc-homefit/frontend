@@ -10,11 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.umc.homefit.presentation.component.AppScaffold
 import com.umc.homefit.presentation.component.CompletionStep
 import com.umc.homefit.presentation.component.StepBaseLayout
@@ -48,23 +51,47 @@ enum class SignUpStep {
 fun SignUpScreenRoute(
     onBack: () -> Unit,
     onNavigateToHome: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: SignUpScreenViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     SignUpScreen(
+        uiState = uiState,
         onBack = onBack,
         onNavigateToHome = onNavigateToHome,
+        onSignup = viewModel::signup,
+        onEmailChanged = viewModel::resetState,
         modifier = modifier
     )
 }
 
 @Composable
 fun SignUpScreen(
+    uiState: SignUpScreenUiState,
     onBack: () -> Unit,
     onNavigateToHome: () -> Unit,
+    onSignup: (String, String) -> Unit,
+    onEmailChanged: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var currentStep by rememberSaveable { mutableStateOf(SignUpStep.EMAIL) }
+    var savedEmail by rememberSaveable { mutableStateOf("") }
     var savedPassword by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is SignUpScreenUiState.Success -> currentStep = SignUpStep.COMPLETE
+            is SignUpScreenUiState.EmailDuplicateError -> currentStep = SignUpStep.EMAIL
+            else -> Unit
+        }
+    }
+
+    val emailErrorMessage = when (uiState) {
+        is SignUpScreenUiState.EmailDuplicateError -> "이미 가입된 이메일입니다"
+        else -> null
+    }
+
+    val signupErrorMessage = (uiState as? SignUpScreenUiState.Error)?.message
 
     val handleBackClick = {
         when (currentStep) {
@@ -114,7 +141,12 @@ fun SignUpScreen(
                     when (step) {
                         SignUpStep.EMAIL -> {
                             EmailStep(
-                                onNext = { currentStep = SignUpStep.PASSWORD }
+                                onNext = { enteredEmail ->
+                                    savedEmail = enteredEmail
+                                    currentStep = SignUpStep.PASSWORD
+                                },
+                                serverErrorMessage = emailErrorMessage,
+                                onEmailChanged = onEmailChanged
                             )
                         }
 
@@ -130,7 +162,9 @@ fun SignUpScreen(
                         SignUpStep.PASSWORD_CONFIRM -> {
                             PasswordConfirmStep(
                                 originalPassword = savedPassword,
-                                onNext = { currentStep = SignUpStep.COMPLETE }
+                                isLoading = uiState is SignUpScreenUiState.Loading,
+                                errorMessage = signupErrorMessage,
+                                onNext = { onSignup(savedEmail, savedPassword) }
                             )
                         }
 
@@ -150,8 +184,10 @@ fun SignUpScreen(
 
 @Composable
 private fun EmailStep(
-    onNext: () -> Unit,
-    modifier: Modifier = Modifier
+    onNext: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    serverErrorMessage: String? = null,
+    onEmailChanged: () -> Unit = {}
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     val emailRegex = remember { Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$") }
@@ -159,7 +195,7 @@ private fun EmailStep(
 
     StepBaseLayout(
         title = "회원가입을 시작해볼까요?",
-        onNext = onNext,
+        onNext = { onNext(email) },
         isNextEnabled = isValidFormat,
         bottomLinkText = "",
         onBottomLinkClick = {},
@@ -177,7 +213,10 @@ private fun EmailStep(
 
             TextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = {
+                    email = it
+                    onEmailChanged()
+                },
                 placeholder = {
                     Text(
                         text = "example@email.com",
@@ -206,6 +245,8 @@ private fun EmailStep(
                 )
             )
 
+            Spacer(modifier = Modifier.height(4.dp))
+
             if (isValidFormat) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -221,7 +262,7 @@ private fun EmailStep(
                         fontSize = 12.sp
                     )
                 }
-            } else {
+            } else if (email.isNotEmpty()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_signup_wrong),
@@ -232,6 +273,24 @@ private fun EmailStep(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "이메일 형식이 맞지 않습니다",
+                        color = Color(0x80FF5659),
+                        fontSize = 12.sp
+                    )
+                }
+            }
+
+            if (serverErrorMessage != null) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_signup_wrong),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = serverErrorMessage,
                         color = Color(0x80FF5659),
                         fontSize = 12.sp
                     )
@@ -248,7 +307,7 @@ private fun PasswordStep(
 ) {
     var password by rememberSaveable { mutableStateOf("") }
     val passwordRegex = remember {
-        Regex("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#\$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{8,}$")
+        Regex("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#\$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?])(?!.*\\s).{8,}$")
     }
     val isValidFormat = passwordRegex.matches(password)
 
@@ -351,8 +410,10 @@ private fun PasswordStep(
 @Composable
 private fun PasswordConfirmStep(
     originalPassword: String,
+    isLoading: Boolean,
     onNext: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    errorMessage: String? = null
 ) {
     var passwordConfirm by rememberSaveable { mutableStateOf("") }
     val isMatching = passwordConfirm.isNotEmpty() && passwordConfirm == originalPassword
@@ -360,7 +421,7 @@ private fun PasswordConfirmStep(
     StepBaseLayout(
         title = "비밀번호를 확인해주세요",
         onNext = onNext,
-        isNextEnabled = isMatching,
+        isNextEnabled = isMatching && !isLoading,
         bottomLinkText = "",
         onBottomLinkClick = {},
         modifier = modifier
@@ -441,6 +502,35 @@ private fun PasswordConfirmStep(
                     }
                 }
             }
+            if (errorMessage != null) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_signup_wrong),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = errorMessage,
+                        color = Color(0x80FF5659),
+                        fontSize = 12.sp
+                    )
+                }
+            }
         }
     }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+fun SignUpScreenPreview() {
+    SignUpScreen(
+        uiState = SignUpScreenUiState.Idle,
+        onBack = {},
+        onNavigateToHome = {},
+        onSignup = { _, _ -> },
+        onEmailChanged = {}
+    )
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.mypage.MyPageRepository
+import com.umc.homefit.util.error.ErrorCode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,20 +35,35 @@ class MyPageScreenViewModel @Inject constructor(
                 profileDeferred.await() to basicInfoDeferred.await()
             }
 
-            if (profileResult is NetworkResult.Success && basicInfoResult is NetworkResult.Success) {
-                _uiState.value = MyPageScreenUiState.Success(
-                    MyPageProfile(
-                        nickname = profileResult.data.nickname ?: "닉네임을 설정해주세요",
-                        email = basicInfoResult.data.email,
-                        profileImageUrl = profileResult.data.profileImageUrl
-                    )
+            if (basicInfoResult !is NetworkResult.Success) {
+                _uiState.value = MyPageScreenUiState.Error(
+                    (basicInfoResult as? NetworkResult.Error)?.message ?: "프로필 정보를 불러오지 못했습니다"
                 )
-            } else {
-                val errorMessage = (profileResult as? NetworkResult.Error)?.message
-                    ?: (basicInfoResult as? NetworkResult.Error)?.message
-                    ?: "프로필 정보를 불러오지 못했습니다"
-                _uiState.value = MyPageScreenUiState.Error(errorMessage)
+                return@launch
             }
+
+            val nickname = when {
+                profileResult is NetworkResult.Success ->
+                    profileResult.data.nickname ?: "닉네임을 설정해주세요"
+                profileResult is NetworkResult.Error && profileResult.errorCode == ErrorCode.COMMON404 ->
+                    "닉네임을 설정해주세요"
+                else -> null
+            }
+
+            if (nickname == null) {
+                _uiState.value = MyPageScreenUiState.Error(
+                    (profileResult as? NetworkResult.Error)?.message ?: "프로필 정보를 불러오지 못했습니다"
+                )
+                return@launch
+            }
+
+            _uiState.value = MyPageScreenUiState.Success(
+                MyPageProfile(
+                    nickname = nickname,
+                    email = basicInfoResult.data.email,
+                    profileImageUrl = (profileResult as? NetworkResult.Success)?.data?.profileImageUrl
+                )
+            )
         }
     }
 }
