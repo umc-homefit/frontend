@@ -31,7 +31,7 @@ fun ConditionProfileRequiredContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp),
+            .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
