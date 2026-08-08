@@ -41,8 +41,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.umc.homefit.data.dto.home.RecommendedProductDto
-import com.umc.homefit.data.mock.FinanceMockData
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
 import com.umc.homefit.presentation.finance.component.RecommendedProductSearchBar
 import com.umc.homefit.presentation.component.AppScaffold
@@ -329,7 +327,7 @@ private fun RecommendedProductContent(
                         matchesCategory && matchesSearch
                     }
 
-                val sortedProducts: List<RecommendedProductDto> =
+                val sortedProducts: List<FinanceRecommendedProductUiModel> =
                     when (selectedSort) {
                         ProductSort.RECOMMENDED,
                         ProductSort.LATEST -> {
@@ -457,7 +455,7 @@ private fun ProductFilterChip(
 }
 
 private fun productMatchesKeyword(
-    product: RecommendedProductDto,
+    product: FinanceRecommendedProductUiModel,
     keyword: String
 ): Boolean {
     return product.title.contains(
@@ -562,7 +560,17 @@ private fun parseLoanAmount(
 private fun RecommendedProductScreenPreview() {
     RecommendedProductScreen(
         uiState = RecommendedProductScreenUiState.Success(
-            products = FinanceMockData.recommendedProducts
+            products = listOf(
+                FinanceRecommendedProductUiModel(
+                    productId = 1,
+                    title = "디딤돌 대출",
+                    productType = "정부지원",
+                    interestRate = "금리 | 2.15% ~ 3.00%",
+                    amountDescription = "대출한도 | 최대 2억 5,000만 원",
+                    targetDescription = "연소득 | 6,000만 원 이하",
+                    tags = listOf("무주택자", "생애최초")
+                )
+            )
         ),
         searchQuery = "",
         onNavigateToSearch = {},
