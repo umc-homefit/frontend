@@ -78,16 +78,20 @@ private val CompetitionScrollDotColor = Color(0xFFC3E3FF)
 @Composable
 fun CompetitionScreenRoute(
     viewModel: CompetitionScreenViewModel,
+    analysisId: String?,
     onBack: () -> Unit,
     onNavigateToAnalysis: (String) -> Unit,
+    onNavigateToAnalysisResult: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     CompetitionScreen(
         uiState = uiState,
+        analysisId = analysisId,
         onBack = onBack,
         onToggleBookmark = viewModel::toggleBookmark,
         onNavigateToAnalysis = onNavigateToAnalysis,
+        onNavigateToAnalysisResult = onNavigateToAnalysisResult,
         modifier = modifier
     )
 }
@@ -95,9 +99,11 @@ fun CompetitionScreenRoute(
 @Composable
 fun CompetitionScreen(
     uiState: CompetitionScreenUiState,
+    analysisId: String?,
     onBack: () -> Unit,
     onToggleBookmark: () -> Unit,
     onNavigateToAnalysis: (String) -> Unit,
+    onNavigateToAnalysisResult: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val isBookmarked = (uiState as? CompetitionScreenUiState.Success)?.recruitment?.isBookmarked == true
@@ -138,8 +144,10 @@ fun CompetitionScreen(
                     CompetitionContent(
                         recruitment = uiState.recruitment,
                         competition = uiState.competition,
+                        analysisId = analysisId,
                         onNavigateBackToDetail = onBack,
-                        onNavigateToAnalysis = onNavigateToAnalysis
+                        onNavigateToAnalysis = onNavigateToAnalysis,
+                        onNavigateToAnalysisResult = onNavigateToAnalysisResult
                     )
                 }
                 is CompetitionScreenUiState.Error -> {
@@ -156,8 +164,10 @@ fun CompetitionScreen(
 private fun CompetitionContent(
     recruitment: RecruitmentDto,
     competition: CompetitionDto,
+    analysisId: String?,
     onNavigateBackToDetail: () -> Unit,
-    onNavigateToAnalysis: (String) -> Unit
+    onNavigateToAnalysis: (String) -> Unit,
+    onNavigateToAnalysisResult: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -211,7 +221,12 @@ private fun CompetitionContent(
                         CompetitionNoticeBox()
 
                         Spacer(modifier = Modifier.height(16.dp))
-                        AnalysisRequestButton(onClick = { onNavigateToAnalysis(competition.noticeId) })
+                        AnalysisRequestButton(
+                            analysisId = analysisId,
+                            onClick = {
+                                analysisId?.let(onNavigateToAnalysisResult) ?: onNavigateToAnalysis(competition.noticeId)
+                            }
+                        )
                         Spacer(modifier = Modifier.height(24.dp))
                     }
                 }
@@ -650,7 +665,7 @@ private fun CompetitionNoticeBox() {
 }
 
 @Composable
-private fun AnalysisRequestButton(onClick: () -> Unit) {
+private fun AnalysisRequestButton(analysisId: String?, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -659,7 +674,13 @@ private fun AnalysisRequestButton(onClick: () -> Unit) {
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "입주 분석 요청하기", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center)
+        Text(
+            text = if (analysisId != null) "입주 분석 결과보기" else "입주 분석 요청하기",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
@@ -736,8 +757,10 @@ fun CompetitionScreenPreview() {
                 )
             )
         ),
+        analysisId = null,
         onBack = {},
         onToggleBookmark = {},
-        onNavigateToAnalysis = {}
+        onNavigateToAnalysis = {},
+        onNavigateToAnalysisResult = {}
     )
 }
