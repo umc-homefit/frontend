@@ -24,8 +24,8 @@ internal fun LoanProductResponse.toFinanceRecommendedProductUiModel(): FinanceRe
         tags = buildList {
             add(productCategory.toCategoryLabel())
             if (requireNoHouse) add("무주택자")
-            if (firstTimeBuyerOnly) add("생애최초")
-            if (incomeTaxDeductible) add("소득공제")
+            if (firstTimeBuyerOnly == true) add("생애최초")
+            if (incomeTaxDeductible == true) add("소득공제")
         }.distinct()
     )
 
