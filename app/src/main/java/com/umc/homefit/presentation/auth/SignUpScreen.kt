@@ -245,6 +245,8 @@ private fun EmailStep(
                 )
             )
 
+            Spacer(modifier = Modifier.height(4.dp))
+
             if (isValidFormat) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -260,7 +262,7 @@ private fun EmailStep(
                         fontSize = 12.sp
                     )
                 }
-            } else {
+            } else if (email.isNotEmpty()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_signup_wrong),
