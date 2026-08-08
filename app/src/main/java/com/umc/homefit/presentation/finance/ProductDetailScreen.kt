@@ -294,28 +294,24 @@ private fun ProductDetailScreen(
                     DetailInformationBox {
                         DetailValueRow(
                             label = "기본 금리",
-                            value = product.rateRange,
+                            value = product.rateRange.toAnnualRateText(),
                             valueColor = Color(0xFF3C45F3),
                             valueFontWeight = FontWeight.Bold
                         )
 
-                        product.preferentialRateDiscount
-                            ?.let { discount ->
-                                DetailValueRow(
-                                    label = "우대 금리",
-                                    value = "최대 ${
-                                        formatDecimal(discount)
-                                    }%p 할인"
-                                )
-                            }
+                        DetailValueRow(
+                            label = "우대 금리",
+                            value = product.preferentialRateDiscount?.let { discount ->
+                                "최대 ${formatDecimal(discount)}%p 할인"
+                            } ?: "정보 없음"
+                        )
 
-                        product.firstTimeBuyerRateDiscount
-                            ?.let { discount ->
-                                DetailValueRow(
-                                    label = "생애최초 우대",
-                                    value = "${formatDecimal(discount)}%p 추가할인"
-                                )
-                            }
+                        DetailValueRow(
+                            label = "생애최초 우대",
+                            value = product.firstTimeBuyerRateDiscount?.let { discount ->
+                                "${formatDecimal(discount)}%p 추가할인"
+                            } ?: "정보 없음"
+                        )
 
                         Text(
                             text = "*금리는 신청일 및 심사 결과에 따라 변동될 수 있습니다",
@@ -336,42 +332,31 @@ private fun ProductDetailScreen(
                     }
                 ) {
                     DetailInformationBox {
-                        product.maxLimitAmount?.let { amount ->
-                            DetailValueRow(
-                                label = "최대 대출 한도",
-                                value = formatWon(amount)
-                            )
-                        }
+                        DetailValueRow(
+                            label = "최대 대출 한도",
+                            value = product.maxLimitAmount?.let { amount ->
+                                "최대 ${formatWon(amount)}"
+                            } ?: "정보 없음"
+                        )
 
-                        product.ltvRatio?.let { ratio ->
-                            DetailValueRow(
-                                label = "LTV 한도",
-                                value = "담보가치의 $ratio%"
-                            )
-                        }
+                        DetailValueRow(
+                            label = "LTV 한도",
+                            value = product.ltvRatio?.let { ratio ->
+                                "담보가치의 $ratio%"
+                            } ?: "정보 없음"
+                        )
 
-                        product.dtiRatio?.let { ratio ->
-                            DetailValueRow(
-                                label = "DTI 한도",
-                                value = "소득의 $ratio% 이하"
-                            )
-                        }
+                        DetailValueRow(
+                            label = "DTI 한도",
+                            value = product.dtiRatio?.let { ratio ->
+                                "소득의 $ratio% 이하"
+                            } ?: "정보 없음"
+                        )
 
-                        loanTermText(product)?.let { term ->
-                            DetailValueRow(
-                                label = "대출 기간",
-                                value = term
-                            )
-                        }
-
-                        product.maxIncome?.let { income ->
-                            DetailValueRow(
-                                label = "소득 조건",
-                                value = "연소득 ${
-                                    formatWon(income)
-                                } 이하"
-                            )
-                        }
+                        DetailValueRow(
+                            label = "대출 기간",
+                            value = loanTermText(product) ?: "정보 없음"
+                        )
 
                         Text(
                             text = "*한도는 소득, 담보 가치, 신용도에 따라 달라질 수 있습니다",
@@ -808,18 +793,18 @@ private fun formatWon(
     return when {
         amount >= hundredMillion &&
             amount % hundredMillion == 0L -> {
-            "${amount / hundredMillion}억원"
+            "${amount / hundredMillion}억 원"
         }
 
         amount >= hundredMillion -> {
             val billionValue =
                 amount.toDouble() / hundredMillion.toDouble()
 
-            "${formatDecimal(billionValue)}억원"
+            "${formatDecimal(billionValue)}억 원"
         }
 
         amount >= tenThousand -> {
-            "${NumberFormat.getNumberInstance(Locale.KOREA).format(amount / tenThousand)}만원"
+            "${NumberFormat.getNumberInstance(Locale.KOREA).format(amount / tenThousand)}만 원"
         }
 
         else -> {
@@ -827,6 +812,9 @@ private fun formatWon(
         }
     }
 }
+
+private fun String.toAnnualRateText(): String =
+    if (startsWith("연 ")) this else "연 $this"
 
 private fun formatDecimal(
     value: Double
