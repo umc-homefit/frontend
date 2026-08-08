@@ -25,10 +25,12 @@ class RecommendedProductScreenViewModel @Inject constructor(
         loadRecommendedProducts()
     }
 
-    fun loadRecommendedProducts() {
+    fun loadRecommendedProducts(sort: String = DEFAULT_SORT) {
         viewModelScope.launch {
             _uiState.value = RecommendedProductScreenUiState.Loading
-            _uiState.value = when (val result = financeRepository.getMatchedLoanProducts()) {
+            _uiState.value = when (
+                val result = financeRepository.getMatchedLoanProducts(sort = sort)
+            ) {
                 is NetworkResult.Success -> RecommendedProductScreenUiState.Success(
                     products = result.data.products
                         .filter { product -> product.isEligible }
@@ -37,5 +39,9 @@ class RecommendedProductScreenViewModel @Inject constructor(
                 is NetworkResult.Error -> RecommendedProductScreenUiState.Error(result.message)
             }
         }
+    }
+
+    private companion object {
+        const val DEFAULT_SORT = "RECOMMENDED"
     }
 }

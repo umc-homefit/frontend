@@ -50,12 +50,13 @@ private val ProductBorder = Color(0xFFDCE2E9)
 private val ProductTextGray = Color(0xFF919AA4)
 
 private enum class ProductSort(
-    val label: String
+    val label: String,
+    val apiValue: String
 ) {
-    RECOMMENDED("추천순"),
-    LATEST("최신순"),
-    LOWEST_RATE("금리 낮은순"),
-    HIGHEST_AMOUNT("대출한도 높은순")
+    RECOMMENDED("추천순", "RECOMMENDED"),
+    LATEST("최신순", "LATEST"),
+    LOWEST_RATE("금리 낮은순", "RATE_ASC"),
+    HIGHEST_AMOUNT("대출한도 높은순", "LIMIT_DESC")
 }
 
 @Composable
@@ -73,6 +74,7 @@ fun RecommendedProductScreenRoute(
         searchQuery = searchQuery,
         onNavigateToSearch = onNavigateToSearch,
         onNavigateToDetail = onNavigateToDetail,
+        onSortSelected = viewModel::loadRecommendedProducts,
         modifier = modifier
     )
 }
@@ -218,6 +220,7 @@ fun RecommendedProductScreen(
     searchQuery: String,
     onNavigateToDetail: (Long) -> Unit,
     onNavigateToSearch: () -> Unit,
+    onSortSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     AppScaffold(
@@ -230,6 +233,7 @@ fun RecommendedProductScreen(
             searchQuery = searchQuery,
             onNavigateToDetail = onNavigateToDetail,
             onNavigateToSearch = onNavigateToSearch,
+            onSortSelected = onSortSelected,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -244,6 +248,7 @@ private fun RecommendedProductContent(
     searchQuery: String,
     onNavigateToDetail: (Long) -> Unit,
     onNavigateToSearch: () -> Unit,
+    onSortSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var selectedKeyword by remember {
@@ -327,31 +332,7 @@ private fun RecommendedProductContent(
                         matchesCategory && matchesSearch
                     }
 
-                val sortedProducts: List<FinanceRecommendedProductUiModel> =
-                    when (selectedSort) {
-                        ProductSort.RECOMMENDED,
-                        ProductSort.LATEST -> {
-                            filteredProducts
-                        }
-
-                        ProductSort.LOWEST_RATE -> {
-                            filteredProducts.sortedBy { product ->
-                                parseMinimumInterestRate(
-                                    product.interestRate
-                                )
-                            }
-                        }
-
-                        ProductSort.HIGHEST_AMOUNT -> {
-                            filteredProducts.sortedByDescending { product ->
-                                parseLoanAmount(
-                                    product.amountDescription
-                                )
-                            }
-                        }
-                    }
-
-                if (sortedProducts.isEmpty()) {
+                if (filteredProducts.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -363,7 +344,7 @@ private fun RecommendedProductContent(
                     }
                 } else {
                     ProductListHeader(
-                        totalCount = sortedProducts.size,
+                        totalCount = filteredProducts.size,
                         selectedSort = selectedSort,
                         expanded = expanded,
                         onExpandedChange = { isExpanded ->
@@ -371,6 +352,7 @@ private fun RecommendedProductContent(
                         },
                         onSortSelected = { sort ->
                             selectedSort = sort
+                            onSortSelected(sort.apiValue)
                         }
                     )
 
@@ -383,7 +365,7 @@ private fun RecommendedProductContent(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(
-                            items = sortedProducts,
+                            items = filteredProducts,
                             key = { product ->
                                 product.productId
                             }
@@ -486,71 +468,6 @@ private fun productMatchesKeyword(
         }
 }
 
-private fun parseMinimumInterestRate(
-    interestRate: String
-): Double {
-    return Regex("""\d+(?:\.\d+)?""")
-        .find(interestRate)
-        ?.value
-        ?.toDoubleOrNull()
-        ?: Double.MAX_VALUE
-}
-
-private fun parseLoanAmount(
-    amountDescription: String
-): Long {
-    val amountText = amountDescription
-        .substringAfter("|", amountDescription)
-        .replace(",", "")
-        .replace(" ", "")
-
-    var totalAmount = 0L
-
-    Regex("""(\d+)억""")
-        .find(amountText)
-        ?.groupValues
-        ?.getOrNull(1)
-        ?.toLongOrNull()
-        ?.let { value ->
-            totalAmount += value * 100_000_000L
-        }
-
-    Regex("""(\d+)천만""")
-        .find(amountText)
-        ?.groupValues
-        ?.getOrNull(1)
-        ?.toLongOrNull()
-        ?.let { value ->
-            totalAmount += value * 10_000_000L
-        }
-
-    Regex("""(\d+)백만""")
-        .find(amountText)
-        ?.groupValues
-        ?.getOrNull(1)
-        ?.toLongOrNull()
-        ?.let { value ->
-            totalAmount += value * 1_000_000L
-        }
-
-    if (
-        "억" !in amountText &&
-        "천만" !in amountText &&
-        "백만" !in amountText
-    ) {
-        Regex("""(\d+)만""")
-            .find(amountText)
-            ?.groupValues
-            ?.getOrNull(1)
-            ?.toLongOrNull()
-            ?.let { value ->
-                totalAmount += value * 10_000L
-            }
-    }
-
-    return totalAmount
-}
-
 @Preview(
     showBackground = true,
     widthDp = 390,
@@ -574,6 +491,7 @@ private fun RecommendedProductScreenPreview() {
         ),
         searchQuery = "",
         onNavigateToSearch = {},
-        onNavigateToDetail = {}
+        onNavigateToDetail = {},
+        onSortSelected = {}
     )
 }
