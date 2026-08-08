@@ -30,7 +30,9 @@ class FinanceScreenViewModel @Inject constructor(
                     matchedCount = "${result.data.matchedCount}가지",
                     minRate = "연 ${result.data.minRate}",
                     maxLimitAmount = "최대 ${result.data.maxLimitAmount.toKoreanAmount()}",
-                    products = result.data.products.take(MAX_VISIBLE_PRODUCTS)
+                    products = result.data.products
+                        .filter { product -> product.isEligible }
+                        .take(MAX_VISIBLE_PRODUCTS)
                         .map { product -> product.toFinanceRecommendedProductUiModel() }
                 )
                 is NetworkResult.Error -> FinanceScreenUiState.Error(result.message)

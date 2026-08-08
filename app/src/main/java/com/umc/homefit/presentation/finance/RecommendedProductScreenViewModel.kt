@@ -31,6 +31,7 @@ class RecommendedProductScreenViewModel @Inject constructor(
             _uiState.value = when (val result = financeRepository.getMatchedLoanProducts()) {
                 is NetworkResult.Success -> RecommendedProductScreenUiState.Success(
                     products = result.data.products
+                        .filter { product -> product.isEligible }
                         .map { product -> product.toFinanceRecommendedProductUiModel() }
                 )
                 is NetworkResult.Error -> RecommendedProductScreenUiState.Error(result.message)
