@@ -28,31 +28,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.R
-import com.umc.homefit.data.dto.home.RecommendedProductDto
 import com.umc.homefit.presentation.finance.FinanceRecommendedProductUiModel
 import coil.compose.AsyncImage
-
-@Composable
-fun RecommendedProductCard(
-    product: RecommendedProductDto,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    RecommendedProductCard(
-        product = FinanceRecommendedProductUiModel(
-            productId = product.productId,
-            title = product.title,
-            productType = product.productType,
-            interestRate = product.interestRate,
-            amountDescription = product.amountDescription,
-            targetDescription = product.targetDescription,
-            tags = product.tags
-        ),
-        onClick = onClick,
-        modifier = modifier,
-        iconRes = product.iconRes
-    )
-}
 
 @Composable
 fun RecommendedProductCard(
