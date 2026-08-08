@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,8 +21,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,9 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.umc.homefit.data.dto.home.RecommendedProductDto
 import androidx.compose.foundation.Image
-import com.umc.homefit.data.mock.FinanceMockData
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
 
 @Composable
@@ -47,7 +44,7 @@ fun FinanceScreenRoute(
     onNavigateToDetail: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     FinanceScreen(
         uiState = uiState,
@@ -76,6 +73,7 @@ fun FinanceScreen(
 
         is FinanceScreenUiState.Success -> {
             FinanceSuccessContent(
+                data = uiState,
                 onNavigateToRecommendedProducts =
                     onNavigateToRecommendedProducts,
                 onNavigateToDetail = onNavigateToDetail,
@@ -99,6 +97,7 @@ fun FinanceScreen(
 
 @Composable
 private fun FinanceSuccessContent(
+    data: FinanceScreenUiState.Success,
     onNavigateToRecommendedProducts: () -> Unit,
     onNavigateToDetail: (Long) -> Unit,
     modifier: Modifier = Modifier
@@ -109,7 +108,7 @@ private fun FinanceSuccessContent(
             .background(Color(0xFFFFFFFF)),
     ) {
         item {
-            FinanceHeaderSection()
+            FinanceHeaderSection(data = data)
         }
 
         item {
@@ -138,7 +137,7 @@ private fun FinanceSuccessContent(
 
         item {
             RecommendedProductsSection(
-                products = FinanceMockData.recommendedProducts,
+                products = data.products,
                 onProductClick = onNavigateToDetail
             )
         }
@@ -161,6 +160,7 @@ private fun FinanceSuccessContent(
 
 @Composable
 private fun FinanceHeaderSection(
+    data: FinanceScreenUiState.Success,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -187,12 +187,13 @@ private fun FinanceHeaderSection(
             modifier = Modifier.height(8.dp)
         )
 
-        FinanceSummaryCard()
+        FinanceSummaryCard(data = data)
     }
 }
 
 @Composable
 private fun FinanceSummaryCard(
+    data: FinanceScreenUiState.Success,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -210,7 +211,7 @@ private fun FinanceSummaryCard(
         ) {
             FinanceSummaryItem(
                 label = "추천 상품",
-                value = "12가지",
+                value = data.matchedCount,
                 modifier = Modifier.weight(1f)
             )
 
@@ -222,7 +223,7 @@ private fun FinanceSummaryCard(
 
             FinanceSummaryItem(
                 label = "최저 금리",
-                value = "연 3.2%",
+                value = data.minRate,
                 modifier = Modifier.weight(1f)
             )
 
@@ -234,7 +235,7 @@ private fun FinanceSummaryCard(
 
             FinanceSummaryItem(
                 label = "한도",
-                value = "최대 2억",
+                value = data.maxLimitAmount,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -292,7 +293,7 @@ private fun FinanceSummaryItem(
 
 @Composable
 private fun RecommendedProductsSection(
-    products: List<RecommendedProductDto>,
+    products: List<FinanceRecommendedProductUiModel>,
     onProductClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -372,7 +373,10 @@ private fun RecommendedProductsButton(
 private fun FinanceScreenPreview() {
     FinanceScreen(
         uiState = FinanceScreenUiState.Success(
-            data = "Preview of FinanceScreen"
+            matchedCount = "2가지",
+            minRate = "연 1.0%",
+            maxLimitAmount = "최대 5억 원",
+            products = emptyList()
         ),
         onNavigateToRecommendedProducts = {},
         onNavigateToDetail = {}

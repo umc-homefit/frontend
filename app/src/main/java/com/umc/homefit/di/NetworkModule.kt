@@ -2,6 +2,7 @@ package com.umc.homefit.di
 
 import com.umc.homefit.data.api.auth.AuthApiService
 import com.umc.homefit.data.api.common.HealthApiService
+import com.umc.homefit.data.api.finance.FinanceApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -108,4 +109,9 @@ object NetworkModule {
     @Singleton
     fun provideConditionProfileApiService(retrofit: Retrofit): ConditionProfileApiService =
         retrofit.create(ConditionProfileApiService::class.java)
+        
+    @Provides
+    @Singleton
+    fun provideFinanceApiService(retrofit: Retrofit): FinanceApiService =
+        retrofit.create(FinanceApiService::class.java)
 }
