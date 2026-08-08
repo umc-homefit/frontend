@@ -8,6 +8,8 @@ sealed interface RecommendedProductScreenUiState {
         val products: List<FinanceRecommendedProductUiModel>
     ) : RecommendedProductScreenUiState
 
+    data object ConditionProfileRequired : RecommendedProductScreenUiState
+
     data class Error(
         val message: String
     ) : RecommendedProductScreenUiState

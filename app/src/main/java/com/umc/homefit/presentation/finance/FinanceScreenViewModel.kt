@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.finance.FinanceRepository
+import com.umc.homefit.util.error.ErrorCode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +36,13 @@ class FinanceScreenViewModel @Inject constructor(
                         .take(MAX_VISIBLE_PRODUCTS)
                         .map { product -> product.toFinanceRecommendedProductUiModel() }
                 )
-                is NetworkResult.Error -> FinanceScreenUiState.Error(result.message)
+                is NetworkResult.Error -> {
+                    if (result.errorCode == ErrorCode.FINANCE400) {
+                        FinanceScreenUiState.ConditionProfileRequired
+                    } else {
+                        FinanceScreenUiState.Error(result.message)
+                    }
+                }
             }
         }
     }

@@ -44,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
 import com.umc.homefit.presentation.finance.component.RecommendedProductSearchBar
 import com.umc.homefit.presentation.component.AppScaffold
+import com.umc.homefit.presentation.finance.component.ConditionProfileRequiredContent
 
 private val ProductAccent = Color(0xFF3C45F3)
 private val ProductBorder = Color(0xFFDCE2E9)
@@ -64,6 +65,7 @@ fun RecommendedProductScreenRoute(
     viewModel: RecommendedProductScreenViewModel,
     searchQuery: String,
     onNavigateToSearch: () -> Unit,
+    onNavigateToFinancialInfo: () -> Unit,
     onNavigateToDetail: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -73,6 +75,7 @@ fun RecommendedProductScreenRoute(
         uiState = uiState,
         searchQuery = searchQuery,
         onNavigateToSearch = onNavigateToSearch,
+        onNavigateToFinancialInfo = onNavigateToFinancialInfo,
         onNavigateToDetail = onNavigateToDetail,
         onSortSelected = viewModel::loadRecommendedProducts,
         modifier = modifier
@@ -220,6 +223,7 @@ fun RecommendedProductScreen(
     searchQuery: String,
     onNavigateToDetail: (Long) -> Unit,
     onNavigateToSearch: () -> Unit,
+    onNavigateToFinancialInfo: () -> Unit,
     onSortSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -233,6 +237,7 @@ fun RecommendedProductScreen(
             searchQuery = searchQuery,
             onNavigateToDetail = onNavigateToDetail,
             onNavigateToSearch = onNavigateToSearch,
+            onNavigateToFinancialInfo = onNavigateToFinancialInfo,
             onSortSelected = onSortSelected,
             modifier = Modifier
                 .fillMaxSize()
@@ -248,6 +253,7 @@ private fun RecommendedProductContent(
     searchQuery: String,
     onNavigateToDetail: (Long) -> Unit,
     onNavigateToSearch: () -> Unit,
+    onNavigateToFinancialInfo: () -> Unit,
     onSortSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -383,6 +389,12 @@ private fun RecommendedProductContent(
                 }
             }
 
+            RecommendedProductScreenUiState.ConditionProfileRequired -> {
+                ConditionProfileRequiredContent(
+                    onNavigateToFinancialInfo = onNavigateToFinancialInfo
+                )
+            }
+
             is RecommendedProductScreenUiState.Error -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -491,6 +503,7 @@ private fun RecommendedProductScreenPreview() {
         ),
         searchQuery = "",
         onNavigateToSearch = {},
+        onNavigateToFinancialInfo = {},
         onNavigateToDetail = {},
         onSortSelected = {}
     )

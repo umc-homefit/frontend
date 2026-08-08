@@ -8,6 +8,7 @@ sealed interface FinanceScreenUiState {
         val maxLimitAmount: String,
         val products: List<FinanceRecommendedProductUiModel>
     ) : FinanceScreenUiState
+    data object ConditionProfileRequired : FinanceScreenUiState
     data class Error(val message: String) : FinanceScreenUiState
 }
 
