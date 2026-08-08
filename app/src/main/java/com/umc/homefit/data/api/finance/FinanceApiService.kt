@@ -1,8 +1,10 @@
 package com.umc.homefit.data.api.finance
 
 import com.umc.homefit.data.dto.common.BaseResponse
+import com.umc.homefit.data.dto.finance.LoanProductDetailResponse
 import com.umc.homefit.data.dto.finance.LoanProductsMatchResponse
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface FinanceApiService {
@@ -13,4 +15,9 @@ interface FinanceApiService {
         @Query("keyword") keyword: String? = null,
         @Query("sort") sort: String?
     ): BaseResponse<LoanProductsMatchResponse>
+
+    @GET("loan-products/{productId}")
+    suspend fun getLoanProductDetail(
+        @Path("productId") productId: Long
+    ): BaseResponse<LoanProductDetailResponse>
 }

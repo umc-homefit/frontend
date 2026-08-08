@@ -1,6 +1,7 @@
 package com.umc.homefit.data.repository.finance
 
 import com.umc.homefit.data.api.finance.FinanceApiService
+import com.umc.homefit.data.dto.finance.LoanProductDetailResponse
 import com.umc.homefit.data.dto.finance.LoanProductsMatchResponse
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.data.remote.safeApiCall
@@ -23,5 +24,12 @@ class FinanceRepositoryImpl @Inject constructor(
                 keyword = keyword,
                 sort = sort
             )
+        }
+
+    override suspend fun getLoanProductDetail(
+        productId: Long
+    ): NetworkResult<LoanProductDetailResponse> =
+        safeApiCall {
+            financeApiService.getLoanProductDetail(productId)
         }
 }

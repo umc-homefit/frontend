@@ -1,5 +1,6 @@
 package com.umc.homefit.domain.repository.finance
 
+import com.umc.homefit.data.dto.finance.LoanProductDetailResponse
 import com.umc.homefit.data.dto.finance.LoanProductsMatchResponse
 import com.umc.homefit.data.remote.NetworkResult
 
@@ -10,4 +11,8 @@ interface FinanceRepository {
         keyword: String? = null,
         sort: String? = "RECOMMENDED"
     ): NetworkResult<LoanProductsMatchResponse>
+
+    suspend fun getLoanProductDetail(
+        productId: Long
+    ): NetworkResult<LoanProductDetailResponse>
 }

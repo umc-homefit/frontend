@@ -52,7 +52,6 @@ import com.umc.homefit.R
 import com.umc.homefit.presentation.component.TopBarAction
 import java.text.NumberFormat
 import java.util.Locale
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.LocalTextStyle
@@ -63,6 +62,7 @@ import com.umc.homefit.presentation.finance.component.HelpTerm
 import com.umc.homefit.presentation.finance.component.TermsHelpDialog
 import androidx.compose.runtime.setValue
 import com.umc.homefit.presentation.component.AppScaffold
+import coil.compose.AsyncImage
 
 @Composable
 fun ProductDetailScreenRoute(
@@ -309,6 +309,14 @@ private fun ProductDetailScreen(
                                 )
                             }
 
+                        product.firstTimeBuyerRateDiscount
+                            ?.let { discount ->
+                                DetailValueRow(
+                                    label = "생애최초 우대",
+                                    value = "${formatDecimal(discount)}%p 추가할인"
+                                )
+                            }
+
                         Text(
                             text = "*금리는 신청일 및 심사 결과에 따라 변동될 수 있습니다",
                             color = Color(0xFFC7D0DA),
@@ -421,11 +429,12 @@ private fun ProductDetailHeader(
             ),
         verticalAlignment = Alignment.Top
     ) {
-        Image(
-            painter = painterResource(
-                id = product.iconRes
-            ),
+        AsyncImage(
+            model = product.providerLogoUrl,
             contentDescription = product.productName,
+            placeholder = painterResource(R.drawable.ic_mypage_bank),
+            error = painterResource(R.drawable.ic_mypage_bank),
+            fallback = painterResource(R.drawable.ic_mypage_bank),
             modifier = Modifier
                 .offset(y = 6.dp)
                 .size(58.dp)
@@ -464,11 +473,11 @@ private fun ProductDetailHeader(
                     )
                 )
 
-                ProductDetailTag(
-                    text = categoryLabel(
-                        category = product.productCategory
+                if (product.requireNoHouse) {
+                    ProductDetailTag(
+                        text = "무주택자"
                     )
-                )
+                }
 
                 if (product.firstTimeBuyerOnly) {
                     ProductDetailTag(
@@ -787,18 +796,6 @@ private fun providerTypeLabel(
         "BANK" -> "은행상품"
         "SAVINGS_BANK" -> "저축은행"
         else -> providerType
-    }
-}
-
-private fun categoryLabel(
-    category: String
-): String {
-    return when (category) {
-        "JEONSE_LOAN" -> "전세대출"
-        "MORTGAGE_LOAN" -> "무주택자"
-        "CREDIT_LOAN" -> "신용대출"
-        "SAVINGS" -> "예·적금"
-        else -> category
     }
 }
 
