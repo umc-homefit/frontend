@@ -368,15 +368,13 @@ private fun ProductDetailScreen(
                 }
             }
 
-            if (product.requiredDocuments.isNotEmpty()) {
-                item {
-                    ProductDetailSection(
-                        title = "필요 서류 안내"
-                    ) {
-                        RequiredDocumentsBox(
-                            documents = product.requiredDocuments
-                        )
-                    }
+            item {
+                ProductDetailSection(
+                    title = "필요 서류 안내"
+                ) {
+                    RequiredDocumentsBox(
+                        documents = product.requiredDocuments
+                    )
                 }
             }
         }
@@ -620,31 +618,40 @@ private fun RequiredDocumentsBox(
             modifier = Modifier.height(8.dp)
         )
 
-        documents.forEach { document ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 5.dp),
-                verticalAlignment = Alignment.Top
-            ) {
-                Text(
-                    text = "•",
-                    color = Color(0xFFA9B6C5),
-                    fontSize = 11.sp,
-                    lineHeight = 16.sp
-                )
+        if (documents.isEmpty()) {
+            Text(
+                text = "정보 없음",
+                color = Color(0xFF919AA4),
+                fontSize = 13.sp,
+                lineHeight = 16.sp
+            )
+        } else {
+            documents.forEach { document ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 5.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Text(
+                        text = "•",
+                        color = Color(0xFFA9B6C5),
+                        fontSize = 11.sp,
+                        lineHeight = 16.sp
+                    )
 
-                Spacer(
-                    modifier = Modifier.width(8.dp)
-                )
+                    Spacer(
+                        modifier = Modifier.width(8.dp)
+                    )
 
-                Text(
-                    text = document,
-                    modifier = Modifier.weight(1f),
-                    color = Color(0xFF919AA4),
-                    fontSize = 13.sp,
-                    lineHeight = 16.sp
-                )
+                    Text(
+                        text = document,
+                        modifier = Modifier.weight(1f),
+                        color = Color(0xFF919AA4),
+                        fontSize = 13.sp,
+                        lineHeight = 16.sp
+                    )
+                }
             }
         }
 
