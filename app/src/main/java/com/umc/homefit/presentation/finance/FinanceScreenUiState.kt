@@ -18,5 +18,6 @@ data class FinanceRecommendedProductUiModel(
     val interestRate: String,
     val amountDescription: String,
     val targetDescription: String,
-    val tags: List<String>
+    val tags: List<String>,
+    val providerLogoUrl: String? = null
 )

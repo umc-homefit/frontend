@@ -10,6 +10,7 @@ internal fun LoanProductResponse.toFinanceRecommendedProductUiModel(): FinanceRe
     FinanceRecommendedProductUiModel(
         productId = productId,
         title = productName,
+        providerLogoUrl = providerLogoUrl,
         productType = when (providerType) {
             FinanceProviderType.POLICY -> "정부지원"
             FinanceProviderType.BANK -> "은행"
