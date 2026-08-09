@@ -3,6 +3,7 @@ package com.umc.homefit.di
 import com.umc.homefit.data.api.auth.AuthApiService
 import com.umc.homefit.data.api.common.HealthApiService
 import com.umc.homefit.data.api.finance.FinanceApiService
+import com.umc.homefit.data.api.notification.NotificationApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -114,4 +115,9 @@ object NetworkModule {
     @Singleton
     fun provideFinanceApiService(retrofit: Retrofit): FinanceApiService =
         retrofit.create(FinanceApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideNotificationApiService(retrofit: Retrofit): NotificationApiService =
+        retrofit.create(NotificationApiService::class.java)
 }

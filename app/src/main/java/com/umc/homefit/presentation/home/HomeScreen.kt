@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,11 +63,17 @@ fun HomeScreenRoute(
 ) {
     val recommendedAnnouncements by
     viewModel.recommendedAnnouncements.collectAsState()
+    val hasUnreadNotifications by
+    viewModel.hasUnreadNotifications.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadNotificationStatus()
+    }
 
     HomeScreen(
         userName = "길동",
         recommendedAnnouncements = recommendedAnnouncements,
-        hasNotifications = true,
+        hasNotifications = hasUnreadNotifications,
         onNotificationClick = onNotificationClick,
         onSearchClick = onSearchClick,
         onAllAnnouncementClick = onAllAnnouncementClick,

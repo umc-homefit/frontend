@@ -299,16 +299,10 @@ private fun notificationTypeIconRes(
     type: NotificationType
 ): Int {
     return when (type) {
-        NotificationType.NEW_ANNOUNCEMENT ->
+        NotificationType.NEW_NOTICE ->
             R.drawable.ic_noti_home
 
-        NotificationType.ANNOUNCEMENT_CHANGED ->
-            R.drawable.ic_noti_idea
-
-        NotificationType.APPLICATION_SCHEDULE ->
+        NotificationType.CLOSING_SOON ->
             R.drawable.ic_noti_calender
-
-        NotificationType.FINANCE_PRODUCT ->
-            R.drawable.ic_noti_card
     }
 }

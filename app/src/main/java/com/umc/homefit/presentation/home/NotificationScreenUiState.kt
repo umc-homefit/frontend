@@ -22,8 +22,6 @@ data class NotificationUiModel(
 )
 
 enum class NotificationType {
-    NEW_ANNOUNCEMENT,
-    ANNOUNCEMENT_CHANGED,
-    APPLICATION_SCHEDULE,
-    FINANCE_PRODUCT
+    NEW_NOTICE,
+    CLOSING_SOON
 }
