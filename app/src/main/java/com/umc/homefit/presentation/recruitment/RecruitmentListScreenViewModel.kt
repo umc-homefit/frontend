@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 
 @HiltViewModel
 class RecruitmentListScreenViewModel @Inject constructor(
@@ -54,7 +55,6 @@ class RecruitmentListScreenViewModel @Inject constructor(
             } else {
                 savedNoticeRepository.unsaveNotice(noticeId) is NetworkResult.Success
             }
-            // 실패하면 낙관적으로 반영했던 상태를 원래대로 되돌림
             if (!isSuccess) {
                 applySavedState(noticeId, !nextSaved)
             }
@@ -71,11 +71,10 @@ class RecruitmentListScreenViewModel @Inject constructor(
         }
     }
 
-    // district/minArea/maxArea/minDeposit/maxDeposit는 서버 쿼리 파라미터로 전달.
-    // NoticeDto에는 area가 숫자로 내려오지 않아(unitSummary 문자열) 클라이언트 재필터링이 불가능해짐에 따라
-    // status/keyword(검색어)도 함께 서버 쿼리 파라미터로 전달, 클라이언트 재필터링 하지 않음.
+    private var loadJob: Job? = null
     private fun loadRecruitments() {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             _uiState.value = RecruitmentListScreenUiState.Loading
 
             val filter = currentFilter
@@ -104,11 +103,9 @@ class RecruitmentListScreenViewModel @Inject constructor(
         }
     }
 
-    // FilterState의 보증금 단위는 만 원이라 원 단위인 API 파라미터와 비교하려면 변환이 필요함
     private fun Float.toWon(): Long = (this * 10_000).toLong()
 
     private companion object {
-        // FilterState()의 기본 min/maxArea, min/maxDeposit이 곧 슬라이더가 표시하는 전체 범위의 상한이라 이를 그대로 기준으로 사용
         val SLIDER_MAX_FILTER = FilterState()
     }
 }
