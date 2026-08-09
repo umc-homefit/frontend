@@ -1,6 +1,6 @@
 ﻿package com.umc.homefit.presentation.theme
 
-// TODO: Figma 색상/폰트로 교체
+// TODO: Pretendard 폰트 세팅 (Type.kt 참고)
 
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -64,3 +64,19 @@ val TextBlack = Color(0xFF161616)
 val AnalysisButtonGradient = Brush.horizontalGradient(
     listOf(RecruitmentAccent, RecruitmentAccent.copy(alpha = 0.5f))
 )
+
+// 피그마 디자인 시스템 색상 (공식 팔레트)
+val Main = Color(0xFF3C45F3)
+val Sub = Color(0xFF636AF5)
+val LightBlue = Color(0xFFF1F0FF)
+val Black = Color(0xFF161616)
+val DarkGray = Color(0xFF4A4F55)
+val Gray = Color(0xFF919AA4)
+val LightGray = Color(0xFFD2D9E2)
+val BrightGray = Color(0xFFF0F4F9)
+val White = Color(0xFFFFFFFF)
+val Red = Color(0xFFFF5659) // 관심공고
+val LightRed = Color(0xFFFFF6F6)
+val Yellow = Color(0xFFFFC300)
+val SignupGreen = Color(0x8019A141) // 회원가입
+val SignupRed = Color(0x80FF5659) // 회원가입
