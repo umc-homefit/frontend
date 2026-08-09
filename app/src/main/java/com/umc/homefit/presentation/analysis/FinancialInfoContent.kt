@@ -24,11 +24,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.umc.homefit.data.dto.analysis.ConditionProfileResponse
+import com.umc.homefit.util.mapToHouseOption
+import com.umc.homefit.util.toAnnualIncomeText
+import java.text.NumberFormat
+import java.util.Locale
 
 private val CardBorderColor = Color(0xFFD2D9E2)
-private val EditLinkColor = Color(0xFF3C45F3)
+private val EditLinkColor = Color(0xFF636AF5)
 private val LabelTextColor = Color(0xFF4A4F55)
 private val ValueTextColor = Color(0xFF919AA4)
+private const val NOT_ENTERED_LABEL = "정보 없음"
+private val KOREAN_NUMBER_FORMAT = NumberFormat.getNumberInstance(Locale.KOREA)
 
 
 data class FinanceInfoSection(
@@ -42,10 +49,78 @@ data class FinanceInfoRow(
     val value: String? = null
 )
 
+private fun formatManWon(wonAmount: Long): String =
+    "${KOREAN_NUMBER_FORMAT.format(wonAmount / 10_000)}만 원"
+
+fun ConditionProfileResponse.toFinanceInfoSections(): List<FinanceInfoSection> = listOf(
+    FinanceInfoSection(
+        title = "소득 정보",
+        step = FinancialInfoStep.INCOME,
+        rows = listOf(
+            FinanceInfoRow("연간 총소득", "${KOREAN_NUMBER_FORMAT.format(toAnnualIncomeText(monthlyIncomeAmount).toLong())}만 원")
+        )
+    ),
+    FinanceInfoSection(
+        title = "자산 정보",
+        step = FinancialInfoStep.ASSET,
+        rows = listOf(
+            FinanceInfoRow("총 보유 자산", formatManWon(totalAssetAmount)),
+            FinanceInfoRow("금융 자산", formatManWon(cashSavings))
+        )
+    ),
+    FinanceInfoSection(
+        title = "부채 정보",
+        step = FinancialInfoStep.DEBT,
+        rows = listOf(
+            FinanceInfoRow("총 부채 금액", formatManWon(totalDebtAmount)),
+            FinanceInfoRow("월 상환액", formatManWon(monthlyDebtPaymentAmount))
+        )
+    ),
+    FinanceInfoSection(
+        title = "주택 보유 여부",
+        step = FinancialInfoStep.HOUSE,
+        rows = listOf(
+            FinanceInfoRow(mapToHouseOption(housingOwnershipStatus.name) ?: NOT_ENTERED_LABEL)
+        )
+    )
+)
+
 /**
- * 마이페이지(MyFinanceScreenRoute)와 분석 탭(AnalysisScreen)에서 공용으로 쓰는
- * 금융 정보 요약 리스트. 뒤로가기/상단바는 각 화면에서 감싸서 처리하고,
- * 이 컴포저블은 순수 콘텐츠만 담당한다.
+ * 금융 정보 프로필 조회가 실패했을 때 쓰는 빈 섹션
+ * [toFinanceInfoSections]와 같은 섹션/타이틀 구조를 유지하되 모든 값을 정보 없음으로 채움
+ */
+fun emptyFinanceInfoSections(): List<FinanceInfoSection> = listOf(
+    FinanceInfoSection(
+        title = "소득 정보",
+        step = FinancialInfoStep.INCOME,
+        rows = listOf(FinanceInfoRow("연간 총소득", NOT_ENTERED_LABEL))
+    ),
+    FinanceInfoSection(
+        title = "자산 정보",
+        step = FinancialInfoStep.ASSET,
+        rows = listOf(
+            FinanceInfoRow("총 보유 자산", NOT_ENTERED_LABEL),
+            FinanceInfoRow("금융 자산", NOT_ENTERED_LABEL)
+        )
+    ),
+    FinanceInfoSection(
+        title = "부채 정보",
+        step = FinancialInfoStep.DEBT,
+        rows = listOf(
+            FinanceInfoRow("총 부채 금액", NOT_ENTERED_LABEL),
+            FinanceInfoRow("월 상환액", NOT_ENTERED_LABEL)
+        )
+    ),
+    FinanceInfoSection(
+        title = "주택 보유 여부",
+        step = FinancialInfoStep.HOUSE,
+        rows = listOf(FinanceInfoRow(NOT_ENTERED_LABEL))
+    )
+)
+
+/**
+ * 마이페이지(MyFinanceScreenRoute)와 분석 탭(AnalysisScreen)에서 공용으로 사용
+ * 뒤로가기/상단바는 각 화면에서 감싸서 처리하고 이 컴포저블은 순수 콘텐츠만 담당
  */
 @Composable
 fun FinancialInfoContent(
@@ -92,8 +167,9 @@ private fun FinanceInfoCard(
         ) {
             Text(
                 text = section.title,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF4A4F55)
             )
             Text(
                 text = "수정",
@@ -104,7 +180,7 @@ private fun FinanceInfoCard(
             )
         }
 
-        Spacer(modifier = Modifier.height(17.5.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
         Box(
             modifier = Modifier
@@ -115,34 +191,37 @@ private fun FinanceInfoCard(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        section.rows.forEachIndexed { index, row ->
-            if (row.value != null) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(18.dp)
+        ) {
+            section.rows.forEach { row ->
+                if (row.value != null) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = row.label,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = LabelTextColor
+                        )
+                        Text(
+                            text = row.value,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = ValueTextColor
+                        )
+                    }
+                } else {
                     Text(
                         text = row.label,
                         fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
                         color = LabelTextColor
                     )
-                    Text(
-                        text = row.value,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = ValueTextColor
-                    )
                 }
-            } else {
-                Text(
-                    text = row.label,
-                    fontSize = 14.sp,
-                    color = LabelTextColor
-                )
-            }
-
-            if (index != section.rows.lastIndex) {
-                Spacer(modifier = Modifier.height(18.dp))
             }
         }
     }
