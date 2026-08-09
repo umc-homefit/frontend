@@ -27,8 +27,6 @@ class RecruitmentRepositoryImpl @Inject constructor(
         page: Int,
         size: Int
     ): NetworkResult<NoticeListResponse> {
-        // Mock 데이터 (백엔드 연동 전 사용, 롤백 대비 보존)
-        // return NetworkResult.Success(RecruitmentMockData.getRecruitments())
         return safeApiCall {
             noticeApiService.getNotices(
                 keyword = keyword,
