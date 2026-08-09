@@ -487,51 +487,6 @@ private fun SuccessContent(
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(13.dp))
-
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(2.dp),
-                color = Color(0xFFF0F4F9)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier.weight(1f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = data.infoTags.getOrElse(0) { "" },
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color(0xFF919AA4)
-                        )
-                    }
-
-                    VerticalDivider(
-                        modifier = Modifier.height(16.dp),
-                        thickness = 1.dp,
-                        color = BorderColor
-                    )
-
-                    Box(
-                        modifier = Modifier.weight(1f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = data.infoTags.getOrElse(1) { "" },
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Color(0xFF919AA4),
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
-            }
         }
 
         Spacer(modifier = Modifier.height(32.dp))

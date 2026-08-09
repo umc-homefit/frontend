@@ -52,8 +52,6 @@ private fun EligibilityAnalysisResultDto.toUiModel(): AnalysisResultData {
         score = eligibilityScore,
         expectedDeposit = expectedDepositAmount.toWonText(),
         expectedMonthlyRent = expectedMonthlyRentAmount.toWonText(),
-        // TODO: #72 문의 4·6 — 신청 순위/전환 이율 필드가 API에 없어 태그를 못 채움. 답변 오면 채우기
-        infoTags = emptyList(),
         criteriaStatus = conditionResults.map { condition ->
             CriteriaItem(
                 title = condition.conditionName,

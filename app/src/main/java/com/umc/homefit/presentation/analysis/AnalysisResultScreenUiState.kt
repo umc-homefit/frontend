@@ -12,7 +12,6 @@ data class AnalysisResultData(
     val score: Int,                    // 입주 분석 점수 (72)
     val expectedDeposit: String,       // 예상 보증금 ("3,200만 원")
     val expectedMonthlyRent: String,   // 예상 월세 ("42만 원")
-    val infoTags: List<String>,        // 하단 기준 안내 태그 목록 — API 미지원, #72 문의 4/6 답변 전까지 빈 리스트
     val criteriaStatus: List<CriteriaItem>, // 조건별 충족 현황 리스트
     val inputInfoRows: List<InfoRowItem> = emptyList() // 아코디언 "입력 정보" — conditionResults의 userValue 기반
 )
