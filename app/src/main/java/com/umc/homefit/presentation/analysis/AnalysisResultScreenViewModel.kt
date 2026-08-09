@@ -3,11 +3,16 @@ package com.umc.homefit.presentation.analysis
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.umc.homefit.data.dto.analysis.ConditionProfileResponse
 import com.umc.homefit.data.dto.analysis.EligibilityAnalysisResultDto
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.analysis.AnalysisRepository
+import com.umc.homefit.domain.repository.analysis.ConditionProfileRepository
+import com.umc.homefit.util.mapToHouseOption
 import com.umc.homefit.util.toWonText
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AnalysisResultScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val analysisRepository: AnalysisRepository
+    private val analysisRepository: AnalysisRepository,
+    private val conditionProfileRepository: ConditionProfileRepository
 ) : ViewModel() {
 
     private val analysisId: Long = checkNotNull(savedStateHandle["analysisId"]).toString().toLong()
@@ -32,19 +38,32 @@ class AnalysisResultScreenViewModel @Inject constructor(
     private fun loadAnalysisResult() {
         viewModelScope.launch {
             _uiState.value = AnalysisResultScreenUiState.Loading
-            when (val result = analysisRepository.getEligibilityAnalysis(analysisId)) {
-                is NetworkResult.Success -> {
-                    _uiState.value = AnalysisResultScreenUiState.Success(data = result.data.toUiModel())
-                }
-                is NetworkResult.Error -> {
-                    _uiState.value = AnalysisResultScreenUiState.Error(result.message)
+            coroutineScope {
+                // 분석 결과와 조건 프로필은 서로 의존하지 않으니 동시에 요청
+                val analysisDeferred = async { analysisRepository.getEligibilityAnalysis(analysisId) }
+                val profileDeferred = async { conditionProfileRepository.getConditionProfile() }
+
+                when (val result = analysisDeferred.await()) {
+                    is NetworkResult.Success -> {
+                        // "입력 정보" 아코디언용 조건 프로필 조회 실패는 화면 전체를 에러로 내리지 않고 빈 리스트로 대체
+                        val inputInfoRows = when (val profileResult = profileDeferred.await()) {
+                            is NetworkResult.Success -> profileResult.data.toInputInfoRows()
+                            is NetworkResult.Error -> emptyList()
+                        }
+                        _uiState.value = AnalysisResultScreenUiState.Success(
+                            data = result.data.toUiModel(inputInfoRows = inputInfoRows)
+                        )
+                    }
+                    is NetworkResult.Error -> {
+                        _uiState.value = AnalysisResultScreenUiState.Error(result.message)
+                    }
                 }
             }
         }
     }
 }
 
-private fun EligibilityAnalysisResultDto.toUiModel(): AnalysisResultData {
+private fun EligibilityAnalysisResultDto.toUiModel(inputInfoRows: List<InfoRowItem>): AnalysisResultData {
     return AnalysisResultData(
         probabilityGrade = resultLevel.toGradeText(),
         // TODO: #72 문의 1 — 백분위 필드가 API에 없음. 답변 오면 채우기
@@ -59,11 +78,21 @@ private fun EligibilityAnalysisResultDto.toUiModel(): AnalysisResultData {
                 isSuitable = condition.resultStatus == "PASS"
             )
         },
-        inputInfoRows = conditionResults
-            .filter { !it.userValue.isNullOrBlank() }
-            .map { condition -> InfoRowItem(title = condition.conditionName, value = condition.userValue!!) }
+        inputInfoRows = inputInfoRows
     )
 }
+
+private fun ConditionProfileResponse.toInputInfoRows(): List<InfoRowItem> = listOf(
+    InfoRowItem("연간 총소득", (monthlyIncomeAmount * 12).toWonText()),
+    InfoRowItem("총 보유 자산", totalAssetAmount.toWonText()),
+    InfoRowItem("금융 자산", cashSavings.toWonText()),
+    InfoRowItem("총 부채", totalDebtAmount.toWonText()),
+    InfoRowItem("월 상환액", monthlyDebtPaymentAmount.toWonText()),
+    InfoRowItem(
+        "주택 보유 여부",
+        mapToHouseOption(housingOwnershipStatus.name) ?: if (isHomeless) "무주택" else "유주택"
+    )
+)
 
 private fun String.toGradeText(): String = when (this) {
     "HIGH" -> "높음"

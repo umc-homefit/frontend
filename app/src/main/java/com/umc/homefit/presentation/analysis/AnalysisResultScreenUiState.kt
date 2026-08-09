@@ -13,7 +13,7 @@ data class AnalysisResultData(
     val expectedDeposit: String,       // 예상 보증금 ("3,200만 원")
     val expectedMonthlyRent: String,   // 예상 월세 ("42만 원")
     val criteriaStatus: List<CriteriaItem>, // 조건별 충족 현황 리스트
-    val inputInfoRows: List<InfoRowItem> = emptyList() // 아코디언 "입력 정보" — conditionResults의 userValue 기반
+    val inputInfoRows: List<InfoRowItem> = emptyList() // 아코디언 "입력 정보" — 조건 프로필(FinancialInfo 입력값) 기반
 )
 
 data class CriteriaItem(
@@ -23,6 +23,6 @@ data class CriteriaItem(
 )
 
 data class InfoRowItem(
-    val title: String,                 // 서버가 내려주는 conditionName ("소득 조건" 등)
-    val value: String                  // 서버가 내려주는 userValue ("월소득 280만원" 등)
+    val title: String,                 // 항목명 ("연간 총소득" 등, 6개 고정)
+    val value: String                  // 조건 프로필 값 포맷팅 결과 ("3,840만 원" 등)
 )

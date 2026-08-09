@@ -628,13 +628,13 @@ private fun SuccessContent(
                     text = "*유의사항",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFFE53E3E).copy(alpha = 0.5f),
+                    color = Color(0xFFE53E3E).copy(alpha = 0.5f)
                 )
                 Text(
                     text = "위 결과는 입력하신 정보를 기반으로 산출한 예상 결과입니다.\n실제 심사 결과와 다를 수 있습니다.",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
-                    lineHeight = MaterialTheme.typography.labelSmall.lineHeight * 1.3f
+                    color = Color(0xFFE53E3E).copy(alpha = 0.5f)
                 )
             }
         }
