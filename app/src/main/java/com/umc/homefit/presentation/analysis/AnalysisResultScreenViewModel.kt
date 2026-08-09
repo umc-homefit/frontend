@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.umc.homefit.data.dto.analysis.ConditionProfileResponse
 import com.umc.homefit.data.dto.analysis.EligibilityAnalysisResultDto
-import com.umc.homefit.data.dto.recruitment.NoticeDetailResponse
+import com.umc.homefit.data.dto.recruitment.NoticeUnitSummary
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.analysis.AnalysisRepository
 import com.umc.homefit.domain.repository.analysis.ConditionProfileRepository
@@ -59,13 +59,12 @@ class AnalysisResultScreenViewModel @Inject constructor(
                             is NetworkResult.Success -> profileResult.data.toInputInfoRows()
                             is NetworkResult.Error -> emptyList()
                         }
-                        val criteriaInfoRows = when (val noticeResult = noticeDetailDeferred.await()) {
-                            is NetworkResult.Success -> noticeResult.data.toCriteriaInfoRows(
-                                unitId = result.data.unitId,
-                                analyzedAt = result.data.analyzedAt
-                            )
-                            is NetworkResult.Error -> emptyList()
+                        // 전용 면적은 Notice 상세 조회 성공 시에만 채워짐(실패해도 나머지 두 줄은 항상 표시)
+                        val noticeUnits = when (val noticeResult = noticeDetailDeferred.await()) {
+                            is NetworkResult.Success -> noticeResult.data.units
+                            is NetworkResult.Error -> null
                         }
+                        val criteriaInfoRows = result.data.toCriteriaInfoRows(noticeUnits)
                         _uiState.value = AnalysisResultScreenUiState.Success(
                             data = result.data.toUiModel(
                                 inputInfoRows = inputInfoRows,
@@ -107,16 +106,17 @@ private fun EligibilityAnalysisResultDto.toUiModel(
 
 /**
  * "산정 기준" — 신청 유형/신청 순위/비교 공고/전환 이율은 API에 대응 필드가 없어 제외.
- * 적용 기준일은 analyzedAt으로 대체, 공급 유형은 targetType을 프론트에서 한글로 매핑.
+ * 적용 기준일은 analyzedAt, 공급 유형은 supplyType(분석 응답 필드, MVP는 "청년안심주택" 고정)을 그대로 사용.
+ * 전용 면적은 별도 Notice 상세 조회 결과(noticeUnits)에서 unitId로 찾아 붙임 — 조회 실패 시 이 줄만 빠짐.
  */
-private fun NoticeDetailResponse.toCriteriaInfoRows(unitId: Long, analyzedAt: String): List<InfoRowItem> {
+private fun EligibilityAnalysisResultDto.toCriteriaInfoRows(
+    noticeUnits: List<NoticeUnitSummary>?
+): List<InfoRowItem> {
     val rows = mutableListOf(
-        InfoRowItem("적용 기준일", analyzedAt.toDateText())
+        InfoRowItem("적용 기준일", analyzedAt.toDateText()),
+        InfoRowItem("공급 유형", supplyType)
     )
-    conditions.firstOrNull()?.let { condition ->
-        rows.add(InfoRowItem("공급 유형", condition.targetType.toTargetTypeText()))
-    }
-    units.find { it.unitId == unitId }?.exclusiveAreaM2?.let { area ->
+    noticeUnits?.find { it.unitId == unitId }?.exclusiveAreaM2?.let { area ->
         rows.add(InfoRowItem("전용 면적", area.toAreaText()))
     }
     return rows
@@ -127,14 +127,6 @@ private fun String.toDateText(): String = substringBefore("T").replace("-", ".")
 
 private fun Double.toAreaText(): String =
     if (this % 1.0 == 0.0) "${toInt()}㎡" else "${this}㎡"
-
-private fun String.toTargetTypeText(): String = when (this) {
-    "YOUTH" -> "청년안심주택"
-    "NEWLYWED" -> "신규공급"
-    "COMMON" -> "공통"
-    "OTHER" -> "기타"
-    else -> this
-}
 
 private fun ConditionProfileResponse.toInputInfoRows(): List<InfoRowItem> = listOf(
     InfoRowItem("연간 총소득", (monthlyIncomeAmount * 12).toWonText()),

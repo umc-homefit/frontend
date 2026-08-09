@@ -16,7 +16,8 @@ data class EligibilityAnalysisResultDto(
     val unitId: Long,
     val expectedDepositAmount: Long,
     val expectedMonthlyRentAmount: Long,
-    val maintenanceFeeAmount: Long? = null
+    val maintenanceFeeAmount: Long? = null,
+    val supplyType: String = "청년안심주택" // MVP는 고정값
 )
 
 @Serializable
