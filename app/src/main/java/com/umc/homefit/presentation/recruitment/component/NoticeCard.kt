@@ -39,9 +39,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-// RecruitmentCard(component/RecruitmentCard.kt)는 HomeScreen과 공유 중이라 시그니처를 바꿀 수 없어
-// GET /notices 응답 전용으로 별도 카드를 둠. RecruitmentDto가 아니라 NoticeDto를 그린다.
-// 레이아웃은 SavedRecruitmentCard(mypage/SavedRecruitmentScreen.kt)를 기준으로 맞춤(찜 아이콘만 하트로 유지).
 
 private val DISPLAY_ZONE = ZoneId.of("Asia/Seoul")
 private val DISPLAY_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd")
