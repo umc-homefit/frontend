@@ -1,20 +1,53 @@
-﻿package com.umc.homefit.presentation.finance
+package com.umc.homefit.presentation.finance
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.umc.homefit.data.remote.NetworkResult
+import com.umc.homefit.domain.repository.finance.FinanceRepository
+import com.umc.homefit.util.error.ErrorCode
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @HiltViewModel
-class FinanceScreenViewModel @Inject constructor() : ViewModel() {
+class FinanceScreenViewModel @Inject constructor(
+    private val financeRepository: FinanceRepository
+) : ViewModel() {
     private val _uiState = MutableStateFlow<FinanceScreenUiState>(FinanceScreenUiState.Loading)
     val uiState: StateFlow<FinanceScreenUiState> = _uiState.asStateFlow()
 
     init {
-        // Initialize with success default state
-        _uiState.value = FinanceScreenUiState.Success("Data initialized for FinanceScreen")
+        loadMatchedProducts()
+    }
+
+    fun loadMatchedProducts() {
+        viewModelScope.launch {
+            _uiState.value = FinanceScreenUiState.Loading
+            _uiState.value = when (val result = financeRepository.getMatchedLoanProducts()) {
+                is NetworkResult.Success -> FinanceScreenUiState.Success(
+                    matchedCount = "${result.data.matchedCount}가지",
+                    minRate = "연 ${result.data.minRate}",
+                    maxLimitAmount = "최대 ${result.data.maxLimitAmount.toKoreanAmount()}",
+                    products = result.data.products
+                        .filter { product -> product.isEligible }
+                        .take(MAX_VISIBLE_PRODUCTS)
+                        .map { product -> product.toFinanceRecommendedProductUiModel() }
+                )
+                is NetworkResult.Error -> {
+                    if (result.errorCode == ErrorCode.FINANCE400) {
+                        FinanceScreenUiState.ConditionProfileRequired
+                    } else {
+                        FinanceScreenUiState.Error(result.message)
+                    }
+                }
+            }
+        }
+    }
+
+    private companion object {
+        const val MAX_VISIBLE_PRODUCTS = 3
     }
 }
-

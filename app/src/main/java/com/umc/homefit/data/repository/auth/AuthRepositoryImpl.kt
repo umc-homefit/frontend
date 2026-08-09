@@ -4,6 +4,7 @@ import com.umc.homefit.data.api.auth.AuthApiService
 import com.umc.homefit.data.local.UserPreferencesDataSource
 import com.umc.homefit.data.dto.auth.LoginRequest
 import com.umc.homefit.data.dto.auth.LoginResponse
+import com.umc.homefit.data.dto.auth.SignupRequest
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.data.remote.safeApiCall
 import com.umc.homefit.domain.repository.auth.AuthRepository
@@ -16,6 +17,14 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun login(email: String, password: String): NetworkResult<LoginResponse> {
         val result = safeApiCall { authApiService.login(LoginRequest(email = email, password = password)) }
+        if (result is NetworkResult.Success) {
+            userPreferencesDataSource.updateAccessToken(result.data.accessToken)
+        }
+        return result
+    }
+
+    override suspend fun signup(email: String, password: String): NetworkResult<LoginResponse> {
+        val result = safeApiCall { authApiService.signup(SignupRequest(email = email, password = password)) }
         if (result is NetworkResult.Success) {
             userPreferencesDataSource.updateAccessToken(result.data.accessToken)
         }

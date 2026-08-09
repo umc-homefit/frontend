@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -25,6 +26,12 @@ fun MyFinanceScreenRoute(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    // 수정 화면(FinancialInfoEdit)에서 저장하고 돌아올 때마다 최신 값을 다시 조회
+    LaunchedEffect(Unit) {
+        viewModel.loadConditionProfile()
+    }
+
     MyFinanceScreen(
         uiState = uiState,
         onBack = onBack,
@@ -81,8 +88,7 @@ fun MyFinanceScreenPreview() {
                     title = "소득 정보",
                     step = FinancialInfoStep.INCOME,
                     rows = listOf(
-                        FinanceInfoRow("연간 총소득", "4,800만 원"),
-                        FinanceInfoRow("소득 유형", "근로소득")
+                        FinanceInfoRow("연간 총소득", "4,800만 원")
                     )
                 )
             )

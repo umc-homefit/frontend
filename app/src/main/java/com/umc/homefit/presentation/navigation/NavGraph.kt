@@ -122,17 +122,26 @@ fun RootNavGraph(
                 viewModel = hiltViewModel(),
                 analysisId = args.analysisId,
                 onBack = { navController.popBackStack() },
-                onNavigateToCompetition = { recruitmentId -> navController.navigate(Route.Competition(recruitmentId)) },
+                onNavigateToCompetition = { recruitmentId ->
+                    navController.navigate(Route.Competition(recruitmentId, analysisId = args.analysisId))
+                },
                 onNavigateToAnalysis = { navController.navigate(Route.FinancialInfo) },
-                onNavigateToAnalysisResult = { analysisId -> navController.navigate(Route.AnalysisResult(analysisId)) }
+                onNavigateToAnalysisResult = { analysisId ->
+                    navController.navigate(Route.AnalysisResult(analysisId = analysisId, fromRecord = true))
+                }
             )
         }
 
-        composable<Route.Competition> {
+        composable<Route.Competition> { backStackEntry ->
+            val args = backStackEntry.toRoute<Route.Competition>()
             CompetitionScreenRoute(
                 viewModel = hiltViewModel(),
+                analysisId = args.analysisId,
                 onBack = { navController.popBackStack() },
-                onNavigateToAnalysis = { navController.navigate(Route.FinancialInfo) }
+                onNavigateToAnalysis = { navController.navigate(Route.FinancialInfo) },
+                onNavigateToAnalysisResult = { analysisId ->
+                    navController.navigate(Route.AnalysisResult(analysisId = analysisId, fromRecord = true))
+                }
             )
         }
 
@@ -153,9 +162,11 @@ fun RootNavGraph(
             )
         }
 
-        composable<Route.AnalysisResult> {
+        composable<Route.AnalysisResult> { backStackEntry ->
+            val args = backStackEntry.toRoute<Route.AnalysisResult>()
             AnalysisResultScreenRoute(
                 viewModel = hiltViewModel(),
+                fromRecord = args.fromRecord,
                 onBack = { navController.popBackStack() },
                 onNavigateToHome = {
                     navController.navigate(Route.Main) {
@@ -406,6 +417,7 @@ fun MainScreen(
                 FinanceScreenRoute(
                     viewModel = hiltViewModel(),
                     onNavigateToRecommendedProducts = { tabNavController.navigate(TabRoute.RecommendedProduct) },
+                    onNavigateToFinancialInfo = { rootNavController.navigate(Route.FinancialInfo) },
                     onNavigateToDetail = { productId -> rootNavController.navigate(Route.ProductDetail(productId = productId)) }
                 )
             }
@@ -419,6 +431,7 @@ fun MainScreen(
                     viewModel = hiltViewModel(),
                     searchQuery = searchQuery,
                     onNavigateToSearch = { rootNavController.navigate(Route.ProductSearch) },
+                    onNavigateToFinancialInfo = { rootNavController.navigate(Route.FinancialInfo) },
                     onNavigateToDetail = { productId -> rootNavController.navigate(Route.ProductDetail(productId = productId)) }
                 )
             }

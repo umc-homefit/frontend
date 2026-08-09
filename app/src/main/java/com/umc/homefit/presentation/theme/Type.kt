@@ -1,14 +1,21 @@
 ﻿package com.umc.homefit.presentation.theme
 
-// TODO: Pretendard 폰트 세팅 후 AppFontFamily만 교체하면 전체 화면에 반영됨
-
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.umc.homefit.R
 
-private val AppFontFamily = FontFamily.Default
+val Pretendard = FontFamily(
+    Font(R.font.pretendard_regular, FontWeight.Normal),
+    Font(R.font.pretendard_medium, FontWeight.Medium),
+    Font(R.font.pretendard_semibold, FontWeight.SemiBold),
+    Font(R.font.pretendard_bold, FontWeight.Bold)
+)
+
+private val AppFontFamily = Pretendard
 
 val Typography = Typography(
     // 페이지 타이틀 (예: "공고")

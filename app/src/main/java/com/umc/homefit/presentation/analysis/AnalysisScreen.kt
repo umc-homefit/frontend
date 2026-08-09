@@ -23,6 +23,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +46,11 @@ fun AnalysisScreenRoute(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadConditionProfileSections()
+    }
+
     AnalysisScreen(
         uiState = uiState,
         onNavigateToEdit = onNavigateToEdit,
