@@ -64,6 +64,7 @@ private val SelectedTextColor = Color(0xFF4A4F55)
 fun SavedRecruitmentScreenRoute(
     viewModel: SavedRecruitmentScreenViewModel,
     onBack: () -> Unit,
+    onNavigateToDetail: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -73,10 +74,10 @@ fun SavedRecruitmentScreenRoute(
         onSortOptionSelected = viewModel::onSortOptionSelected,
         onRemoveClick = viewModel::onRemoveClick,
         onLoadMore = viewModel::loadNextPage,
+        onNavigateToDetail = onNavigateToDetail,
         modifier = modifier
     )
 }
-
 @Composable
 fun SavedRecruitmentScreen(
     uiState: SavedRecruitmentScreenUiState,
@@ -84,7 +85,8 @@ fun SavedRecruitmentScreen(
     modifier: Modifier = Modifier,
     onSortOptionSelected: (SortOption) -> Unit = {},
     onRemoveClick: (String) -> Unit = {},
-    onLoadMore: () -> Unit = {}
+    onLoadMore: () -> Unit = {},
+    onNavigateToDetail: (String) -> Unit = {}
 ) {
     var showRemovedMessage by remember { mutableStateOf(false) }
 
@@ -115,6 +117,7 @@ fun SavedRecruitmentScreen(
                             showRemovedMessage = true
                         },
                         onLoadMore = onLoadMore,
+                        onCardClick = onNavigateToDetail,
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -140,6 +143,7 @@ private fun SavedRecruitmentContent(
     onSortOptionSelected: (SortOption) -> Unit,
     onRemoveClick: (String) -> Unit,
     onLoadMore: () -> Unit,
+    onCardClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
@@ -179,7 +183,8 @@ private fun SavedRecruitmentContent(
         itemsIndexed(items, key = { _, item -> item.id }) { index, item ->
             SavedRecruitmentCard(
                 item = item,
-                onRemoveClick = { onRemoveClick(item.id) }
+                onRemoveClick = { onRemoveClick(item.id) },
+                onClick = { onCardClick(item.id) }
             )
             if (index != items.lastIndex) {
                 Spacer(modifier = Modifier.height(10.dp))
@@ -261,11 +266,13 @@ private fun SortDropdown(
 private fun SavedRecruitmentCard(
     item: SavedRecruitmentItem,
     onRemoveClick: () -> Unit,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .clickable(onClick = onClick)
             .background(Color.White, RoundedCornerShape(4.dp))
             .border(BorderStroke(1.dp, CardBorderColor), RoundedCornerShape(4.dp))
             .padding(16.dp)
