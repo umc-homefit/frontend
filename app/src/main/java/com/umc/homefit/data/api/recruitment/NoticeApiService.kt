@@ -1,6 +1,7 @@
 package com.umc.homefit.data.api.recruitment
 
 import com.umc.homefit.data.dto.common.BaseResponse
+import com.umc.homefit.data.dto.recruitment.NoticeDetailResponse
 import com.umc.homefit.data.dto.recruitment.SavedNoticeListResponse
 import com.umc.homefit.data.dto.recruitment.UnsaveNoticeResultResponse
 import retrofit2.http.DELETE
@@ -19,4 +20,7 @@ interface NoticeApiService {
 
     @DELETE("notices/{noticeId}/save")
     suspend fun unsaveNotice(@Path("noticeId") noticeId: Long): BaseResponse<UnsaveNoticeResultResponse>
+
+    @GET("notices/{noticeId}")
+    suspend fun getNoticeDetail(@Path("noticeId") noticeId: Long): BaseResponse<NoticeDetailResponse>
 }

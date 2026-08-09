@@ -5,10 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.umc.homefit.data.dto.analysis.ConditionProfileResponse
 import com.umc.homefit.data.dto.analysis.EligibilityAnalysisResultDto
+import com.umc.homefit.data.dto.recruitment.NoticeDetailResponse
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.analysis.AnalysisRepository
 import com.umc.homefit.domain.repository.analysis.ConditionProfileRepository
+import com.umc.homefit.domain.repository.recruitment.NoticeDetailRepository
 import com.umc.homefit.util.mapToHouseOption
+import com.umc.homefit.util.toPercentileText
 import com.umc.homefit.util.toWonText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -23,7 +26,8 @@ import javax.inject.Inject
 class AnalysisResultScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val analysisRepository: AnalysisRepository,
-    private val conditionProfileRepository: ConditionProfileRepository
+    private val conditionProfileRepository: ConditionProfileRepository,
+    private val noticeDetailRepository: NoticeDetailRepository
 ) : ViewModel() {
 
     private val analysisId: Long = checkNotNull(savedStateHandle["analysisId"]).toString().toLong()
@@ -45,13 +49,28 @@ class AnalysisResultScreenViewModel @Inject constructor(
 
                 when (val result = analysisDeferred.await()) {
                     is NetworkResult.Success -> {
-                        // "입력 정보" 아코디언용 조건 프로필 조회 실패는 화면 전체를 에러로 내리지 않고 빈 리스트로 대체
+                        // noticeId는 분석 응답에서만 나오는 값이라 분석 결과를 받은 뒤에 요청 시작
+                        val noticeDetailDeferred = async {
+                            noticeDetailRepository.getNoticeDetail(result.data.noticeId)
+                        }
+
+                        // "입력 정보"/"산정 기준" 아코디언 조회 실패는 화면 전체를 에러로 내리지 않고 빈 리스트로 대체
                         val inputInfoRows = when (val profileResult = profileDeferred.await()) {
                             is NetworkResult.Success -> profileResult.data.toInputInfoRows()
                             is NetworkResult.Error -> emptyList()
                         }
+                        val criteriaInfoRows = when (val noticeResult = noticeDetailDeferred.await()) {
+                            is NetworkResult.Success -> noticeResult.data.toCriteriaInfoRows(
+                                unitId = result.data.unitId,
+                                analyzedAt = result.data.analyzedAt
+                            )
+                            is NetworkResult.Error -> emptyList()
+                        }
                         _uiState.value = AnalysisResultScreenUiState.Success(
-                            data = result.data.toUiModel(inputInfoRows = inputInfoRows)
+                            data = result.data.toUiModel(
+                                inputInfoRows = inputInfoRows,
+                                criteriaInfoRows = criteriaInfoRows
+                            )
                         )
                     }
                     is NetworkResult.Error -> {
@@ -63,11 +82,14 @@ class AnalysisResultScreenViewModel @Inject constructor(
     }
 }
 
-private fun EligibilityAnalysisResultDto.toUiModel(inputInfoRows: List<InfoRowItem>): AnalysisResultData {
+private fun EligibilityAnalysisResultDto.toUiModel(
+    inputInfoRows: List<InfoRowItem>,
+    criteriaInfoRows: List<InfoRowItem>
+): AnalysisResultData {
     return AnalysisResultData(
         probabilityGrade = resultLevel.toGradeText(),
-        // TODO: #72 문의 1 — 백분위 필드가 API에 없음. 답변 오면 채우기
-        percentileText = "",
+        // 백분위 필드가 API에 없어 eligibilityScore 기반으로 클라이언트에서 10점 단위 구간 산출
+        percentileText = eligibilityScore.toPercentileText(),
         score = eligibilityScore,
         expectedDeposit = expectedDepositAmount.toWonText(),
         expectedMonthlyRent = expectedMonthlyRentAmount.toWonText(),
@@ -75,11 +97,43 @@ private fun EligibilityAnalysisResultDto.toUiModel(inputInfoRows: List<InfoRowIt
             CriteriaItem(
                 title = condition.conditionName,
                 statusText = condition.resultStatus.toStatusText(),
-                isSuitable = condition.resultStatus == "PASS"
+                resultStatus = condition.resultStatus
             )
         },
-        inputInfoRows = inputInfoRows
+        inputInfoRows = inputInfoRows,
+        criteriaInfoRows = criteriaInfoRows
     )
+}
+
+/**
+ * "산정 기준" — 신청 유형/신청 순위/비교 공고/전환 이율은 API에 대응 필드가 없어 제외.
+ * 적용 기준일은 analyzedAt으로 대체, 공급 유형은 targetType을 프론트에서 한글로 매핑.
+ */
+private fun NoticeDetailResponse.toCriteriaInfoRows(unitId: Long, analyzedAt: String): List<InfoRowItem> {
+    val rows = mutableListOf(
+        InfoRowItem("적용 기준일", analyzedAt.toDateText())
+    )
+    conditions.firstOrNull()?.let { condition ->
+        rows.add(InfoRowItem("공급 유형", condition.targetType.toTargetTypeText()))
+    }
+    units.find { it.unitId == unitId }?.exclusiveAreaM2?.let { area ->
+        rows.add(InfoRowItem("전용 면적", area.toAreaText()))
+    }
+    return rows
+}
+
+/** ISO 8601("2026-08-05T15:14:46.000Z") -> "2026.08.05" */
+private fun String.toDateText(): String = substringBefore("T").replace("-", ".")
+
+private fun Double.toAreaText(): String =
+    if (this % 1.0 == 0.0) "${toInt()}㎡" else "${this}㎡"
+
+private fun String.toTargetTypeText(): String = when (this) {
+    "YOUTH" -> "청년안심주택"
+    "NEWLYWED" -> "신규공급"
+    "COMMON" -> "공통"
+    "OTHER" -> "기타"
+    else -> this
 }
 
 private fun ConditionProfileResponse.toInputInfoRows(): List<InfoRowItem> = listOf(
@@ -105,7 +159,7 @@ private fun String.toGradeText(): String = when (this) {
 
 private fun String.toStatusText(): String = when (this) {
     "PASS" -> "적합"
-    "FAIL" -> "부적합"
+    "FAIL" -> "미적합"
     "NEED_CHECK" -> "확인 필요"
     else -> this
 }

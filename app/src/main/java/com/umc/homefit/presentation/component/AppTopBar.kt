@@ -16,13 +16,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.graphicsLayer
 
 data class TopBarAction(
@@ -80,7 +78,7 @@ fun AppTopBar(
                 onClick = action.onClick,
                 modifier = Modifier.size(48.dp)
             ) {
-                Image(
+                Icon(
                     painter = action.icon,
                     contentDescription = action.contentDescription,
                     modifier = Modifier
@@ -89,7 +87,7 @@ fun AppTopBar(
                             scaleX = action.iconScale
                             scaleY = action.iconScale
                         },
-                    contentScale = ContentScale.FillBounds
+                    tint = Color(0xFFD2D9E2)
                 )
             }
         }

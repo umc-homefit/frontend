@@ -332,7 +332,7 @@ private fun SuccessContent(
                         tint = Color.Unspecified,
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .offset(x = (-24).dp, y = (-2).dp)
+                            .offset(x = (-16).dp, y = (-2).dp)
                     )
 
                     // 작은 원
@@ -362,7 +362,7 @@ private fun SuccessContent(
                             .align(Alignment.CenterStart)
                             .padding(start = 26.dp)
                     ) {
-                        // TODO: #72 문의 1 — 백분위 필드가 API에 없어 값이 오기 전까진 숨김 처리
+                        // percentileText는 score 기반 클라이언트 산출값이라 항상 채워짐 (0~100점 유효 범위 내)
                         if (data.percentileText.isNotBlank()) {
                             Surface(
                                 shape = RoundedCornerShape(200.dp),
@@ -370,10 +370,10 @@ private fun SuccessContent(
                             ) {
                                 Text(
                                     text = data.percentileText,
-                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
-                                    color = Color(0xFF3C45F3),
-                                    fontWeight = FontWeight.SemiBold,
-                                    style = MaterialTheme.typography.labelLarge
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color(0xFF636AF5)
                                 )
                             }
 
@@ -525,7 +525,11 @@ private fun SuccessContent(
                                 text = item.statusText,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = if (item.isSuitable) Color(0xFF299251) else Color(0xFFFFC300)
+                                color = when (item.resultStatus) {
+                                    "PASS" -> Color(0xFF299251)
+                                    "FAIL" -> Color(0xFFE53E3E)
+                                    else -> Color(0xFFFFC300)
+                                }
                             )
                         }
                         if (index != data.criteriaStatus.lastIndex) {
@@ -569,7 +573,9 @@ private fun SuccessContent(
             if (isAccordionExpanded) {
                 HorizontalDivider(color = BorderColor)
 
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
+                    Spacer(modifier = Modifier.height(26.dp))
+
                     Text(
                         text = "입력 정보",
                         fontSize = 12.sp,
@@ -579,7 +585,7 @@ private fun SuccessContent(
 
                     Spacer(modifier = Modifier.height(25.dp))
 
-                    // 서버 conditionResults의 userValue 기반 (월 상환액 등 일부 항목은 #72 문의 11 답변 전까진 안 나올 수 있음)
+                    // 조건 프로필 API(FinancialInfo 입력값) 기반, 6개 항목 항상 채워짐
                     data.inputInfoRows.forEach { row ->
                         AnalysisInfoRow(row.title, row.value)
                     }
@@ -599,15 +605,11 @@ private fun SuccessContent(
 
                     Spacer(modifier = Modifier.height(25.dp))
 
-                    // TODO: #72 문의 2·3·4·5·6 — 적용기준일/공급유형/신청유형/신청순위/비교공고/전환이율
-                    // 전용 면적을 제외하면 현재 백엔드 API에 대응 필드가 없어 임시 하드코딩 유지. 답변 오면 실데이터로 교체.
-                    AnalysisInfoRow("적용 기준일", "2025.06")
-                    AnalysisInfoRow("공급 유형", "청년안심주택")
-                    AnalysisInfoRow("신청 유형", "특별 공급")
-                    AnalysisInfoRow("전용 면적", "36m²")
-                    AnalysisInfoRow("신청 순위", "2순위")
-                    AnalysisInfoRow("비교 공고", "12개")
-                    AnalysisInfoRow("전환 이율", "연 4.5%")
+                    // 적용 기준일(analyzedAt) / 공급 유형(targetType 한글 매핑) / 전용 면적
+                    // 신청 유형·신청 순위·비교 공고·전환 이율은 대응 API 필드가 없어 제외
+                    data.criteriaInfoRows.forEach { row ->
+                        AnalysisInfoRow(row.title, row.value)
+                    }
                 }
             }
         }
@@ -634,6 +636,7 @@ private fun SuccessContent(
                     text = "위 결과는 입력하신 정보를 기반으로 산출한 예상 결과입니다.\n실제 심사 결과와 다를 수 있습니다.",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
+                    lineHeight = 15.sp,
                     color = Color(0xFFE53E3E).copy(alpha = 0.5f)
                 )
             }
