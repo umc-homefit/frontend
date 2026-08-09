@@ -59,7 +59,7 @@ class AnalysisResultScreenViewModel @Inject constructor(
                             is NetworkResult.Success -> profileResult.data.toInputInfoRows()
                             is NetworkResult.Error -> emptyList()
                         }
-                        // 전용 면적은 Notice 상세 조회 성공 시에만 채워짐(실패해도 나머지 두 줄은 항상 표시)
+                        // 전용 면적은 Notice 상세 조회 성공 시에만 채워짐 (실패해도 나머지 두 줄은 항상 표시)
                         val noticeUnits = when (val noticeResult = noticeDetailDeferred.await()) {
                             is NetworkResult.Success -> noticeResult.data.units
                             is NetworkResult.Error -> null
@@ -87,7 +87,6 @@ private fun EligibilityAnalysisResultDto.toUiModel(
 ): AnalysisResultData {
     return AnalysisResultData(
         probabilityGrade = resultLevel.toGradeText(),
-        // 백분위 필드가 API에 없어 eligibilityScore 기반으로 클라이언트에서 10점 단위 구간 산출
         percentileText = eligibilityScore.toPercentileText(),
         score = eligibilityScore,
         expectedDeposit = expectedDepositAmount.toWonText(),
@@ -104,11 +103,6 @@ private fun EligibilityAnalysisResultDto.toUiModel(
     )
 }
 
-/**
- * "산정 기준" — 신청 유형/신청 순위/비교 공고/전환 이율은 API에 대응 필드가 없어 제외.
- * 적용 기준일은 analyzedAt, 공급 유형은 supplyType(분석 응답 필드, MVP는 "청년안심주택" 고정)을 그대로 사용.
- * 전용 면적은 별도 Notice 상세 조회 결과(noticeUnits)에서 unitId로 찾아 붙임 — 조회 실패 시 이 줄만 빠짐.
- */
 private fun EligibilityAnalysisResultDto.toCriteriaInfoRows(
     noticeUnits: List<NoticeUnitSummary>?
 ): List<InfoRowItem> {
@@ -122,7 +116,6 @@ private fun EligibilityAnalysisResultDto.toCriteriaInfoRows(
     return rows
 }
 
-/** ISO 8601("2026-08-05T15:14:46.000Z") -> "2026.08.05" */
 private fun String.toDateText(): String = substringBefore("T").replace("-", ".")
 
 private fun Double.toAreaText(): String =

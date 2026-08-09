@@ -583,7 +583,7 @@ private fun SuccessContent(
                         color = Color(0xFF4A4F55)
                     )
 
-                    Spacer(modifier = Modifier.height(25.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     // 조건 프로필 API(FinancialInfo 입력값) 기반, 6개 항목 항상 채워짐
                     data.inputInfoRows.forEach { row ->
@@ -603,7 +603,7 @@ private fun SuccessContent(
                         color = Color(0xFF4A4F55)
                     )
 
-                    Spacer(modifier = Modifier.height(25.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     // 적용 기준일(analyzedAt) / 공급 유형(targetType 한글 매핑) / 전용 면적
                     // 신청 유형·신청 순위·비교 공고·전환 이율은 대응 API 필드가 없어 제외
