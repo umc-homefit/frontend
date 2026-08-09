@@ -78,6 +78,7 @@ fun SavedRecruitmentScreenRoute(
         modifier = modifier
     )
 }
+
 @Composable
 fun SavedRecruitmentScreen(
     uiState: SavedRecruitmentScreenUiState,
