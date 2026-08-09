@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -29,13 +28,14 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
  * 여러 화면(금융정보 입력, 로그인, 회원가입 등)에서 공통으로 쓰이는
- * "상단 타이틀 + 콘텐츠 + 하단 링크 + 하단 버튼" 레이아웃.
- * FinancialInfoScreen의 각 Step에서도 동일하게 사용됩니다.
+ * "상단 타이틀 + 콘텐츠 + 하단 링크 + 하단 버튼" 레이아웃
+ * FinancialInfoScreen의 각 Step에서도 동일하게 사용
  */
 @Composable
 fun StepBaseLayout(
@@ -46,6 +46,7 @@ fun StepBaseLayout(
     onBottomLinkClick: () -> Unit,
     modifier: Modifier = Modifier,
     buttonText: String = "다음",
+    contentSpacing: Dp = 76.dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val primaryColor = Color(0xFF3C45F3)
@@ -55,20 +56,21 @@ fun StepBaseLayout(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .padding(top = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(48.dp)
+                .padding(top = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(contentSpacing)
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF161616)
             )
             content()
         }
@@ -81,7 +83,8 @@ fun StepBaseLayout(
             if (bottomLinkText.isNotEmpty()) {
                 Text(
                     text = bottomLinkText,
-                    style = MaterialTheme.typography.bodyMedium,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
                     color = Color(0xFF4A4F55),
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier.clickable { onBottomLinkClick() }
@@ -117,17 +120,21 @@ fun StepBaseLayout(
                     disabledContentColor = disabledButtonTextColor
                 )
             ) {
-                Text(text = buttonText, fontWeight = FontWeight.Bold)
+                Text(
+                    text = buttonText,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
 }
 
 /**
- * 완료 화면 공용 컴포넌트.
+ * 완료 화면 공용 컴포넌트
  * 금융정보 입력 완료, 로그인 완료, 회원가입 완료 등에서
- * title / buttonText / onButtonClick 만 바꿔서 재사용합니다.
- * 애니메이션(캐릭터 + 흩어지는 별)과 레이아웃은 항상 동일합니다.
+ * title / buttonText / onButtonClick 만 바꿔서 재사용
+ * 애니메이션과 레이아웃은 항상 동일
  */
 @Composable
 fun CompletionStep(
@@ -143,23 +150,23 @@ fun CompletionStep(
         bottomLinkText = "",
         onBottomLinkClick = {},
         modifier = modifier,
-        buttonText = buttonText
+        buttonText = buttonText,
+        contentSpacing = 0.dp
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
+                .weight(1f),
         ) {
-            // 가운데 캐릭터
+            // 캐릭터
             Image(
                 painter = painterResource(id = R.drawable.ic_analysis_result),
                 contentDescription = null,
                 modifier = Modifier
-                    .align(Alignment.Center)
                     .size(180.dp)
+                    .align(Alignment.Center)
             )
 
-            // 흩어진 별들 (목표 위치)
             val starTargets = listOf(
                 80.dp to (-165).dp,     // 우상단
                 (-70).dp to (-240).dp,  // 좌상단
@@ -168,7 +175,6 @@ fun CompletionStep(
                 (-20).dp to 260.dp,     // 버튼 위
             )
 
-            // 별이 튀어나오는 출발 지점
             val startPoint = 0.dp to 320.dp
 
             starTargets.forEachIndexed { index, target ->
@@ -196,7 +202,6 @@ internal fun BoxScope.FireworkStar(
     LaunchedEffect(Unit) {
         delay(delayMillis.toLong())
         while (true) {
-            // 1) 아래에서 위로 튀어오르며 목표 위치까지 이동
             launch {
                 offsetX.animateTo(
                     targetOffset.first.value,
@@ -220,10 +225,8 @@ internal fun BoxScope.FireworkStar(
                 )
             )
 
-            // 2) 잠시 머무르기
             delay(1200)
 
-            // 3) 다시 버튼 쪽(아래)으로 사라지기
             launch {
                 offsetX.animateTo(
                     startOffset.first.value,
@@ -241,7 +244,6 @@ internal fun BoxScope.FireworkStar(
             }
             alpha.animateTo(0f, animationSpec = tween(durationMillis = 400))
 
-            // 4) 잠깐 쉬었다가 반복
             delay(400)
         }
     }
