@@ -63,7 +63,7 @@ fun NoticeCard(
                 verticalAlignment = Alignment.Top
             ) {
                 Text(
-                    text = notice.title.stripEmbeddedStatusSuffix(),
+                    text = notice.title,
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.Black,
                     modifier = Modifier.weight(1f)
@@ -115,7 +115,6 @@ private fun NoticeStatusBadge(status: String, label: String) {
         "RECRUITING" -> StatusRecruitingBackground to StatusRecruitingText
         "SCHEDULED" -> StatusScheduledBackground to StatusScheduledText
         "CLOSING_SOON" -> StatusClosingSoonBackground to StatusClosingSoonText
-        // TODO: 디자이너 확인 후 CLOSED 전용 색상 토큰으로 교체 (현재는 SCHEDULED와 동일한 중립 톤으로 대체)
         else -> StatusScheduledBackground to StatusScheduledText
     }
     Surface(color = background, shape = RoundedCornerShape(percent = 50)) {
@@ -133,23 +132,10 @@ private fun formatDepositToManwon(depositInWon: Long?): String {
     return String.format(Locale.KOREA, "%,d만원", depositInWon / 10_000)
 }
 
-// unitSummary가 이미 "전용 30㎡"처럼 "전용"이 포함된 형태로 내려오는 경우가 있어
-// "전용 |" 라벨을 그대로 붙이면 "전용 | 전용 30㎡"로 중복 표시됨. 값에 "전용"이 없는 경우만 라벨을 붙인다.
 private fun String?.toAreaText(): String {
     if (isNullOrBlank()) return "전용 | 공고문 참고"
-    return if (contains("전용")) this else "전용 | $this"
-}
-
-private val KNOWN_STATUS_LABELS = setOf("모집중", "예정", "마감임박", "마감")
-
-// title에 생성 시점의 상태 텍스트("... · 모집중" 등)가 그대로 박혀 내려와 실시간 상태를 나타내는
-// status/statusDisplayText(하단 뱃지)와 값이 어긋나는 경우가 있음. 상태 표시는 뱃지 하나로 통일하기 위해
-// 제목에 섞여 들어온 상태 접미사는 표시 전에 제거한다.
-private fun String.stripEmbeddedStatusSuffix(): String {
-    val separatorIndex = lastIndexOf(" · ")
-    if (separatorIndex == -1) return this
-    val suffix = substring(separatorIndex + 3).trim()
-    return if (suffix in KNOWN_STATUS_LABELS) substring(0, separatorIndex).trimEnd() else this
+    val area = removePrefix("전용").trim()
+    return "전용 | $area"
 }
 
 private fun String?.toDisplayDate(): String {
