@@ -41,23 +41,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.umc.homefit.data.dto.home.RecommendedProductDto
-import com.umc.homefit.data.mock.FinanceMockData
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
 import com.umc.homefit.presentation.finance.component.RecommendedProductSearchBar
 import com.umc.homefit.presentation.component.AppScaffold
+import com.umc.homefit.presentation.finance.component.ConditionProfileRequiredContent
 
 private val ProductAccent = Color(0xFF3C45F3)
 private val ProductBorder = Color(0xFFDCE2E9)
 private val ProductTextGray = Color(0xFF919AA4)
 
 private enum class ProductSort(
-    val label: String
+    val label: String,
+    val apiValue: String
 ) {
-    RECOMMENDED("추천순"),
-    LATEST("최신순"),
-    LOWEST_RATE("금리 낮은순"),
-    HIGHEST_AMOUNT("대출한도 높은순")
+    RECOMMENDED("추천순", "RECOMMENDED"),
+    LATEST("최신순", "LATEST"),
+    LOWEST_RATE("금리 낮은순", "RATE_ASC"),
+    HIGHEST_AMOUNT("대출한도 높은순", "LIMIT_DESC")
 }
 
 @Composable
@@ -65,6 +65,7 @@ fun RecommendedProductScreenRoute(
     viewModel: RecommendedProductScreenViewModel,
     searchQuery: String,
     onNavigateToSearch: () -> Unit,
+    onNavigateToFinancialInfo: () -> Unit,
     onNavigateToDetail: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -74,7 +75,9 @@ fun RecommendedProductScreenRoute(
         uiState = uiState,
         searchQuery = searchQuery,
         onNavigateToSearch = onNavigateToSearch,
+        onNavigateToFinancialInfo = onNavigateToFinancialInfo,
         onNavigateToDetail = onNavigateToDetail,
+        onSortSelected = viewModel::loadRecommendedProducts,
         modifier = modifier
     )
 }
@@ -220,6 +223,8 @@ fun RecommendedProductScreen(
     searchQuery: String,
     onNavigateToDetail: (Long) -> Unit,
     onNavigateToSearch: () -> Unit,
+    onNavigateToFinancialInfo: () -> Unit,
+    onSortSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     AppScaffold(
@@ -232,6 +237,8 @@ fun RecommendedProductScreen(
             searchQuery = searchQuery,
             onNavigateToDetail = onNavigateToDetail,
             onNavigateToSearch = onNavigateToSearch,
+            onNavigateToFinancialInfo = onNavigateToFinancialInfo,
+            onSortSelected = onSortSelected,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -246,6 +253,8 @@ private fun RecommendedProductContent(
     searchQuery: String,
     onNavigateToDetail: (Long) -> Unit,
     onNavigateToSearch: () -> Unit,
+    onNavigateToFinancialInfo: () -> Unit,
+    onSortSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var selectedKeyword by remember {
@@ -329,31 +338,7 @@ private fun RecommendedProductContent(
                         matchesCategory && matchesSearch
                     }
 
-                val sortedProducts: List<RecommendedProductDto> =
-                    when (selectedSort) {
-                        ProductSort.RECOMMENDED,
-                        ProductSort.LATEST -> {
-                            filteredProducts
-                        }
-
-                        ProductSort.LOWEST_RATE -> {
-                            filteredProducts.sortedBy { product ->
-                                parseMinimumInterestRate(
-                                    product.interestRate
-                                )
-                            }
-                        }
-
-                        ProductSort.HIGHEST_AMOUNT -> {
-                            filteredProducts.sortedByDescending { product ->
-                                parseLoanAmount(
-                                    product.amountDescription
-                                )
-                            }
-                        }
-                    }
-
-                if (sortedProducts.isEmpty()) {
+                if (filteredProducts.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -365,7 +350,7 @@ private fun RecommendedProductContent(
                     }
                 } else {
                     ProductListHeader(
-                        totalCount = sortedProducts.size,
+                        totalCount = filteredProducts.size,
                         selectedSort = selectedSort,
                         expanded = expanded,
                         onExpandedChange = { isExpanded ->
@@ -373,6 +358,7 @@ private fun RecommendedProductContent(
                         },
                         onSortSelected = { sort ->
                             selectedSort = sort
+                            onSortSelected(sort.apiValue)
                         }
                     )
 
@@ -385,7 +371,7 @@ private fun RecommendedProductContent(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(
-                            items = sortedProducts,
+                            items = filteredProducts,
                             key = { product ->
                                 product.productId
                             }
@@ -401,6 +387,12 @@ private fun RecommendedProductContent(
                         }
                     }
                 }
+            }
+
+            RecommendedProductScreenUiState.ConditionProfileRequired -> {
+                ConditionProfileRequiredContent(
+                    onNavigateToFinancialInfo = onNavigateToFinancialInfo
+                )
             }
 
             is RecommendedProductScreenUiState.Error -> {
@@ -457,7 +449,7 @@ private fun ProductFilterChip(
 }
 
 private fun productMatchesKeyword(
-    product: RecommendedProductDto,
+    product: FinanceRecommendedProductUiModel,
     keyword: String
 ): Boolean {
     return product.title.contains(
@@ -488,71 +480,6 @@ private fun productMatchesKeyword(
         }
 }
 
-private fun parseMinimumInterestRate(
-    interestRate: String
-): Double {
-    return Regex("""\d+(?:\.\d+)?""")
-        .find(interestRate)
-        ?.value
-        ?.toDoubleOrNull()
-        ?: Double.MAX_VALUE
-}
-
-private fun parseLoanAmount(
-    amountDescription: String
-): Long {
-    val amountText = amountDescription
-        .substringAfter("|", amountDescription)
-        .replace(",", "")
-        .replace(" ", "")
-
-    var totalAmount = 0L
-
-    Regex("""(\d+)억""")
-        .find(amountText)
-        ?.groupValues
-        ?.getOrNull(1)
-        ?.toLongOrNull()
-        ?.let { value ->
-            totalAmount += value * 100_000_000L
-        }
-
-    Regex("""(\d+)천만""")
-        .find(amountText)
-        ?.groupValues
-        ?.getOrNull(1)
-        ?.toLongOrNull()
-        ?.let { value ->
-            totalAmount += value * 10_000_000L
-        }
-
-    Regex("""(\d+)백만""")
-        .find(amountText)
-        ?.groupValues
-        ?.getOrNull(1)
-        ?.toLongOrNull()
-        ?.let { value ->
-            totalAmount += value * 1_000_000L
-        }
-
-    if (
-        "억" !in amountText &&
-        "천만" !in amountText &&
-        "백만" !in amountText
-    ) {
-        Regex("""(\d+)만""")
-            .find(amountText)
-            ?.groupValues
-            ?.getOrNull(1)
-            ?.toLongOrNull()
-            ?.let { value ->
-                totalAmount += value * 10_000L
-            }
-    }
-
-    return totalAmount
-}
-
 @Preview(
     showBackground = true,
     widthDp = 390,
@@ -562,10 +489,22 @@ private fun parseLoanAmount(
 private fun RecommendedProductScreenPreview() {
     RecommendedProductScreen(
         uiState = RecommendedProductScreenUiState.Success(
-            products = FinanceMockData.recommendedProducts
+            products = listOf(
+                FinanceRecommendedProductUiModel(
+                    productId = 1,
+                    title = "디딤돌 대출",
+                    productType = "정부지원",
+                    interestRate = "금리 | 2.15% ~ 3.00%",
+                    amountDescription = "대출한도 | 최대 2억 5,000만 원",
+                    targetDescription = "연소득 | 6,000만 원 이하",
+                    tags = listOf("무주택자", "생애최초")
+                )
+            )
         ),
         searchQuery = "",
         onNavigateToSearch = {},
-        onNavigateToDetail = {}
+        onNavigateToFinancialInfo = {},
+        onNavigateToDetail = {},
+        onSortSelected = {}
     )
 }
