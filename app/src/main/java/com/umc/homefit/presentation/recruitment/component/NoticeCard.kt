@@ -66,7 +66,7 @@ fun NoticeCard(
                 verticalAlignment = Alignment.Top
             ) {
                 Text(
-                    text = notice.title,
+                    text = notice.title.stripEmbeddedStatusSuffix(),
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.Black,
                     modifier = Modifier.weight(1f)
@@ -91,7 +91,7 @@ fun NoticeCard(
                     )
                 }
                 Text(
-                    text = "전용 | ${notice.unitSummary ?: "공고문 참고"}   보증금 | ${formatDepositToManwon(notice.depositMin)}",
+                    text = "${notice.unitSummary.toAreaText()}   보증금 | ${formatDepositToManwon(notice.depositMin)}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = RecruitmentTextGray
                 )
@@ -136,6 +136,25 @@ private fun formatDepositToManwon(depositInWon: Long?): String {
     return String.format(Locale.KOREA, "%,d만원", depositInWon / 10_000)
 }
 
+// unitSummary가 이미 "전용 30㎡"처럼 "전용"이 포함된 형태로 내려오는 경우가 있어
+// "전용 |" 라벨을 그대로 붙이면 "전용 | 전용 30㎡"로 중복 표시됨. 값에 "전용"이 없는 경우만 라벨을 붙인다.
+private fun String?.toAreaText(): String {
+    if (isNullOrBlank()) return "전용 | 공고문 참고"
+    return if (contains("전용")) this else "전용 | $this"
+}
+
+private val KNOWN_STATUS_LABELS = setOf("모집중", "예정", "마감임박", "마감")
+
+// title에 생성 시점의 상태 텍스트("... · 모집중" 등)가 그대로 박혀 내려와 실시간 상태를 나타내는
+// status/statusDisplayText(하단 뱃지)와 값이 어긋나는 경우가 있음. 상태 표시는 뱃지 하나로 통일하기 위해
+// 제목에 섞여 들어온 상태 접미사는 표시 전에 제거한다.
+private fun String.stripEmbeddedStatusSuffix(): String {
+    val separatorIndex = lastIndexOf(" · ")
+    if (separatorIndex == -1) return this
+    val suffix = substring(separatorIndex + 3).trim()
+    return if (suffix in KNOWN_STATUS_LABELS) substring(0, separatorIndex).trimEnd() else this
+}
+
 private fun String?.toDisplayDate(): String {
     if (this == null) return "공고문 참고"
     return runCatching { Instant.parse(this).atZone(DISPLAY_ZONE).format(DISPLAY_DATE_FORMATTER) }
@@ -148,7 +167,7 @@ private fun NoticeCardPreview() {
     NoticeCard(
         notice = NoticeDto(
             noticeId = 1,
-            title = "강동구 청년안심주택 추가모집",
+            title = "강동구 청년안심주택 추가모집 · 모집중",
             announcementNo = "2026-강동-003",
             region = "서울",
             district = "강동구",
@@ -157,8 +176,8 @@ private fun NoticeCardPreview() {
             depositMax = 48000000,
             monthlyRentMin = 280000,
             monthlyRentMax = 410000,
-            status = "RECRUITING",
-            statusDisplayText = "모집중",
+            status = "CLOSING_SOON",
+            statusDisplayText = "마감임박",
             isAdditionalRecruitment = true,
             applicationStartAt = "2026-07-01T10:00:00+09:00",
             applicationEndAt = "2026-07-10T18:00:00+09:00",
