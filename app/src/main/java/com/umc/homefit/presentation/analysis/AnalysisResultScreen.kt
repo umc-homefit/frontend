@@ -1,6 +1,7 @@
 ﻿package com.umc.homefit.presentation.analysis
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -73,7 +74,6 @@ fun AnalysisResultScreen(
     modifier: Modifier = Modifier,
     fromRecord: Boolean = false
 ) {
-    var isSaved by remember { mutableStateOf(false) }
     var isSavingImage by remember { mutableStateOf(false) }
     var snackbarMessage by remember { mutableStateOf<String?>(null) }
     var isSnackbarError by remember { mutableStateOf(false) }
@@ -112,6 +112,20 @@ fun AnalysisResultScreen(
         }
     }
 
+    fun onShareClick() {
+        val data = (uiState as? AnalysisResultScreenUiState.Success)?.data ?: return
+        val shareText = buildString {
+            append("[HomeFit] 입주 분석 결과\n")
+            append("입주 가능성: ${data.probabilityGrade} (${data.score}점)\n")
+            append("예상 보증금 ${data.expectedDeposit} / 월세 ${data.expectedMonthlyRent}")
+        }
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, shareText)
+        }
+        context.startActivity(Intent.createChooser(intent, null))
+    }
+
     fun onSaveClick() {
         if (isSavingImage) return
 
@@ -136,16 +150,9 @@ fun AnalysisResultScreen(
                 onBackClick = onBack,
                 actions = listOf(
                     TopBarAction(
-                        icon = painterResource(
-                            id = if (isSaved) R.drawable.ic_top_save_filled else R.drawable.ic_top_save
-                        ),
-                        contentDescription = "찜",
-                        onClick = { isSaved = !isSaved },
-                    ),
-                    TopBarAction(
                         icon = painterResource(id = R.drawable.ic_top_share),
                         contentDescription = "공유",
-                        onClick = { /* 공유 기능 */ }
+                        onClick = ::onShareClick
                     )
                 ),
                 showDivider = true
