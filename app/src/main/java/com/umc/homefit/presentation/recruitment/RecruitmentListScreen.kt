@@ -80,6 +80,7 @@ fun RecruitmentListScreenRoute(
         onNavigateToFilter = onNavigateToFilter,
         onNavigateToSearch = onNavigateToSearch,
         onToggleBookmark = viewModel::toggleBookmark,
+        onStatusFilterChanged = viewModel::onStatusFilterChanged,
         modifier = modifier,
         initialSearchQuery = initialSearchQuery
     )
@@ -101,6 +102,7 @@ fun RecruitmentListScreen(
     onNavigateToFilter: () -> Unit,
     onNavigateToSearch: () -> Unit,
     onToggleBookmark: (Long) -> Unit,
+    onStatusFilterChanged: (String?) -> Unit = {},
     modifier: Modifier = Modifier,
     initialSearchQuery: String = ""
 
@@ -201,7 +203,10 @@ fun RecruitmentListScreen(
                     StatusFilterChip(
                         label = option.label,
                         selected = selectedStatus == option.status,
-                        onClick = { selectedStatus = option.status }
+                        onClick = {
+                            selectedStatus = option.status
+                            onStatusFilterChanged(option.status)
+                        }
                     )
                 }
             }
@@ -241,16 +246,12 @@ fun RecruitmentListScreen(
             }
 
             is RecruitmentListScreenUiState.Success -> {
-                val filteredRecruitments = uiState.recruitments.filter { recruitment ->
-                    (selectedStatus == null || recruitment.status == selectedStatus) &&
-                        (searchQuery.isBlank() || recruitment.title.contains(searchQuery, ignoreCase = true))
-                }
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(filteredRecruitments, key = { it.noticeId }) { recruitment ->
+                    items(uiState.recruitments, key = { it.noticeId }) { recruitment ->
                         NoticeCard(
                             notice = recruitment,
                             onClick = { onNavigateToDetail(recruitment.noticeId.toString()) },
@@ -345,6 +346,7 @@ fun RecruitmentListScreenPreview() {
         onNavigateToFilter = {},
         onNavigateToSearch = {},
         onToggleBookmark = {},
+        onStatusFilterChanged = {},
         initialSearchQuery = "청년"
     )
 }

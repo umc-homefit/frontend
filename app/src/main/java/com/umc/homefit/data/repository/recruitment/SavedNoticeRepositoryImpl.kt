@@ -1,6 +1,7 @@
 package com.umc.homefit.data.repository.recruitment
 
 import com.umc.homefit.data.api.recruitment.NoticeApiService
+import com.umc.homefit.data.dto.recruitment.SaveNoticeResultResponse
 import com.umc.homefit.data.dto.recruitment.SavedNoticeListResponse
 import com.umc.homefit.data.dto.recruitment.UnsaveNoticeResultResponse
 import com.umc.homefit.data.remote.NetworkResult
@@ -14,6 +15,10 @@ class SavedNoticeRepositoryImpl @Inject constructor(
 
     override suspend fun getSavedNotices(sort: String, page: Int, size: Int): NetworkResult<SavedNoticeListResponse> {
         return safeApiCall { noticeApiService.getSavedNotices(sort, page, size) }
+    }
+
+    override suspend fun saveNotice(noticeId: Long): NetworkResult<SaveNoticeResultResponse> {
+        return safeApiCall { noticeApiService.saveNotice(noticeId) }
     }
 
     override suspend fun unsaveNotice(noticeId: Long): NetworkResult<UnsaveNoticeResultResponse> {
