@@ -58,10 +58,10 @@ class HomeScreenViewModel @Inject constructor(
                             page = FIRST_PAGE,
                             size = remainingCount
                         )
-                    ) {
-                        is NetworkResult.Error -> {
-                            _uiState.value = HomeScreenUiState.Error(recruitingResult.message)
-                        }
+                        ) {
+                            is NetworkResult.Error -> {
+                                updateSuccess(closingSoonNotices)
+                            }
                         is NetworkResult.Success -> {
                             updateSuccess(
                                 notices = (closingSoonNotices + recruitingResult.data.notices)
