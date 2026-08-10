@@ -1,5 +1,7 @@
 package com.umc.homefit.presentation.auth
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,10 +20,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -29,6 +35,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.width
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.kakao.sdk.user.UserApiClient
+import com.umc.homefit.BuildConfig
 import com.umc.homefit.R
 
 private val KakaoYellow = Color(0xFFFEE500)
@@ -40,23 +53,67 @@ fun LoginScreenRoute(
     onNavigateToHome: () -> Unit,
     onNavigateToSignUp: () -> Unit,
     onNavigateToLoginFlow: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: LoginScreenViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LoginScreen(
+        uiState = uiState,
         onNavigateToHome = onNavigateToHome,
         onNavigateToSignUp = onNavigateToSignUp,
         onNavigateToLoginFlow = onNavigateToLoginFlow,
+        onSocialLogin = viewModel::socialLogin,
         modifier = modifier
     )
 }
 
 @Composable
 fun LoginScreen(
+    uiState: LoginScreenUiState,
     onNavigateToHome: () -> Unit,
     onNavigateToSignUp: () -> Unit,
     onNavigateToLoginFlow: () -> Unit,
+    onSocialLogin: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val isLoading = uiState is LoginScreenUiState.Loading
+
+    LaunchedEffect(uiState) {
+        if (uiState is LoginScreenUiState.Success) {
+            onNavigateToHome()
+        }
+    }
+
+    val googleSignInClient = remember {
+        val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(BuildConfig.GOOGLE_CLIENT_ID)
+            .requestEmail()
+            .build()
+        GoogleSignIn.getClient(context, options)
+    }
+
+    val googleLoginLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            val idToken = account.idToken
+            if (idToken != null) {
+                onSocialLogin("GOOGLE", idToken)
+            }
+        } catch (e: ApiException) {
+            android.util.Log.e("GoogleLogin", "구글 로그인 실패: statusCode=${e.statusCode}", e)
+        }
+    }
+
+    val kakaoLoginCallback: (com.kakao.sdk.auth.model.OAuthToken?, Throwable?) -> Unit = { token, _ ->
+        if (token != null) {
+            onSocialLogin("KAKAO", token.accessToken)
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -82,7 +139,14 @@ fun LoginScreen(
 
         // 카카오로 로그인
         Button(
-            onClick = onNavigateToHome,
+            onClick = {
+                if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
+                    UserApiClient.instance.loginWithKakaoTalk(context, callback = kakaoLoginCallback)
+                } else {
+                    UserApiClient.instance.loginWithKakaoAccount(context, callback = kakaoLoginCallback)
+                }
+            },
+            enabled = !isLoading,
             modifier = Modifier.fillMaxWidth().height(52.dp),
             shape = RoundedCornerShape(6.dp),
             colors = ButtonDefaults.buttonColors(
@@ -104,7 +168,8 @@ fun LoginScreen(
 
         // Google로 로그인
         OutlinedButton(
-            onClick = onNavigateToHome,
+            onClick = { googleLoginLauncher.launch(googleSignInClient.signInIntent) },
+            enabled = !isLoading,
             modifier = Modifier.fillMaxWidth().height(52.dp),
             shape = RoundedCornerShape(6.dp),
             border = BorderStroke(1.dp, GoogleBorderColor),
@@ -166,8 +231,10 @@ fun LoginScreen(
 @Composable
 fun LoginScreenPreview() {
     LoginScreen(
+        uiState = LoginScreenUiState.Idle,
         onNavigateToHome = {},
         onNavigateToSignUp = {},
-        onNavigateToLoginFlow = {}
+        onNavigateToLoginFlow = {},
+        onSocialLogin = { _, _ -> }
     )
 }
