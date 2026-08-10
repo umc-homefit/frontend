@@ -6,11 +6,11 @@ import com.umc.homefit.data.dto.recruitment.NoticeDto
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.home.HomeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(

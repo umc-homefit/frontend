@@ -11,11 +11,7 @@ internal fun LoanProductResponse.toFinanceRecommendedProductUiModel(): FinanceRe
         productId = productId,
         title = productName,
         providerLogoUrl = providerLogoUrl,
-        productType = when (providerType) {
-            FinanceProviderType.POLICY -> "정부지원"
-            FinanceProviderType.BANK -> "은행"
-            FinanceProviderType.UNKNOWN -> "기타"
-        },
+        productType = providerType.toLabel(),
         interestRate = "금리 | $rateRange",
         amountDescription = maxLimitAmount?.let { "대출한도 | 최대 ${it.toKoreanAmount()}" }
             ?: "대출한도 | 상품별 상이",
@@ -28,6 +24,12 @@ internal fun LoanProductResponse.toFinanceRecommendedProductUiModel(): FinanceRe
             if (incomeTaxDeductible == true) add("소득공제")
         }.distinct()
     )
+
+internal fun FinanceProviderType.toLabel(): String = when (this) {
+    FinanceProviderType.POLICY -> "정부지원"
+    FinanceProviderType.BANK -> "은행상품"
+    FinanceProviderType.UNKNOWN -> "기타"
+}
 
 private fun FinanceProductCategory.toCategoryLabel(): String = when (this) {
     FinanceProductCategory.MORTGAGE_LOAN -> "주택담보대출"

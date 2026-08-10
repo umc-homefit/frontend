@@ -1,7 +1,5 @@
 ﻿package com.umc.homefit.presentation.finance
 
-import androidx.annotation.DrawableRes
-
 sealed interface ProductDetailScreenUiState {
 
     data object Loading : ProductDetailScreenUiState
@@ -21,19 +19,21 @@ data class ProductDetailData(
     val providerType: String,
     val productCategory: String,
     val providerName: String,
-
-    @DrawableRes
-    val iconRes: Int,
-
+    val providerLogoUrl: String?,
     val rateRange: String,
     val maxIncome: Long?,
     val firstTimeBuyerOnly: Boolean,
+    val incomeTaxDeductible: Boolean,
+    val minAge: Int?,
+    val maxAge: Int?,
+    val requireNoHouse: Boolean,
     val maxLimitAmount: Long?,
     val ltvRatio: Int?,
     val dtiRatio: Int?,
     val loanTermMinYears: Int?,
     val loanTermMaxYears: Int?,
     val preferentialRateDiscount: Double?,
+    val firstTimeBuyerRateDiscount: Double?,
     val minMonthlyDeposit: Long?,
     val maxMonthlyDeposit: Long?,
     val officialUrl: String?,
