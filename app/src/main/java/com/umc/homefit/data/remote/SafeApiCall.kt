@@ -3,6 +3,7 @@
 import com.umc.homefit.data.dto.common.BaseResponse
 import com.umc.homefit.data.dto.common.ErrorResponse
 import com.umc.homefit.util.error.ErrorCode
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import retrofit2.HttpException
 import java.io.IOException
@@ -31,5 +32,8 @@ suspend fun <T> safeApiCall(apiCall: suspend () -> BaseResponse<T>): NetworkResu
         )
     } catch (e: IOException) {
         NetworkResult.Error(ErrorCode.UNKNOWN, "네트워크 연결을 확인해주세요")
+    } catch (e: SerializationException) {
+        // 응답 형식이 DTO와 어긋날 때(필드 누락 등) 크래시 대신 에러로 처리
+        NetworkResult.Error(ErrorCode.UNKNOWN, "응답을 처리하는 중 오류가 발생했습니다")
     }
 }
