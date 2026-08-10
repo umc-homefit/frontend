@@ -93,7 +93,7 @@ private fun LoanProductDetailResponse.toProductDetailData(
         productCategory = productCategory?.name ?: "UNKNOWN",
         providerName = providerName,
         providerLogoUrl = providerLogoUrl,
-        rateRange = rateRange ?: "기타",
+        rateRange = rateRange ?: "정보 없음",
         maxIncome = maxIncome,
         firstTimeBuyerOnly = firstTimeBuyerOnly == true,
         incomeTaxDeductible = incomeTaxDeductible == true,

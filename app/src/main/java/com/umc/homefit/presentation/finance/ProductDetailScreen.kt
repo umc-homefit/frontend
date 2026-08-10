@@ -808,7 +808,7 @@ private fun formatWon(
 }
 
 private fun String.toAnnualRateText(): String =
-    if (startsWith("연 ")) this else "연 $this"
+    if (this == "정보 없음" || startsWith("연 ")) this else "연 $this"
 
 private fun formatDecimal(
     value: Double
