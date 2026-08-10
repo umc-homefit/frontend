@@ -1,11 +1,13 @@
 package com.umc.homefit.presentation.analysis
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.umc.homefit.data.dto.analysis.ConditionProfileResponse
 import com.umc.homefit.data.dto.analysis.HousingOwnershipStatus
 import com.umc.homefit.data.dto.analysis.UpdateConditionProfileRequest
 import com.umc.homefit.data.remote.NetworkResult
+import com.umc.homefit.domain.repository.analysis.AnalysisRepository
 import com.umc.homefit.domain.repository.analysis.ConditionProfileRepository
 import com.umc.homefit.util.calculateIsHomeless
 import com.umc.homefit.util.error.ErrorCode
@@ -22,8 +24,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FinancialInfoScreenViewModel @Inject constructor(
-    private val conditionProfileRepository: ConditionProfileRepository
+    private val conditionProfileRepository: ConditionProfileRepository,
+    private val analysisRepository: AnalysisRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    // 공고 상세에서 "분석 요청하기"로 진입한 경우에만 채워짐. Finance 탭 등에서 프로필만 입력하러 온 경우 둘 다 null.
+    private val noticeId: Long? = savedStateHandle.get<Long>("noticeId")
+    private val unitId: Long? = savedStateHandle.get<Long>("unitId")
 
     private val _uiState = MutableStateFlow<FinancialInfoScreenUiState>(
         FinancialInfoScreenUiState.Loading
@@ -121,11 +129,18 @@ class FinancialInfoScreenViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = conditionProfileRepository.updateConditionProfile(request)) {
                 is NetworkResult.Success -> {
-                    _uiState.value = FinancialInfoScreenUiState.Success(
-                        draft = draft,
-                        isSubmitting = false,
-                        isSubmitted = true
-                    )
+                    val id = noticeId
+                    val unit = unitId
+                    if (id != null && unit != null) {
+                        requestAnalysisAndComplete(draft, id, unit)
+                    } else {
+                        // 공고와 무관하게 재무 프로필만 저장하는 흐름: 분석을 만들지 않고 완료 처리
+                        _uiState.value = FinancialInfoScreenUiState.Success(
+                            draft = draft,
+                            isSubmitting = false,
+                            isSubmitted = true
+                        )
+                    }
                 }
                 is NetworkResult.Error -> {
                     _uiState.value = FinancialInfoScreenUiState.Error(
@@ -133,6 +148,26 @@ class FinancialInfoScreenViewModel @Inject constructor(
                         draft = draft
                     )
                 }
+            }
+        }
+    }
+
+    private suspend fun requestAnalysisAndComplete(draft: ConditionProfileDraft, noticeId: Long, unitId: Long) {
+        when (val result = analysisRepository.requestEligibilityAnalysis(noticeId, unitId)) {
+            is NetworkResult.Success -> {
+                _uiState.value = FinancialInfoScreenUiState.Success(
+                    draft = draft,
+                    isSubmitting = false,
+                    isSubmitted = true,
+                    analysisId = result.data.analysisId.toString()
+                )
+            }
+            is NetworkResult.Error -> {
+                // 재무 프로필 저장은 이미 성공했으므로 draft는 유지하고 분석 생성 실패만 안내
+                _uiState.value = FinancialInfoScreenUiState.Error(
+                    message = result.message,
+                    draft = draft
+                )
             }
         }
     }

@@ -105,6 +105,7 @@ class RecruitmentDetailScreenViewModel @Inject constructor(
             supplyLocation = address ?: listOfNotNull(region, district).joinToString(" ").ifBlank { FALLBACK_TEXT },
             supplyType = FALLBACK_TEXT,
             unitSummary = units.toUnitSummaryText(),
+            primaryUnitId = units.firstOrNull()?.unitId,
             depositRangeText = formatWonRange(units.mapNotNull { it.depositMin }.minOrNull(), units.mapNotNull { it.depositMax }.maxOrNull()),
             monthlyRentRangeText = formatWonRange(units.mapNotNull { it.monthlyRentMin }.minOrNull(), units.mapNotNull { it.monthlyRentMax }.maxOrNull()),
             moveInDate = FALLBACK_TEXT,

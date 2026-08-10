@@ -21,6 +21,8 @@ data class RecruitmentDetailUiModel(
     val supplyLocation: String,
     val supplyType: String,
     val unitSummary: String,
+    // 입주 분석 요청 시 사용할 유닛 ID. 유닛이 여러 개인 공고는 우선 첫 번째 유닛으로 분석 (유닛 선택 UI는 별도 후속 작업)
+    val primaryUnitId: Long?,
     val depositRangeText: String,
     val monthlyRentRangeText: String,
     val moveInDate: String,

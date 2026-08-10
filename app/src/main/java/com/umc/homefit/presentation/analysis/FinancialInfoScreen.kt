@@ -190,11 +190,20 @@ fun FinancialInfoScreen(
                             }
 
                             FinancialInfoStep.COMPLETE -> {
-                                CompletionStep(
-                                    title = "입주 분석이 완료되었습니다",
-                                    buttonText = "분석 결과 확인하기",
-                                    onButtonClick = { onNavigateToResult("결과ID") }
-                                )
+                                val analysisId = uiState.analysisId
+                                if (analysisId != null) {
+                                    CompletionStep(
+                                        title = "입주 분석이 완료되었습니다",
+                                        buttonText = "분석 결과 확인하기",
+                                        onButtonClick = { onNavigateToResult(analysisId) }
+                                    )
+                                } else {
+                                    CompletionStep(
+                                        title = "재무 정보가 저장되었습니다",
+                                        buttonText = "확인",
+                                        onButtonClick = onBack
+                                    )
+                                }
                             }
                         }
                     }
