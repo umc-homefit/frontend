@@ -209,9 +209,24 @@ private fun RecordCard(
                     color = Color(0xFF161616)
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                Text(text = record.complexInfo, fontSize = 12.sp, color = Color(0xFF919AA4))
-                Text(text = record.areaInfo, fontSize = 12.sp, color = Color(0xFF919AA4))
-                Text(text = record.applyPeriod, fontSize = 12.sp, color = Color(0xFF919AA4))
+                Text(
+                    text = record.complexInfo,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF919AA4)
+                )
+                Text(
+                    text = record.areaInfo,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF919AA4)
+                )
+                Text(
+                    text = record.applyPeriod,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF919AA4)
+                )
                 Spacer(modifier = Modifier.height(9.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     StatusBadge(label = record.statusLabel)
@@ -244,7 +259,7 @@ private fun StatusBadge(label: String, modifier: Modifier = Modifier) {
         modifier = modifier
             .clip(RoundedCornerShape(200.dp))
             .background(bgColor)
-            .padding(horizontal = 10.dp, vertical = 5.dp)
+            .padding(horizontal = 12.dp, vertical = 2.dp)
     ) {
         Text(text = label, fontSize = 12.sp, color = textColor, fontWeight = FontWeight.Medium)
     }
@@ -256,7 +271,7 @@ private fun CompetitionBadge(rate: String, modifier: Modifier = Modifier) {
         modifier = modifier
             .clip(RoundedCornerShape(200.dp))
             .background(Color(0xFFF0F4F9))
-            .padding(horizontal = 10.dp, vertical = 5.dp)
+            .padding(horizontal = 12.dp, vertical = 2.dp)
     ) {
         Text(
             text = "🔥경쟁률 $rate",

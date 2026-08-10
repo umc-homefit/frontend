@@ -32,8 +32,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -46,9 +46,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.umc.homefit.data.dto.recruitment.RecruitmentDto
-import com.umc.homefit.data.dto.recruitment.RecruitmentStatus
-import com.umc.homefit.presentation.recruitment.component.RecruitmentCard
+import com.umc.homefit.data.dto.recruitment.NoticeDto
+import com.umc.homefit.presentation.recruitment.component.NoticeCard
 import com.umc.homefit.presentation.theme.RecruitmentAccent
 import com.umc.homefit.presentation.theme.RecruitmentBorder
 import com.umc.homefit.presentation.theme.RecruitmentTextGray
@@ -66,7 +65,7 @@ fun RecruitmentListScreenRoute(
     modifier: Modifier = Modifier,
     initialSearchQuery: String = ""
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(filterResult) {
         filterResult?.let { result ->
@@ -81,18 +80,19 @@ fun RecruitmentListScreenRoute(
         onNavigateToFilter = onNavigateToFilter,
         onNavigateToSearch = onNavigateToSearch,
         onToggleBookmark = viewModel::toggleBookmark,
+        onStatusFilterChanged = viewModel::onStatusFilterChanged,
         modifier = modifier,
         initialSearchQuery = initialSearchQuery
     )
 }
 
-private data class StatusFilterOption(val label: String, val status: RecruitmentStatus?)
+private data class StatusFilterOption(val label: String, val status: String?)
 
 private val statusFilterOptions = listOf(
     StatusFilterOption("전체", null),
-    StatusFilterOption("모집중", RecruitmentStatus.RECRUITING),
-    StatusFilterOption("예정", RecruitmentStatus.SCHEDULED),
-    StatusFilterOption("마감임박", RecruitmentStatus.CLOSING_SOON)
+    StatusFilterOption("모집중", "RECRUITING"),
+    StatusFilterOption("예정", "SCHEDULED"),
+    StatusFilterOption("마감임박", "CLOSING_SOON")
 )
 
 @Composable
@@ -101,7 +101,8 @@ fun RecruitmentListScreen(
     onNavigateToDetail: (String) -> Unit,
     onNavigateToFilter: () -> Unit,
     onNavigateToSearch: () -> Unit,
-    onToggleBookmark: (String) -> Unit,
+    onToggleBookmark: (Long) -> Unit,
+    onStatusFilterChanged: (String?) -> Unit = {},
     modifier: Modifier = Modifier,
     initialSearchQuery: String = ""
 
@@ -109,7 +110,7 @@ fun RecruitmentListScreen(
     var searchQuery by rememberSaveable(initialSearchQuery) {
         mutableStateOf(initialSearchQuery)
     }
-    var selectedStatus by remember { mutableStateOf<RecruitmentStatus?>(null) }
+    var selectedStatus by remember { mutableStateOf<String?>(null) }
 
     Column(modifier = modifier.fillMaxSize()) {
         Row(
@@ -202,7 +203,10 @@ fun RecruitmentListScreen(
                     StatusFilterChip(
                         label = option.label,
                         selected = selectedStatus == option.status,
-                        onClick = { selectedStatus = option.status }
+                        onClick = {
+                            selectedStatus = option.status
+                            onStatusFilterChanged(option.status)
+                        }
                     )
                 }
             }
@@ -242,20 +246,16 @@ fun RecruitmentListScreen(
             }
 
             is RecruitmentListScreenUiState.Success -> {
-                val filteredRecruitments = uiState.recruitments.filter { recruitment ->
-                    (selectedStatus == null || recruitment.status == selectedStatus) &&
-                        (searchQuery.isBlank() || recruitment.title.contains(searchQuery, ignoreCase = true))
-                }
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(filteredRecruitments, key = { it.id }) { recruitment ->
-                        RecruitmentCard(
-                            recruitment = recruitment,
-                            onClick = { onNavigateToDetail(recruitment.id) },
-                            onToggleBookmark = { onToggleBookmark(recruitment.id) }
+                    items(uiState.recruitments, key = { it.noticeId }) { recruitment ->
+                        NoticeCard(
+                            notice = recruitment,
+                            onClick = { onNavigateToDetail(recruitment.noticeId.toString()) },
+                            onToggleBookmark = { onToggleBookmark(recruitment.noticeId) }
                         )
                     }
                 }
@@ -300,43 +300,45 @@ fun RecruitmentListScreenPreview() {
     RecruitmentListScreen(
         uiState = RecruitmentListScreenUiState.Success(
             recruitments = listOf(
-                RecruitmentDto(
-                    id = "1",
+                NoticeDto(
+                    noticeId = 1,
                     title = "2026년 행복주택 입주자 모집공고",
-                    company = "한국토지주택공사",
-                    location = "서울특별시 강남구",
-                    rentType = "월세",
+                    region = "서울",
+                    district = "강남구",
+                    unitSummary = "전용 39.87㎡",
                     depositMin = 30000000,
                     depositMax = 30000000,
                     monthlyRentMin = 350000,
                     monthlyRentMax = 350000,
-                    announcementDate = "2026-07-13",
-                    announcementNumber = "2026-강남-001",
-                    area = 39.87,
-                    applicationStartDate = "2026-07-14",
-                    applicationEndDate = "2026-07-18",
-                    status = RecruitmentStatus.RECRUITING,
-                    competitionRate = "12.3:1",
-                    isBookmarked = true
+                    status = "RECRUITING",
+                    statusDisplayText = "모집중",
+                    isAdditionalRecruitment = false,
+                    applicationStartAt = "2026-07-14T10:00:00+09:00",
+                    applicationEndAt = "2026-07-18T18:00:00+09:00",
+                    dDayText = "D-4",
+                    views = 100,
+                    interestedCount = 12,
+                    isSaved = true
                 ),
-                RecruitmentDto(
-                    id = "2",
+                NoticeDto(
+                    noticeId = 2,
                     title = "청년 매입임대주택 입주자 모집공고",
-                    company = "서울주택도시공사",
-                    location = "서울특별시 마포구",
-                    rentType = "전세",
+                    region = "서울",
+                    district = "마포구",
+                    unitSummary = "전용 29.5㎡",
                     depositMin = 80000000,
                     depositMax = 80000000,
                     monthlyRentMin = 0,
                     monthlyRentMax = 0,
-                    announcementDate = "2026-07-10",
-                    announcementNumber = "2026-마포-014",
-                    area = 29.5,
-                    applicationStartDate = "2026-07-20",
-                    applicationEndDate = "2026-07-25",
-                    status = RecruitmentStatus.SCHEDULED,
-                    competitionRate = "-",
-                    isBookmarked = false
+                    status = "SCHEDULED",
+                    statusDisplayText = "예정",
+                    isAdditionalRecruitment = false,
+                    applicationStartAt = "2026-07-20T10:00:00+09:00",
+                    applicationEndAt = "2026-07-25T18:00:00+09:00",
+                    dDayText = null,
+                    views = 40,
+                    interestedCount = 3,
+                    isSaved = false
                 )
             )
         ),
@@ -344,6 +346,7 @@ fun RecruitmentListScreenPreview() {
         onNavigateToFilter = {},
         onNavigateToSearch = {},
         onToggleBookmark = {},
+        onStatusFilterChanged = {},
         initialSearchQuery = "청년"
     )
 }
