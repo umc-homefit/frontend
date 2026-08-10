@@ -1,7 +1,6 @@
 package com.umc.homefit.presentation.recruitment
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -61,17 +60,21 @@ import com.umc.homefit.presentation.component.PreparingStateView
 import com.umc.homefit.presentation.component.TopBarAction
 import com.umc.homefit.presentation.theme.AnalysisButtonGradient
 import com.umc.homefit.presentation.theme.BackgroundLight
+import com.umc.homefit.presentation.theme.Black
+import com.umc.homefit.presentation.theme.BrightGray
+import com.umc.homefit.presentation.theme.DarkGray
+import com.umc.homefit.presentation.theme.Gray
+import com.umc.homefit.presentation.theme.LightBlue
+import com.umc.homefit.presentation.theme.LightGray
+import com.umc.homefit.presentation.theme.LightRed
 import com.umc.homefit.presentation.theme.RecruitmentAccent
 import com.umc.homefit.presentation.theme.RecruitmentBorder
-import com.umc.homefit.presentation.theme.RecruitmentTextGray
+import com.umc.homefit.presentation.theme.Red
 import com.umc.homefit.presentation.theme.SearchFieldBackground
-import com.umc.homefit.presentation.theme.StatusClosingSoonBackground
 import com.umc.homefit.presentation.theme.StatusClosingSoonText
-import com.umc.homefit.presentation.theme.StatusRecruitingBackground
-import com.umc.homefit.presentation.theme.StatusRecruitingText
-import com.umc.homefit.presentation.theme.StatusScheduledBackground
-import com.umc.homefit.presentation.theme.StatusScheduledText
+import com.umc.homefit.presentation.theme.Sub
 import com.umc.homefit.presentation.theme.TextBlack
+import com.umc.homefit.presentation.theme.White
 
 @Composable
 fun RecruitmentDetailScreenRoute(
@@ -186,6 +189,7 @@ private fun RecruitmentDetailContent(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     InfoCard(rows = supplyInfoRows(recruitment))
+
                     PhotoGrid(
                         photoUrls = recruitment.photoUrls,
                         onPhotoClick = { index ->
@@ -194,11 +198,15 @@ private fun RecruitmentDetailContent(
                         }
                     )
 
+                    Spacer(modifier = Modifier.height(10.dp))
+
                     Column {
                         SectionTitle("자격 조건")
                         Spacer(modifier = Modifier.height(12.dp))
                         InfoCard(rows = qualificationRows(recruitment))
                     }
+
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     Column {
                         SectionTitle("신청 기간")
@@ -206,21 +214,27 @@ private fun RecruitmentDetailContent(
                         InfoCard(rows = applicationPeriodRows(recruitment))
                     }
 
-                    SectionTitle("첨부 파일 및 안내 자료")
-                    recruitment.attachments.forEach { attachment ->
-                        AttachmentItem(
-                            fileName = attachment.fileName,
-                            registeredDate = attachment.registeredDateText
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        SectionTitle("첨부 파일 및 안내 자료")
+
+                        recruitment.attachments.forEach { attachment ->
+                            AttachmentItem(
+                                fileName = attachment.fileName,
+                                registeredDate = attachment.registeredDateText
+                            )
+                        }
+
+                        Text(
+                            text = "*경쟁률 정보를 함께 확인하면 청약 전략 수립에 도움이 됩니다.",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = StatusClosingSoonText.copy(alpha = 0.5f)
                         )
                     }
-
-                    Text(
-                        text = "*경쟁률 정보를 함께 확인하면 청약 전략 수립에 도움이 됩니다.",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = StatusClosingSoonText.copy(alpha = 0.5f)
-                    )
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }
@@ -244,7 +258,6 @@ private fun RecruitmentDetailContent(
 
 @Composable
 private fun DetailTitleSection(recruitment: RecruitmentDetailUiModel) {
-    // 위쪽 테두리는 그리지 않음: AppTopBar의 구분선과 색이 같아(SearchFieldBackground) 겹치면 선이 두꺼워 보임
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -263,7 +276,7 @@ private fun DetailTitleSection(recruitment: RecruitmentDetailUiModel) {
             text = recruitment.title,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = TextBlack
+            color = Black
         )
         Spacer(modifier = Modifier.height(12.dp))
         DetailStatusBadge(status = recruitment.status, label = recruitment.statusDisplayText)
@@ -273,10 +286,10 @@ private fun DetailTitleSection(recruitment: RecruitmentDetailUiModel) {
 @Composable
 private fun DetailStatusBadge(status: String, label: String) {
     val (background, text) = when (status) {
-        "RECRUITING" -> StatusRecruitingBackground to StatusRecruitingText
-        "SCHEDULED" -> StatusScheduledBackground to StatusScheduledText
-        "CLOSING_SOON" -> StatusClosingSoonBackground to StatusClosingSoonText
-        else -> StatusScheduledBackground to StatusScheduledText
+        "RECRUITING" -> LightBlue to Sub
+        "SCHEDULED" -> BrightGray to DarkGray
+        "CLOSING_SOON" -> LightRed to Red
+        else -> BrightGray to DarkGray
     }
     Box(
         modifier = Modifier
@@ -316,8 +329,8 @@ private fun InfoCard(rows: List<Pair<String, String>>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(BackgroundLight, RoundedCornerShape(4.dp))
-            .border(BorderStroke(1.dp, RecruitmentBorder), RoundedCornerShape(4.dp))
+            .background(White, RoundedCornerShape(4.dp))
+            .border(BorderStroke(1.dp, LightGray), RoundedCornerShape(4.dp))
             .padding(vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
@@ -329,14 +342,14 @@ private fun InfoCard(rows: List<Pair<String, String>>) {
                     text = label,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
-                    color = StatusScheduledText
+                    color = DarkGray
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = value,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
-                    color = RecruitmentTextGray,
+                    color = Gray,
                     textAlign = TextAlign.End
                 )
             }
@@ -346,7 +359,7 @@ private fun InfoCard(rows: List<Pair<String, String>>) {
 
 @Composable
 private fun SectionTitle(title: String) {
-    Text(text = title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextBlack)
+    Text(text = title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Black)
 }
 
 @Composable
@@ -354,12 +367,13 @@ private fun PhotoGrid(photoUrls: List<String>, onPhotoClick: (Int) -> Unit) {
     val displayUrls = photoUrls.takeIf { it.size >= 4 } ?: emptyList()
 
     if (displayUrls.isEmpty()) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_recruitment_no_photo),
-            contentDescription = null,
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(192.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(BrightGray)
+                .border(BorderStroke(1.dp, RecruitmentBorder), RoundedCornerShape(4.dp))
         )
         return
     }
@@ -417,7 +431,7 @@ private fun PhotoCell(url: String?, onClick: () -> Unit, modifier: Modifier = Mo
             modifier = modifier.clickable(onClick = onClick)
         )
     } else {
-        Box(modifier = modifier.background(SearchFieldBackground))
+        Box(modifier = modifier.background(BrightGray))
     }
 }
 
@@ -492,7 +506,7 @@ private fun AttachmentItem(fileName: String, registeredDate: String) {
             .fillMaxWidth()
             .height(66.dp)
             .background(BackgroundLight, RoundedCornerShape(4.dp))
-            .border(BorderStroke(1.dp, RecruitmentBorder), RoundedCornerShape(4.dp))
+            .border(BorderStroke(1.dp, LightGray), RoundedCornerShape(4.dp))
     ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_recruitment_pdf),
@@ -509,8 +523,8 @@ private fun AttachmentItem(fileName: String, registeredDate: String) {
                 .padding(start = 52.dp),
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            Text(text = fileName, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = RecruitmentTextGray)
-            Text(text = registeredDate, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = RecruitmentBorder)
+            Text(text = fileName, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Gray)
+            Text(text = registeredDate, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = LightGray)
         }
     }
 }
