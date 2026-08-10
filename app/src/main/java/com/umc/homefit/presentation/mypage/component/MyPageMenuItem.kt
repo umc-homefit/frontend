@@ -57,7 +57,7 @@ fun MyPageMenuItem(
             painter = painterResource(id = R.drawable.ic_mypage_arrow),
             contentDescription = null,
             tint = ArrowIconColor,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(13.dp)
         )
     }
 }

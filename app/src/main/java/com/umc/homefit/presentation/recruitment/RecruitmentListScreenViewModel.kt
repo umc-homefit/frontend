@@ -109,7 +109,6 @@ class RecruitmentListScreenViewModel @Inject constructor(
                     _uiState.value = RecruitmentListScreenUiState.Success(recruitments)
                 }
                 is NetworkResult.Error -> {
-                    // 조용한 새로고침(showLoading = false)이 실패하면 기존 목록을 그대로 둔다.
                     if (showLoading) {
                         _uiState.value = RecruitmentListScreenUiState.Error(result.message)
                     }

@@ -78,7 +78,6 @@ fun RecruitmentListScreenRoute(
         }
     }
 
-    // 상세 화면 등에서 찜 상태를 바꾸고 돌아왔을 때 목록에 반영되도록 화면이 다시 보일 때마다 조용히 재조회
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -117,11 +116,10 @@ fun RecruitmentListScreen(
     onNavigateToDetail: (String) -> Unit,
     onNavigateToFilter: () -> Unit,
     onNavigateToSearch: () -> Unit,
+    modifier: Modifier = Modifier,
     onToggleBookmark: (Long) -> Unit,
     onStatusFilterChanged: (String?) -> Unit = {},
-    modifier: Modifier = Modifier,
-    initialSearchQuery: String = ""
-
+    initialSearchQuery: String = "",
 ) {
     var searchQuery by rememberSaveable(initialSearchQuery) {
         mutableStateOf(initialSearchQuery)
