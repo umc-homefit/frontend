@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.umc.homefit.data.dto.recruitment.NoticeDto
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.home.HomeRepository
+import com.umc.homefit.domain.repository.recruitment.SavedNoticeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
-    private val homeRepository: HomeRepository
+    private val homeRepository: HomeRepository,
+    private val savedNoticeRepository: SavedNoticeRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeScreenUiState>(HomeScreenUiState.Loading)
@@ -77,13 +79,30 @@ class HomeScreenViewModel @Inject constructor(
         val currentState = _uiState.value
         if (currentState !is HomeScreenUiState.Success) return
 
+        val notice = currentState.notices.find { it.noticeId == noticeId } ?: return
+        val nextSaved = !notice.isSaved
+        applySavedState(noticeId, nextSaved)
+
+        viewModelScope.launch {
+            val isSuccess = if (nextSaved) {
+                savedNoticeRepository.saveNotice(noticeId) is NetworkResult.Success
+            } else {
+                savedNoticeRepository.unsaveNotice(noticeId) is NetworkResult.Success
+            }
+
+            if (!isSuccess) {
+                applySavedState(noticeId, notice.isSaved)
+            }
+        }
+    }
+
+    private fun applySavedState(noticeId: Long, isSaved: Boolean) {
+        val currentState = _uiState.value
+        if (currentState !is HomeScreenUiState.Success) return
+
         _uiState.value = currentState.copy(
             notices = currentState.notices.map { notice ->
-                if (notice.noticeId == noticeId) {
-                    notice.copy(isSaved = !notice.isSaved)
-                } else {
-                    notice
-                }
+                if (notice.noticeId == noticeId) notice.copy(isSaved = isSaved) else notice
             }
         )
     }
