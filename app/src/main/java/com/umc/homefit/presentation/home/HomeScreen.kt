@@ -44,11 +44,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.R
+import com.umc.homefit.data.dto.recruitment.NoticeDto
 import com.umc.homefit.presentation.component.TopBarAction
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.umc.homefit.presentation.component.AppScaffold
+import com.umc.homefit.presentation.recruitment.component.NoticeCard
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
@@ -244,9 +246,9 @@ fun HomeScreen(
                     } else {
                         items(
                             items = uiState.notices,
-                            key = HomeNoticeUiModel::noticeId
+                            key = NoticeDto::noticeId
                         ) { notice ->
-                            HomeNoticeCard(
+                            NoticeCard(
                                 notice = notice,
                                 onClick = {
                                     onNavigateToDetail(notice.noticeId.toString())
@@ -501,132 +503,26 @@ private fun HomeMenuItem(
 }
 
 
-@Composable
-private fun HomeNoticeCard(
-    notice: HomeNoticeUiModel,
-    onClick: () -> Unit,
-    onToggleBookmark: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFE1E5EB))
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = notice.title,
-                    modifier = Modifier.weight(1f),
-                    color = Color.Black,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Icon(
-                    imageVector = if (notice.isSaved) {
-                        Icons.Default.Favorite
-                    } else {
-                        Icons.Default.FavoriteBorder
-                    },
-                    contentDescription = if (notice.isSaved) "저장 해제" else "저장",
-                    tint = if (notice.isSaved) Color(0xFFFF5A5F) else Color(0xFFB5BBC4),
-                    modifier = Modifier.clickable(onClick = onToggleBookmark)
-                )
-            }
-
-            Column(
-                modifier = Modifier.padding(top = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = "지역 | ${notice.location}",
-                    color = Color(0xFF707781),
-                    fontSize = 14.sp
-                )
-                Row {
-                    Text(
-                        text = "전용 | ${notice.unitSummary}",
-                        color = Color(0xFF707781),
-                        fontSize = 14.sp
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "보증금 | ${notice.deposit}",
-                        color = Color(0xFF707781),
-                        fontSize = 14.sp
-                    )
-                }
-                Text(
-                    text = "청약접수 ${notice.applicationPeriod}",
-                    color = Color(0xFF707781),
-                    fontSize = 14.sp
-                )
-            }
-
-            Row(
-                modifier = Modifier.padding(top = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                HomeNoticeStatusBadge(notice)
-                notice.dDayText?.let { dDayText ->
-                    Surface(
-                        color = Color(0xFFFFF0E8),
-                        shape = RoundedCornerShape(percent = 50)
-                    ) {
-                        Text(
-                            text = dDayText,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                            color = Color(0xFFFF6B35),
-                            fontSize = 12.sp
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun HomeNoticeStatusBadge(notice: HomeNoticeUiModel) {
-    val (backgroundColor, textColor) = when (notice.status) {
-        HomeNoticeStatus.RECRUITING -> Color(0xFFE9F8EF) to Color(0xFF149B4A)
-        HomeNoticeStatus.SCHEDULED -> Color(0xFFEFF1FF) to Color(0xFF3C45F3)
-        HomeNoticeStatus.CLOSING_SOON -> Color(0xFFFFEDEC) to Color(0xFFE5484D)
-        HomeNoticeStatus.CLOSED -> Color(0xFFF0F2F5) to Color(0xFF707781)
-        HomeNoticeStatus.UNKNOWN -> Color(0xFFF0F2F5) to Color(0xFF707781)
-    }
-
-    Surface(
-        color = backgroundColor,
-        shape = RoundedCornerShape(percent = 50)
-    ) {
-        Text(
-            text = notice.statusDisplayText,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-            color = textColor,
-            fontSize = 12.sp
-        )
-    }
-}
-
 private val sampleNotices = listOf(
-    HomeNoticeUiModel(
+    NoticeDto(
         noticeId = 1,
         title = "강동구 청년안심주택 추가모집",
-        location = "서울 강동구",
+        announcementNo = "2026-강동-003",
+        region = "서울",
+        district = "강동구",
         unitSummary = "전용 24㎡",
-        deposit = "3,200만원 ~ 4,800만원",
-        applicationPeriod = "2026.07.01 ~ 2026.07.10",
-        status = HomeNoticeStatus.CLOSING_SOON,
+        depositMin = 32_000_000,
+        depositMax = 48_000_000,
+        monthlyRentMin = 280_000,
+        monthlyRentMax = 410_000,
+        status = "CLOSING_SOON",
         statusDisplayText = "마감임박",
+        isAdditionalRecruitment = true,
+        applicationStartAt = "2026-07-01T10:00:00Z",
+        applicationEndAt = "2026-07-10T18:00:00Z",
         dDayText = "D-3",
+        views = 120,
+        interestedCount = 32,
         isSaved = false
     )
 )

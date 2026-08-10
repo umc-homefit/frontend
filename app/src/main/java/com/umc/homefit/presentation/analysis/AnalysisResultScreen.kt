@@ -1,6 +1,7 @@
 ﻿package com.umc.homefit.presentation.analysis
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -31,6 +32,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.umc.homefit.R
 import com.umc.homefit.presentation.component.AppTopBar
 import com.umc.homefit.presentation.component.AutoDismissInfoSnackbar
@@ -72,7 +74,6 @@ fun AnalysisResultScreen(
     modifier: Modifier = Modifier,
     fromRecord: Boolean = false
 ) {
-    var isSaved by remember { mutableStateOf(false) }
     var isSavingImage by remember { mutableStateOf(false) }
     var snackbarMessage by remember { mutableStateOf<String?>(null) }
     var isSnackbarError by remember { mutableStateOf(false) }
@@ -111,6 +112,15 @@ fun AnalysisResultScreen(
         }
     }
 
+    fun onShareClick() {
+        val data = (uiState as? AnalysisResultScreenUiState.Success)?.data ?: return
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, data.shareText)
+        }
+        context.startActivity(Intent.createChooser(intent, null))
+    }
+
     fun onSaveClick() {
         if (isSavingImage) return
 
@@ -135,16 +145,9 @@ fun AnalysisResultScreen(
                 onBackClick = onBack,
                 actions = listOf(
                     TopBarAction(
-                        icon = painterResource(
-                            id = if (isSaved) R.drawable.ic_top_save_filled else R.drawable.ic_top_save
-                        ),
-                        contentDescription = "찜",
-                        onClick = { isSaved = !isSaved },
-                    ),
-                    TopBarAction(
                         icon = painterResource(id = R.drawable.ic_top_share),
                         contentDescription = "공유",
-                        onClick = { /* 공유 기능 */ }
+                        onClick = ::onShareClick
                     )
                 ),
                 showDivider = true
@@ -281,7 +284,12 @@ private fun SuccessContent(
     ) {
         // 입주 가능성 카드
         Column {
-            Text("입주 가능성", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                "입주 가능성",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF161616)
+            )
             Spacer(modifier = Modifier.height(17.dp))
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -319,7 +327,7 @@ private fun SuccessContent(
                         tint = Color.Unspecified,
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .offset(x = (-24).dp, y = (-2).dp)
+                            .offset(x = (-16).dp, y = (-2).dp)
                     )
 
                     // 작은 원
@@ -347,18 +355,19 @@ private fun SuccessContent(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .align(Alignment.CenterStart)
-                            .padding(start = 28.dp)
+                            .padding(start = 26.dp)
                     ) {
+                        // percentileText는 score 기반 클라이언트 산출값이라 항상 채워짐 (0~100점 유효 범위 내)
                         Surface(
                             shape = RoundedCornerShape(200.dp),
                             color = Color(0xFFF1F0FF)
                         ) {
                             Text(
                                 text = data.percentileText,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
-                                color = Color(0xFF3C45F3),
-                                fontWeight = FontWeight.SemiBold,
-                                style = MaterialTheme.typography.labelLarge
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color(0xFF636AF5)
                             )
                         }
 
@@ -366,9 +375,9 @@ private fun SuccessContent(
 
                         Text(
                             text = data.probabilityGrade,
-                            style = MaterialTheme.typography.displayMedium,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Color(0xFF3C45F3)
+                            fontSize = 38.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF636AF5)
                         )
                     }
 
@@ -391,8 +400,8 @@ private fun SuccessContent(
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .offset(y = 6.dp),
-                            style = MaterialTheme.typography.displayMedium,
-                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 43.sp,
+                            fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
                     }
@@ -404,7 +413,12 @@ private fun SuccessContent(
 
         // 예상 비용 카드
         Column {
-            Text("예상 비용", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                "예상 비용",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF161616)
+            )
             Spacer(modifier = Modifier.height(17.dp))
             Card(
                 modifier = Modifier
@@ -426,13 +440,14 @@ private fun SuccessContent(
                     ) {
                         Text(
                             text = "보증금",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Color.Gray
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF919AA4)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = data.expectedDeposit,
-                            style = MaterialTheme.typography.titleLarge,
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF4A4F55)
                         )
@@ -451,60 +466,16 @@ private fun SuccessContent(
                     ) {
                         Text(
                             text = "월세",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Color.Gray
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF919AA4)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = data.expectedMonthlyRent,
-                            style = MaterialTheme.typography.titleLarge,
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF4A4F55)
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(13.dp))
-
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(2.dp),
-                color = Color(0xFFF0F4F9)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier.weight(1f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = data.infoTags.getOrElse(0) { "" },
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Color(0xFF919AA4),
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-
-                    VerticalDivider(
-                        modifier = Modifier.height(16.dp),
-                        thickness = 1.dp,
-                        color = BorderColor
-                    )
-
-                    Box(
-                        modifier = Modifier.weight(1f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = data.infoTags.getOrElse(1) { "" },
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Color(0xFF919AA4),
-                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
@@ -515,7 +486,12 @@ private fun SuccessContent(
 
         // 조건 충족 현황 리스트
         Column {
-            Text("조건 충족 현황", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                "조건 충족 현황",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF161616)
+            )
             Spacer(modifier = Modifier.height(17.dp))
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -532,12 +508,21 @@ private fun SuccessContent(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(item.title, style = MaterialTheme.typography.bodyMedium, color = Color(0xFF1A1A1A))
+                            Text(
+                                item.title,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color(0xFF4A4F55)
+                            )
                             Text(
                                 text = item.statusText,
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = if (item.isSuitable) Color(0xFF299251) else Color(0xFFFFC300)
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = when (item.resultStatus) {
+                                    "PASS" -> Color(0xFF299251)
+                                    "FAIL" -> Color(0xFFE53E3E)
+                                    else -> Color(0xFFFFC300)
+                                }
                             )
                         }
                         if (index != data.criteriaStatus.lastIndex) {
@@ -566,7 +551,12 @@ private fun SuccessContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("입주 분석 기준", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium, color = Color(0xFF919AA4))
+                Text(
+                    "입주 분석 기준",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF919AA4)
+                )
                 Icon(
                     imageVector = if (isAccordionExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
@@ -576,22 +566,22 @@ private fun SuccessContent(
             if (isAccordionExpanded) {
                 HorizontalDivider(color = BorderColor)
 
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
+                    Spacer(modifier = Modifier.height(26.dp))
+
                     Text(
                         text = "입력 정보",
-                        style = MaterialTheme.typography.titleSmall,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF4A4F55)
                     )
 
-                    Spacer(modifier = Modifier.height(25.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                    AnalysisInfoRow("연간 총소득", "3,840만 원")
-                    AnalysisInfoRow("총 보유 자산", "8,000만 원")
-                    AnalysisInfoRow("금융 자산", "2,500만 원")
-                    AnalysisInfoRow("총 부채", "1,500만 원")
-                    AnalysisInfoRow("월 상환액", "35만 원")
-                    AnalysisInfoRow("주택 보유 여부", "무주택")
+                    // 조건 프로필 API(FinancialInfo 입력값) 기반, 6개 항목 항상 채워짐
+                    data.inputInfoRows.forEach { row ->
+                        AnalysisInfoRow(row.title, row.value)
+                    }
 
                     Spacer(modifier = Modifier.height(26.dp))
 
@@ -601,20 +591,18 @@ private fun SuccessContent(
 
                     Text(
                         text = "산정 기준",
-                        style = MaterialTheme.typography.titleSmall,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF4A4F55)
                     )
 
-                    Spacer(modifier = Modifier.height(25.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                    AnalysisInfoRow("적용 기준일", "2025.06")
-                    AnalysisInfoRow("공급 유형", "청년안심주택")
-                    AnalysisInfoRow("신청 유형", "특별 공급")
-                    AnalysisInfoRow("전용 면적", "36m²")
-                    AnalysisInfoRow("신청 순위", "2순위")
-                    AnalysisInfoRow("비교 공고", "12개")
-                    AnalysisInfoRow("전환 이율", "연 4.5%")
+                    // 적용 기준일(analyzedAt) / 공급 유형(targetType 한글 매핑) / 전용 면적
+                    // 신청 유형·신청 순위·비교 공고·전환 이율은 대응 API 필드가 없어 제외
+                    data.criteriaInfoRows.forEach { row ->
+                        AnalysisInfoRow(row.title, row.value)
+                    }
                 }
             }
         }
@@ -633,15 +621,16 @@ private fun SuccessContent(
             ) {
                 Text(
                     text = "*유의사항",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color(0xFFE53E3E).copy(alpha = 0.5f),
-                    fontWeight = FontWeight.Bold
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFFE53E3E).copy(alpha = 0.5f)
                 )
                 Text(
                     text = "위 결과는 입력하신 정보를 기반으로 산출한 예상 결과입니다.\n실제 심사 결과와 다를 수 있습니다.",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color(0xFFE53E3E).copy(alpha = 0.5f),
-                    lineHeight = MaterialTheme.typography.labelSmall.lineHeight * 1.3f
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    lineHeight = 15.sp,
+                    color = Color(0xFFE53E3E).copy(alpha = 0.5f)
                 )
             }
         }
@@ -662,15 +651,16 @@ private fun AnalysisInfoRow(
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
             color = Color(0xFF4A4F55)
         )
 
         Text(
             text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color(0xFF919AA4),
-            fontWeight = FontWeight.Medium
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color(0xFF919AA4)
         )
     }
 }

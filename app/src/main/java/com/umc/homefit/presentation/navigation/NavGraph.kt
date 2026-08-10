@@ -230,7 +230,8 @@ fun RootNavGraph(
         composable<Route.SavedRecruitment> {
             SavedRecruitmentScreenRoute(
                 viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onNavigateToDetail = { recruitmentId -> navController.navigate(Route.RecruitmentDetail(recruitmentId)) }
             )
         }
 

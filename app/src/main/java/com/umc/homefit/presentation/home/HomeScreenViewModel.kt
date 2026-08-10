@@ -2,12 +2,10 @@ package com.umc.homefit.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.umc.homefit.data.dto.recruitment.NoticeSummaryResponse
+import com.umc.homefit.data.dto.recruitment.NoticeDto
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.home.HomeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.text.NumberFormat
-import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -65,7 +63,7 @@ class HomeScreenViewModel @Inject constructor(
                         is NetworkResult.Success -> {
                             updateSuccess(
                                 notices = (closingSoonNotices + recruitingResult.data.notices)
-                                    .distinctBy(NoticeSummaryResponse::noticeId)
+                                    .distinctBy(NoticeDto::noticeId)
                                     .take(MAX_FEATURED_NOTICES)
                             )
                         }
@@ -90,9 +88,9 @@ class HomeScreenViewModel @Inject constructor(
         )
     }
 
-    private fun updateSuccess(notices: List<NoticeSummaryResponse>) {
+    private fun updateSuccess(notices: List<NoticeDto>) {
         _uiState.value = HomeScreenUiState.Success(
-            notices = notices.map(NoticeSummaryResponse::toUiModel)
+            notices = notices
         )
     }
 
@@ -104,38 +102,3 @@ class HomeScreenViewModel @Inject constructor(
         const val MAX_FEATURED_NOTICES = 4
     }
 }
-
-private fun NoticeSummaryResponse.toUiModel(): HomeNoticeUiModel = HomeNoticeUiModel(
-    noticeId = noticeId,
-    title = title,
-    location = listOfNotNull(region, district).joinToString(" "),
-    unitSummary = unitSummary ?: "-",
-    deposit = formatAmountRange(depositMin, depositMax),
-    applicationPeriod = "${applicationStartAt.toDateText()} ~ ${applicationEndAt.toDateText()}",
-    status = status.toHomeNoticeStatus(),
-    statusDisplayText = statusDisplayText.ifBlank { "기타" },
-    dDayText = dDayText,
-    isSaved = isSaved
-)
-
-private fun String.toHomeNoticeStatus(): HomeNoticeStatus = when (this) {
-    "RECRUITING" -> HomeNoticeStatus.RECRUITING
-    "SCHEDULED" -> HomeNoticeStatus.SCHEDULED
-    "CLOSING_SOON" -> HomeNoticeStatus.CLOSING_SOON
-    "CLOSED" -> HomeNoticeStatus.CLOSED
-    else -> HomeNoticeStatus.UNKNOWN
-}
-
-private fun formatAmountRange(min: Long?, max: Long?): String = when {
-    min == null && max == null -> "-"
-    min == max -> min.toWonText()
-    min == null -> "최대 ${max.toWonText()}"
-    max == null -> "최소 ${min.toWonText()}"
-    else -> "${min.toWonText()} ~ ${max.toWonText()}"
-}
-
-private fun Long?.toWonText(): String =
-    this?.let { "${NumberFormat.getNumberInstance(Locale.KOREA).format(it / 10_000)}만원" } ?: "-"
-
-private fun String?.toDateText(): String =
-    this?.substringBefore('T')?.replace('-', '.') ?: "-"

@@ -95,5 +95,5 @@ private fun buildApplyPeriod(startAt: String?, endAt: String?): String {
     return "청약접수 | ${startAt.toDisplayDate()} ~ ${endAt.toDisplayDate()}"
 }
 
-private fun String.toDisplayDate(): String =
+internal fun String.toDisplayDate(): String =
     Instant.parse(this).atZone(DISPLAY_ZONE).format(DISPLAY_DATE_FORMATTER)

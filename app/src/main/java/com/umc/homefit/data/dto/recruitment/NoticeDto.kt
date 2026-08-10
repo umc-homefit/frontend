@@ -5,21 +5,22 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class NoticeListResponse(
-    val notices: List<NoticeSummaryResponse>,
+    val notices: List<NoticeDto>,
     val pageInfo: PageInfo
 )
 
 @Serializable
-data class NoticeSummaryResponse(
+data class NoticeDto(
     val noticeId: Long,
     val title: String,
+    val announcementNo: String? = null,
     val region: String,
-    val district: String? = null,
-    val unitSummary: String? = null,
-    val depositMin: Long? = null,
-    val depositMax: Long? = null,
-    val monthlyRentMin: Long? = null,
-    val monthlyRentMax: Long? = null,
+    val district: String?,
+    val unitSummary: String?,
+    val depositMin: Long?,
+    val depositMax: Long?,
+    val monthlyRentMin: Long?,
+    val monthlyRentMax: Long?,
     val status: String,
     val statusDisplayText: String,
     val isAdditionalRecruitment: Boolean,
