@@ -1,5 +1,7 @@
 package com.umc.homefit.presentation.recruitment
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,7 +25,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -41,8 +47,10 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -67,10 +75,10 @@ import com.umc.homefit.presentation.theme.Gray
 import com.umc.homefit.presentation.theme.LightBlue
 import com.umc.homefit.presentation.theme.LightGray
 import com.umc.homefit.presentation.theme.LightRed
+import com.umc.homefit.presentation.theme.Main
 import com.umc.homefit.presentation.theme.RecruitmentAccent
 import com.umc.homefit.presentation.theme.RecruitmentBorder
 import com.umc.homefit.presentation.theme.Red
-import com.umc.homefit.presentation.theme.SearchFieldBackground
 import com.umc.homefit.presentation.theme.StatusClosingSoonText
 import com.umc.homefit.presentation.theme.Sub
 import com.umc.homefit.presentation.theme.TextBlack
@@ -167,8 +175,9 @@ private fun RecruitmentDetailContent(
 ) {
     var showFullScreenViewer by remember { mutableStateOf(false) }
     var selectedPhotoIndex by remember { mutableIntStateOf(0) }
-    // 0: 공고 상세, 1: 경쟁률 (백엔드 경쟁률 API 준비 전까지 "준비 중" 안내만 표시)
+    // 0: 공고 상세, 1: 경쟁률 (백엔드 경쟁률 API 준비 전까지 준비 중 안내만 표시)
     var selectedTab by remember { mutableIntStateOf(0) }
+    val context = LocalContext.current
 
     Column(modifier = Modifier.fillMaxSize()) {
         DetailTitleSection(recruitment)
@@ -224,7 +233,13 @@ private fun RecruitmentDetailContent(
                         recruitment.attachments.forEach { attachment ->
                             AttachmentItem(
                                 fileName = attachment.fileName,
-                                registeredDate = attachment.registeredDateText
+                                registeredDate = attachment.registeredDateText,
+                                fileType = attachment.fileType,
+                                onClick = {
+                                    runCatching {
+                                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(attachment.fileUrl)))
+                                    }
+                                }
                             )
                         }
 
@@ -264,7 +279,7 @@ private fun DetailTitleSection(recruitment: RecruitmentDetailUiModel) {
             .background(BackgroundLight)
             .drawBehind {
                 drawLine(
-                    color = SearchFieldBackground,
+                    color = BrightGray,
                     start = Offset(0f, size.height),
                     end = Offset(size.width, size.height),
                     strokeWidth = 1.dp.toPx()
@@ -364,20 +379,75 @@ private fun SectionTitle(title: String) {
 
 @Composable
 private fun PhotoGrid(photoUrls: List<String>, onPhotoClick: (Int) -> Unit) {
-    val displayUrls = photoUrls.takeIf { it.size >= 4 } ?: emptyList()
-
-    if (displayUrls.isEmpty()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(192.dp)
-                .clip(RoundedCornerShape(4.dp))
-                .background(BrightGray)
-                .border(BorderStroke(1.dp, RecruitmentBorder), RoundedCornerShape(4.dp))
-        )
-        return
+    when {
+        photoUrls.isEmpty() -> NoPhotoPlaceholder()
+        photoUrls.size < 4 -> SinglePhotoBox(url = photoUrls[0], onPhotoClick = onPhotoClick)
+        else -> PhotoQuadrantGrid(photoUrls = photoUrls, onPhotoClick = onPhotoClick)
     }
+}
 
+@Composable
+private fun NoPhotoPlaceholder() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(192.dp)
+            .clip(RoundedCornerShape(4.dp))
+            .background(BrightGray)
+            .border(BorderStroke(1.dp, RecruitmentBorder), RoundedCornerShape(4.dp))
+            .drawBehind {
+                val strokeWidth = 1.dp.toPx()
+                drawLine(
+                    color = RecruitmentBorder,
+                    start = Offset(0f, 0f),
+                    end = Offset(size.width, size.height),
+                    strokeWidth = strokeWidth
+                )
+                drawLine(
+                    color = RecruitmentBorder,
+                    start = Offset(size.width, 0f),
+                    end = Offset(0f, size.height),
+                    strokeWidth = strokeWidth
+                )
+            }
+    )
+}
+
+// 사진이 1~3장뿐일 때: 첫 번째 사진을 꽉 채워 보여주고, 돋보기로 전체(1~3장)를 슬라이드해서 볼 수 있게 함
+@Composable
+private fun SinglePhotoBox(url: String, onPhotoClick: (Int) -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(192.dp)
+            .clip(RoundedCornerShape(4.dp))
+            .border(BorderStroke(1.dp, RecruitmentBorder), RoundedCornerShape(4.dp))
+    ) {
+        AsyncImage(
+            model = url,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(onClick = { onPhotoClick(0) })
+        )
+
+        Icon(
+            painter = painterResource(id = R.drawable.ic_recruitment_lucide_zoom_in),
+            contentDescription = "사진 확대",
+            tint = TextBlack,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 12.dp, bottom = 12.dp)
+                .size(20.dp)
+                .clickable(onClick = { onPhotoClick(0) })
+        )
+    }
+}
+
+// 사진이 4장 이상일 때: 2x2 그리드로 앞 4장만 보여주고, 돋보기로 전체를 슬라이드해서 볼 수 있게 함
+@Composable
+private fun PhotoQuadrantGrid(photoUrls: List<String>, onPhotoClick: (Int) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -389,20 +459,20 @@ private fun PhotoGrid(photoUrls: List<String>, onPhotoClick: (Int) -> Unit) {
             Row(modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()) {
-                PhotoCell(url = displayUrls.getOrNull(0), onClick = { onPhotoClick(0) }, modifier = Modifier
+                PhotoCell(url = photoUrls.getOrNull(0), onClick = { onPhotoClick(0) }, modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight())
-                PhotoCell(url = displayUrls.getOrNull(1), onClick = { onPhotoClick(1) }, modifier = Modifier
+                PhotoCell(url = photoUrls.getOrNull(1), onClick = { onPhotoClick(1) }, modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight())
             }
             Row(modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()) {
-                PhotoCell(url = displayUrls.getOrNull(2), onClick = { onPhotoClick(2) }, modifier = Modifier
+                PhotoCell(url = photoUrls.getOrNull(2), onClick = { onPhotoClick(2) }, modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight())
-                PhotoCell(url = displayUrls.getOrNull(3), onClick = { onPhotoClick(3) }, modifier = Modifier
+                PhotoCell(url = photoUrls.getOrNull(3), onClick = { onPhotoClick(3) }, modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight())
             }
@@ -500,18 +570,27 @@ private fun ZoomableImage(url: String) {
 }
 
 @Composable
-private fun AttachmentItem(fileName: String, registeredDate: String) {
+private fun AttachmentItem(fileName: String, registeredDate: String, fileType: String, onClick: () -> Unit) {
+    val (iconPainter, iconTint) = when (fileType) {
+        "PDF" -> painterResource(id = R.drawable.ic_recruitment_pdf) to Color(0xFFEF5350)
+        "DOC" -> rememberVectorPainter(Icons.Default.Description) to Main
+        "LINK" -> rememberVectorPainter(Icons.Default.Link) to Sub
+        "IMAGE" -> rememberVectorPainter(Icons.Default.Image) to DarkGray
+        else -> rememberVectorPainter(Icons.AutoMirrored.Filled.InsertDriveFile) to Gray
+    }
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(66.dp)
+            .clip(RoundedCornerShape(4.dp))
             .background(BackgroundLight, RoundedCornerShape(4.dp))
             .border(BorderStroke(1.dp, LightGray), RoundedCornerShape(4.dp))
+            .clickable(onClick = onClick)
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.ic_recruitment_pdf),
-            contentDescription = "PDF",
-            tint = Color(0xFFEF5350),
+            painter = iconPainter,
+            contentDescription = fileType,
+            tint = iconTint,
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .offset(x = 14.dp, y = 21.dp)
@@ -551,7 +630,7 @@ private fun BottomButtonBar(
                 .clickable(onClick = onCompetitionClick),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "경쟁률", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = RecruitmentAccent)
+            Text(text = "경쟁률", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Main)
         }
 
         Box(
@@ -564,9 +643,9 @@ private fun BottomButtonBar(
         ) {
             Text(
                 text = if (analysisId != null) "입주 분석 결과보기" else "입주 분석 요청하기",
-                fontSize = 14.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = White
             )
         }
     }
@@ -599,8 +678,9 @@ fun RecruitmentDetailScreenPreview() {
                 winnerAnnouncementDate = "공고문 참고",
                 contractPeriod = "공고문 참고",
                 attachments = listOf(
-                    AttachmentRow(fileName = "2025-03호 공고문 (PDF)", registeredDateText = "2025.06.02 등록"),
-                    AttachmentRow(fileName = "입주자 모집 안내 책자", registeredDateText = "2025.06.02 등록")
+                    AttachmentRow(fileName = "2025-03호 공고문 (PDF)", registeredDateText = "2025.06.02 등록", fileUrl = "https://example.com/notice.pdf", fileType = "PDF"),
+                    AttachmentRow(fileName = "입주자 모집 안내 책자", registeredDateText = "2025.06.02 등록", fileUrl = "https://example.com/guide.docx", fileType = "DOC"),
+                    AttachmentRow(fileName = "평면도.jpg", registeredDateText = "2025.06.02 등록", fileUrl = "https://example.com/floorplan.jpg", fileType = "IMAGE")
                 ),
                 photoUrls = emptyList()
             )

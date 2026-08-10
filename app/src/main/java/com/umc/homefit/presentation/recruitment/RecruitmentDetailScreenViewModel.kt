@@ -106,7 +106,8 @@ class RecruitmentDetailScreenViewModel @Inject constructor(
             applicationEndText = applicationEndAt.toDisplayDate(),
             winnerAnnouncementDate = FALLBACK_TEXT,
             contractPeriod = FALLBACK_TEXT,
-            attachments = files.filter { it.fileType != "IMAGE" }.map { it.toAttachmentRow() },
+            // 사진(IMAGE)도 위 사진 그리드와 별개로 첨부파일 목록에 함께 노출
+            attachments = files.map { it.toAttachmentRow() },
             photoUrls = files.filter { it.fileType == "IMAGE" }.map { it.fileUrl }
         )
     }
@@ -131,7 +132,9 @@ class RecruitmentDetailScreenViewModel @Inject constructor(
     private fun NoticeFileDto.toAttachmentRow(): AttachmentRow {
         return AttachmentRow(
             fileName = fileName,
-            registeredDateText = registeredAt?.toDisplayDate()?.let { "$it 등록" } ?: "등록일 미상"
+            registeredDateText = registeredAt?.toDisplayDate()?.let { "$it 등록" } ?: "등록일 미상",
+            fileUrl = fileUrl,
+            fileType = fileType
         )
     }
 

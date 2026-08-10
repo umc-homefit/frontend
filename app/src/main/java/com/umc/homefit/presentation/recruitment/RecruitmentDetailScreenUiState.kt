@@ -36,5 +36,7 @@ data class RecruitmentDetailUiModel(
 
 data class AttachmentRow(
     val fileName: String,
-    val registeredDateText: String
+    val registeredDateText: String,
+    val fileUrl: String,
+    val fileType: String
 )
