@@ -294,7 +294,22 @@ private fun DetailTitleSection(recruitment: RecruitmentDetailUiModel) {
             color = Black
         )
         Spacer(modifier = Modifier.height(12.dp))
-        DetailStatusBadge(status = recruitment.status, label = recruitment.statusDisplayText)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            DetailStatusBadge(status = recruitment.status, label = recruitment.statusDisplayText)
+            recruitment.targetTypeBadgeText?.let { TargetTypeBadge(label = it) }
+        }
+    }
+}
+
+@Composable
+private fun TargetTypeBadge(label: String) {
+    Box(
+        modifier = Modifier
+            .background(White, RoundedCornerShape(120.dp))
+            .border(BorderStroke(1.dp, LightGray), RoundedCornerShape(120.dp))
+            .padding(start = 12.dp, end = 12.dp, top = 5.dp, bottom = 5.dp)
+    ) {
+        Text(text = label, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Gray)
     }
 }
 
@@ -661,6 +676,7 @@ fun RecruitmentDetailScreenPreview() {
                 title = "강동구 청년안심주택 2025-03호",
                 status = "RECRUITING",
                 statusDisplayText = "모집중",
+                targetTypeBadgeText = "청년",
                 isSaved = true,
                 supplyLocation = "서울 강동구 천호동 123-4",
                 supplyType = "청년안심주택 (임대)",
