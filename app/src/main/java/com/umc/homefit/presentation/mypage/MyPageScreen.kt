@@ -151,7 +151,7 @@ private fun MyPageContent(
                 painter = painterResource(id = R.drawable.ic_mypage_bank),
                 contentDescription = null,
                 tint = Color.Unspecified,
-                modifier = Modifier.size(22.dp)
+                modifier = Modifier.size(24.dp)
             )
         }
     }

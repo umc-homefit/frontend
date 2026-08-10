@@ -1,7 +1,7 @@
 ﻿package com.umc.homefit.domain.repository.recruitment
 
+import com.umc.homefit.data.dto.recruitment.NoticeDetailResponse
 import com.umc.homefit.data.dto.recruitment.NoticeListResponse
-import com.umc.homefit.data.dto.recruitment.RecruitmentDto
 import com.umc.homefit.data.remote.NetworkResult
 
 interface RecruitmentRepository {
@@ -20,5 +20,5 @@ interface RecruitmentRepository {
         size: Int = 50
     ): NetworkResult<NoticeListResponse>
 
-    suspend fun getRecruitmentDetail(id: String): RecruitmentDto
+    suspend fun getRecruitmentDetail(noticeId: Long): NetworkResult<NoticeDetailResponse>
 }

@@ -71,11 +71,21 @@ class RecruitmentListScreenViewModel @Inject constructor(
         }
     }
 
+    /**
+     * 상세 화면 등 다른 화면에서 찜 상태를 바꾸고 돌아왔을 때 목록에 반영하기 위한 재조회.
+     * 로딩 화면을 다시 보여주지 않고, 실패해도 기존 목록을 그대로 유지한다(조용히 무시).
+     */
+    fun refresh() {
+        loadRecruitments(showLoading = false)
+    }
+
     private var loadJob: Job? = null
-    private fun loadRecruitments() {
+    private fun loadRecruitments(showLoading: Boolean = true) {
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
-            _uiState.value = RecruitmentListScreenUiState.Loading
+            if (showLoading) {
+                _uiState.value = RecruitmentListScreenUiState.Loading
+            }
 
             val filter = currentFilter
             val district = filter?.selectedDistrict?.takeIf { it != "전체" }
@@ -93,12 +103,16 @@ class RecruitmentListScreenViewModel @Inject constructor(
                 maxDeposit = maxDeposit
             )
 
-            _uiState.value = when (result) {
+            when (result) {
                 is NetworkResult.Success -> {
                     recruitments = result.data.notices
-                    RecruitmentListScreenUiState.Success(recruitments)
+                    _uiState.value = RecruitmentListScreenUiState.Success(recruitments)
                 }
-                is NetworkResult.Error -> RecruitmentListScreenUiState.Error(result.message)
+                is NetworkResult.Error -> {
+                    if (showLoading) {
+                        _uiState.value = RecruitmentListScreenUiState.Error(result.message)
+                    }
+                }
             }
         }
     }

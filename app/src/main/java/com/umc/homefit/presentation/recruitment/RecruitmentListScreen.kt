@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,6 +42,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -74,6 +78,17 @@ fun RecruitmentListScreenRoute(
         }
     }
 
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refresh()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     RecruitmentListScreen(
         uiState = uiState,
         onNavigateToDetail = onNavigateToDetail,
@@ -101,11 +116,10 @@ fun RecruitmentListScreen(
     onNavigateToDetail: (String) -> Unit,
     onNavigateToFilter: () -> Unit,
     onNavigateToSearch: () -> Unit,
+    modifier: Modifier = Modifier,
     onToggleBookmark: (Long) -> Unit,
     onStatusFilterChanged: (String?) -> Unit = {},
-    modifier: Modifier = Modifier,
-    initialSearchQuery: String = ""
-
+    initialSearchQuery: String = "",
 ) {
     var searchQuery by rememberSaveable(initialSearchQuery) {
         mutableStateOf(initialSearchQuery)

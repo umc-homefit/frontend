@@ -1,9 +1,8 @@
 ﻿package com.umc.homefit.data.repository.recruitment
 
 import com.umc.homefit.data.api.recruitment.NoticeApiService
+import com.umc.homefit.data.dto.recruitment.NoticeDetailResponse
 import com.umc.homefit.data.dto.recruitment.NoticeListResponse
-import com.umc.homefit.data.dto.recruitment.RecruitmentDto
-import com.umc.homefit.data.mock.RecruitmentMockData
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.data.remote.safeApiCall
 import com.umc.homefit.domain.repository.recruitment.RecruitmentRepository
@@ -45,7 +44,7 @@ class RecruitmentRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getRecruitmentDetail(id: String): RecruitmentDto {
-        return RecruitmentMockData.getRecruitmentDetail(id)
+    override suspend fun getRecruitmentDetail(noticeId: Long): NetworkResult<NoticeDetailResponse> {
+        return safeApiCall { noticeApiService.getNoticeDetail(noticeId) }
     }
 }
