@@ -451,9 +451,7 @@ private fun ProductDetailHeader(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 ProductDetailTag(
-                    text = providerTypeLabel(
-                        providerType = product.providerType
-                    )
+                    text = product.providerType
                 )
 
                 if (product.requireNoHouse) {
@@ -777,17 +775,6 @@ private fun ProductDetailBottomBar(
                 )
             }
         }
-    }
-}
-
-private fun providerTypeLabel(
-    providerType: String
-): String {
-    return when (providerType) {
-        "POLICY" -> "정부지원"
-        "BANK" -> "은행상품"
-        "SAVINGS_BANK" -> "저축은행"
-        else -> providerType
     }
 }
 

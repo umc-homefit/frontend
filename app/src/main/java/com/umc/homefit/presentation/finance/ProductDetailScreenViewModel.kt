@@ -89,7 +89,7 @@ private fun LoanProductDetailResponse.toProductDetailData(
     ProductDetailData(
         productId = productId,
         productName = productName,
-        providerType = providerType.name,
+        providerType = providerType.toLabel(),
         productCategory = productCategory?.name ?: "UNKNOWN",
         providerName = providerName,
         providerLogoUrl = providerLogoUrl,
