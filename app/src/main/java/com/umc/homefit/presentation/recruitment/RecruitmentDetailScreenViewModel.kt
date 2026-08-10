@@ -10,6 +10,7 @@ import com.umc.homefit.data.dto.recruitment.NoticeUnitDto
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.recruitment.RecruitmentRepository
 import com.umc.homefit.domain.repository.recruitment.SavedNoticeRepository
+import com.umc.homefit.util.error.ErrorCode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -41,17 +42,26 @@ class RecruitmentDetailScreenViewModel @Inject constructor(
         loadRecruitmentDetail()
     }
 
+    fun retry() = loadRecruitmentDetail()
+
     private fun loadRecruitmentDetail() {
         val id = noticeId
         if (id == null) {
-            _uiState.value = RecruitmentDetailScreenUiState.Error("잘못된 공고 정보입니다.")
+            // 잘못된 noticeId로 진입한 경우 재시도로 해결될 문제가 아니라 "준비 중" 화면과 동일하게 처리
+            _uiState.value = RecruitmentDetailScreenUiState.Error(
+                message = "잘못된 공고 정보입니다.",
+                errorCode = ErrorCode.COMMON404
+            )
             return
         }
         viewModelScope.launch {
             _uiState.value = RecruitmentDetailScreenUiState.Loading
             _uiState.value = when (val result = recruitmentRepository.getRecruitmentDetail(id)) {
                 is NetworkResult.Success -> RecruitmentDetailScreenUiState.Success(result.data.toRecruitmentDetailUiModel())
-                is NetworkResult.Error -> RecruitmentDetailScreenUiState.Error(result.message)
+                is NetworkResult.Error -> RecruitmentDetailScreenUiState.Error(
+                    message = result.message,
+                    errorCode = result.errorCode
+                )
             }
         }
     }

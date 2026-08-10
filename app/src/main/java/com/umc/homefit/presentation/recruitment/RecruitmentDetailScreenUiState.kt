@@ -1,9 +1,11 @@
 package com.umc.homefit.presentation.recruitment
 
+import com.umc.homefit.util.error.ErrorCode
+
 sealed interface RecruitmentDetailScreenUiState {
     object Loading : RecruitmentDetailScreenUiState
     data class Success(val recruitment: RecruitmentDetailUiModel) : RecruitmentDetailScreenUiState
-    data class Error(val message: String) : RecruitmentDetailScreenUiState
+    data class Error(val message: String, val errorCode: ErrorCode) : RecruitmentDetailScreenUiState
 }
 
 data class RecruitmentDetailUiModel(

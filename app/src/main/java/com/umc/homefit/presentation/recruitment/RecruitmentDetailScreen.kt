@@ -84,6 +84,7 @@ import com.umc.homefit.presentation.theme.StatusClosingSoonText
 import com.umc.homefit.presentation.theme.Sub
 import com.umc.homefit.presentation.theme.TextBlack
 import com.umc.homefit.presentation.theme.White
+import com.umc.homefit.util.error.ErrorCode
 
 @Composable
 fun RecruitmentDetailScreenRoute(
@@ -102,6 +103,7 @@ fun RecruitmentDetailScreenRoute(
         onNavigateToAnalysis = onNavigateToAnalysis,
         onNavigateToAnalysisResult = onNavigateToAnalysisResult,
         onToggleBookmark = viewModel::toggleBookmark,
+        onRetry = viewModel::retry,
         modifier = modifier
     )
 }
@@ -114,6 +116,7 @@ fun RecruitmentDetailScreen(
     onNavigateToAnalysis: (String) -> Unit,
     onNavigateToAnalysisResult: (String) -> Unit,
     onToggleBookmark: () -> Unit,
+    onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val isBookmarked = (uiState as? RecruitmentDetailScreenUiState.Success)?.recruitment?.isSaved == true
@@ -180,9 +183,32 @@ fun RecruitmentDetailScreen(
                     )
                 }
                 is RecruitmentDetailScreenUiState.Error -> {
-                    PreparingStateView()
+                    if (uiState.errorCode == ErrorCode.COMMON404) {
+                        // 공고 데이터 자체가 없는 경우: 재시도로 해결되지 않으므로 준비 중 안내
+                        PreparingStateView()
+                    } else {
+                        // 네트워크 오류 등 일시적 실패: 재시도 가능한 에러 화면
+                        RecruitmentErrorView(message = uiState.message, onRetry = onRetry)
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun RecruitmentErrorView(message: String, onRetry: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = message, fontSize = 14.sp, color = Gray)
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "다시 시도",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Main,
+                modifier = Modifier.clickable(onClick = onRetry)
+            )
         }
     }
 }
@@ -726,6 +752,6 @@ fun RecruitmentDetailScreenPreview() {
             )
         ),
         analysisId = null,
-        onBack = {}, onNavigateToAnalysis = {}, onNavigateToAnalysisResult = {}, onToggleBookmark = {}
+        onBack = {}, onNavigateToAnalysis = {}, onNavigateToAnalysisResult = {}, onToggleBookmark = {}, onRetry = {}
     )
 }
