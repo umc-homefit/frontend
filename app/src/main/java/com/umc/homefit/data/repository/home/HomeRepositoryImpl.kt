@@ -1,44 +1,28 @@
-﻿package com.umc.homefit.data.repository.home
+package com.umc.homefit.data.repository.home
 
-import com.umc.homefit.data.local.UserPreferencesDataSource
-import com.umc.homefit.data.dto.recruitment.RecruitmentDto
-import com.umc.homefit.data.dto.recruitment.RecruitmentStatus
+import com.umc.homefit.data.api.recruitment.NoticeApiService
+import com.umc.homefit.data.dto.recruitment.NoticeListResponse
+import com.umc.homefit.data.remote.NetworkResult
+import com.umc.homefit.data.remote.safeApiCall
 import com.umc.homefit.domain.repository.home.HomeRepository
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class HomeRepositoryImpl @Inject constructor(
-    private val userPreferencesDataSource: UserPreferencesDataSource
+    private val noticeApiService: NoticeApiService
 ) : HomeRepository {
 
-    override suspend fun fetchFeaturedRecruitments(): List<RecruitmentDto> {
-        return listOf(
-            RecruitmentDto(
-                id = "1",
-                title = "행복주택 서울가좌역",
-                company = "LH한국토지주택공사",
-                location = "서울특별시 마포구",
-                rentType = "행복주택",
-                depositMin = 50000000L,
-                depositMax = 50000000L,
-                monthlyRentMin = 150000L,
-                monthlyRentMax = 150000L,
-                announcementDate = "2026-07-11",
-                announcementNumber = "2026-마포-003",
-                area = 39.87,
-                applicationStartDate = "2026-07-12",
-                applicationEndDate = "2026-07-16",
-                status = RecruitmentStatus.RECRUITING,
-                competitionRate = "8.2:1"
+    override suspend fun getNotices(
+        status: String,
+        sort: String,
+        page: Int,
+        size: Int
+    ): NetworkResult<NoticeListResponse> =
+        safeApiCall {
+            noticeApiService.getNotices(
+                status = status,
+                sort = sort,
+                page = page,
+                size = size
             )
-        )
-    }
-
-    override fun getSavedRecruitmentIds(): Flow<List<String>> {
-        return userPreferencesDataSource.savedRecruitmentIds
-    }
-
-    override suspend fun saveRecruitmentId(id: String) {
-        userPreferencesDataSource.saveRecruitmentId(id)
-    }
+        }
 }
