@@ -1,4 +1,4 @@
-﻿package com.umc.homefit.presentation.recruitment
+package com.umc.homefit.presentation.recruitment
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -29,14 +29,16 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -50,13 +52,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.umc.homefit.R
-import com.umc.homefit.data.dto.recruitment.Attachment
-import com.umc.homefit.data.dto.recruitment.RecruitmentDto
-import com.umc.homefit.data.dto.recruitment.RecruitmentStatus
 import com.umc.homefit.presentation.recruitment.component.RecruitmentTabRow
-import com.umc.homefit.presentation.recruitment.component.RecruitmentTitleCard
 import com.umc.homefit.presentation.component.AppScaffold
+import com.umc.homefit.presentation.component.PreparingStateView
 import com.umc.homefit.presentation.component.TopBarAction
 import com.umc.homefit.presentation.theme.AnalysisButtonGradient
 import com.umc.homefit.presentation.theme.BackgroundLight
@@ -64,27 +65,28 @@ import com.umc.homefit.presentation.theme.RecruitmentAccent
 import com.umc.homefit.presentation.theme.RecruitmentBorder
 import com.umc.homefit.presentation.theme.RecruitmentTextGray
 import com.umc.homefit.presentation.theme.SearchFieldBackground
+import com.umc.homefit.presentation.theme.StatusClosingSoonBackground
 import com.umc.homefit.presentation.theme.StatusClosingSoonText
+import com.umc.homefit.presentation.theme.StatusRecruitingBackground
+import com.umc.homefit.presentation.theme.StatusRecruitingText
+import com.umc.homefit.presentation.theme.StatusScheduledBackground
 import com.umc.homefit.presentation.theme.StatusScheduledText
 import com.umc.homefit.presentation.theme.TextBlack
-import java.util.Locale
 
 @Composable
 fun RecruitmentDetailScreenRoute(
     viewModel: RecruitmentDetailScreenViewModel,
     analysisId: String?,
     onBack: () -> Unit,
-    onNavigateToCompetition: (String) -> Unit,
     onNavigateToAnalysis: (String) -> Unit,
     onNavigateToAnalysisResult: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     RecruitmentDetailScreen(
         uiState = uiState,
         analysisId = analysisId,
         onBack = onBack,
-        onNavigateToCompetition = onNavigateToCompetition,
         onNavigateToAnalysis = onNavigateToAnalysis,
         onNavigateToAnalysisResult = onNavigateToAnalysisResult,
         onToggleBookmark = viewModel::toggleBookmark,
@@ -97,14 +99,12 @@ fun RecruitmentDetailScreen(
     uiState: RecruitmentDetailScreenUiState,
     analysisId: String?,
     onBack: () -> Unit,
-    onNavigateToCompetition: (String) -> Unit,
     onNavigateToAnalysis: (String) -> Unit,
     onNavigateToAnalysisResult: (String) -> Unit,
     onToggleBookmark: () -> Unit,
-
     modifier: Modifier = Modifier
 ) {
-    val isBookmarked = (uiState as? RecruitmentDetailScreenUiState.Success)?.recruitment?.isBookmarked == true
+    val isBookmarked = (uiState as? RecruitmentDetailScreenUiState.Success)?.recruitment?.isSaved == true
 
     AppScaffold(
         title = null,
@@ -115,7 +115,7 @@ fun RecruitmentDetailScreen(
                 icon = painterResource(
                     id = if (isBookmarked) R.drawable.ic_top_save_active else R.drawable.ic_top_save
                 ),
-                contentDescription = if (isBookmarked) "찜 해제" else "찜하기",
+                contentDescription = if (isBookmarked) "저장" else "저장 해제",
                 onClick = onToggleBookmark
             ),
             TopBarAction(
@@ -143,15 +143,12 @@ fun RecruitmentDetailScreen(
                     RecruitmentDetailContent(
                         recruitment = uiState.recruitment,
                         analysisId = analysisId,
-                        onNavigateToCompetition = onNavigateToCompetition,
                         onNavigateToAnalysis = onNavigateToAnalysis,
                         onNavigateToAnalysisResult = onNavigateToAnalysisResult
                     )
                 }
                 is RecruitmentDetailScreenUiState.Error -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(text = "Error: ${uiState.message}")
-                    }
+                    PreparingStateView()
                 }
             }
         }
@@ -160,88 +157,159 @@ fun RecruitmentDetailScreen(
 
 @Composable
 private fun RecruitmentDetailContent(
-    recruitment: RecruitmentDto,
+    recruitment: RecruitmentDetailUiModel,
     analysisId: String?,
-    onNavigateToCompetition: (String) -> Unit,
     onNavigateToAnalysis: (String) -> Unit,
     onNavigateToAnalysisResult: (String) -> Unit
 ) {
     var showFullScreenViewer by remember { mutableStateOf(false) }
-    var selectedPhotoIndex by remember { mutableStateOf(0) }
+    var selectedPhotoIndex by remember { mutableIntStateOf(0) }
+    // 0: 공고 상세, 1: 경쟁률 (백엔드 경쟁률 API 준비 전까지 "준비 중" 안내만 표시)
+    var selectedTab by remember { mutableIntStateOf(0) }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-        ) {
-            RecruitmentTitleCard(recruitment)
-            RecruitmentTabRow(
-                selectedTabIndex = 0,
-                onTabClick = { index -> if (index == 1) onNavigateToCompetition(recruitment.id) }
-            )
+        DetailTitleSection(recruitment)
+        RecruitmentTabRow(
+            selectedTabIndex = selectedTab,
+            onTabClick = { index -> selectedTab = index }
+        )
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                InfoCard(rows = supplyInfoRows(recruitment))
-                PhotoGrid(
-                    recruitment = recruitment,
-                    onPhotoClick = { index ->
-                        selectedPhotoIndex = index
-                        showFullScreenViewer = true
-                    }
-                )
-
-                Column {
-                    SectionTitle("자격 조건")
-                    Spacer(modifier = Modifier.height(12.dp))
-                    InfoCard(rows = qualificationRows(recruitment))
-                }
-
-                Column {
-                    SectionTitle("신청 기간")
-                    Spacer(modifier = Modifier.height(12.dp))
-                    InfoCard(rows = applicationPeriodRows(recruitment))
-                }
-
-                SectionTitle("첨부 파일 및 안내 자료")
-                recruitment.attachments.forEach { attachment ->
-                    AttachmentItem(
-                        fileName = attachment.fileName,
-                        registeredDate = attachment.registeredDate
+        Box(modifier = Modifier.weight(1f)) {
+            if (selectedTab == 1) {
+                PreparingStateView()
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    InfoCard(rows = supplyInfoRows(recruitment))
+                    PhotoGrid(
+                        photoUrls = recruitment.photoUrls,
+                        onPhotoClick = { index ->
+                            selectedPhotoIndex = index
+                            showFullScreenViewer = true
+                        }
                     )
-                }
 
-                Text(
-                    text = "*경쟁률 정보를 함께 확인하면 청약 전략 수립에 도움이 됩니다.",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = StatusClosingSoonText.copy(alpha = 0.5f)
-                )
-                Spacer(modifier = Modifier.height(24.dp))
+                    Column {
+                        SectionTitle("자격 조건")
+                        Spacer(modifier = Modifier.height(12.dp))
+                        InfoCard(rows = qualificationRows(recruitment))
+                    }
+
+                    Column {
+                        SectionTitle("신청 기간")
+                        Spacer(modifier = Modifier.height(12.dp))
+                        InfoCard(rows = applicationPeriodRows(recruitment))
+                    }
+
+                    SectionTitle("첨부 파일 및 안내 자료")
+                    recruitment.attachments.forEach { attachment ->
+                        AttachmentItem(
+                            fileName = attachment.fileName,
+                            registeredDate = attachment.registeredDateText
+                        )
+                    }
+
+                    Text(
+                        text = "*경쟁률 정보를 함께 확인하면 청약 전략 수립에 도움이 됩니다.",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = StatusClosingSoonText.copy(alpha = 0.5f)
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
             }
         }
 
         BottomButtonBar(
             analysisId = analysisId,
-            onCompetitionClick = { onNavigateToCompetition(recruitment.id) },
-            onAnalysisClick = { onNavigateToAnalysis(recruitment.id) },
+            onCompetitionClick = { selectedTab = 1 },
+            onAnalysisClick = { onNavigateToAnalysis(recruitment.noticeId.toString()) },
             onAnalysisResultClick = onNavigateToAnalysisResult
         )
     }
 
     if (showFullScreenViewer) {
         FullScreenPhotoViewer(
-            photoResIds = recruitment.photoResIds,
+            photoUrls = recruitment.photoUrls,
             initialPage = selectedPhotoIndex,
             onDismiss = { showFullScreenViewer = false }
         )
     }
 }
+
+@Composable
+private fun DetailTitleSection(recruitment: RecruitmentDetailUiModel) {
+    // 위쪽 테두리는 그리지 않음: AppTopBar의 구분선과 색이 같아(SearchFieldBackground) 겹치면 선이 두꺼워 보임
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(BackgroundLight)
+            .drawBehind {
+                drawLine(
+                    color = SearchFieldBackground,
+                    start = Offset(0f, size.height),
+                    end = Offset(size.width, size.height),
+                    strokeWidth = 1.dp.toPx()
+                )
+            }
+            .padding(start = 16.dp, end = 16.dp, top = 31.dp, bottom = 31.dp)
+    ) {
+        Text(
+            text = recruitment.title,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = TextBlack
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        DetailStatusBadge(status = recruitment.status, label = recruitment.statusDisplayText)
+    }
+}
+
+@Composable
+private fun DetailStatusBadge(status: String, label: String) {
+    val (background, text) = when (status) {
+        "RECRUITING" -> StatusRecruitingBackground to StatusRecruitingText
+        "SCHEDULED" -> StatusScheduledBackground to StatusScheduledText
+        "CLOSING_SOON" -> StatusClosingSoonBackground to StatusClosingSoonText
+        else -> StatusScheduledBackground to StatusScheduledText
+    }
+    Box(
+        modifier = Modifier
+            .background(background, RoundedCornerShape(120.dp))
+            .padding(start = 12.dp, end = 12.dp, top = 5.dp, bottom = 5.dp)
+    ) {
+        Text(text = label, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = text)
+    }
+}
+
+private fun supplyInfoRows(recruitment: RecruitmentDetailUiModel) = listOf(
+    "공급 위치" to recruitment.supplyLocation,
+    "공급 유형" to recruitment.supplyType,
+    "공급 세대수" to recruitment.unitSummary,
+    "임대 보증금" to recruitment.depositRangeText,
+    "월 임대료" to recruitment.monthlyRentRangeText,
+    "입주 예정일" to recruitment.moveInDate
+)
+
+private fun qualificationRows(recruitment: RecruitmentDetailUiModel) = listOf(
+    "연령" to recruitment.ageRange,
+    "소득 기준" to recruitment.incomeStandard,
+    "자산 기준" to recruitment.assetStandard,
+    "주택 소유" to recruitment.housingOwnership,
+    "거주지 요건" to recruitment.residencyRequirement
+)
+
+private fun applicationPeriodRows(recruitment: RecruitmentDetailUiModel) = listOf(
+    "접수 시작" to recruitment.applicationStartText,
+    "접수 마감" to recruitment.applicationEndText,
+    "당첨자 발표" to recruitment.winnerAnnouncementDate,
+    "계약 체결" to recruitment.contractPeriod
+)
 
 @Composable
 private fun InfoCard(rows: List<Pair<String, String>>) {
@@ -276,38 +344,26 @@ private fun InfoCard(rows: List<Pair<String, String>>) {
     }
 }
 
-private fun supplyInfoRows(recruitment: RecruitmentDto) = listOf(
-    "공급 위치" to recruitment.location,
-    "공급 유형" to recruitment.rentType,
-    "공급 세대수" to recruitment.unitSummary,
-    "임대 보증금" to formatWonRange(recruitment.depositMin, recruitment.depositMax),
-    "월 임대료" to formatWonRange(recruitment.monthlyRentMin, recruitment.monthlyRentMax),
-    "입주 예정일" to recruitment.moveInDate
-)
-
-private fun qualificationRows(recruitment: RecruitmentDto) = listOf(
-    "연령" to recruitment.ageRange,
-    "소득 기준" to recruitment.incomeStandard,
-    "자산 기준" to recruitment.assetStandard,
-    "주택 소유" to recruitment.housingOwnership,
-    "거주지 요건" to recruitment.residencyRequirement
-)
-
-private fun applicationPeriodRows(recruitment: RecruitmentDto) = listOf(
-    "접수 시작" to recruitment.applicationStartDate,
-    "접수 마감" to recruitment.applicationEndDate,
-    "당첨자 발표" to recruitment.winnerAnnouncementDate,
-    "계약 체결" to recruitment.contractPeriod
-)
-
 @Composable
 private fun SectionTitle(title: String) {
     Text(text = title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextBlack)
 }
 
 @Composable
-private fun PhotoGrid(recruitment: RecruitmentDto, onPhotoClick: (Int) -> Unit) {
-    val photoResIds = recruitment.photoResIds.takeIf { it.size >= 4 } ?: emptyList()
+private fun PhotoGrid(photoUrls: List<String>, onPhotoClick: (Int) -> Unit) {
+    val displayUrls = photoUrls.takeIf { it.size >= 4 } ?: emptyList()
+
+    if (displayUrls.isEmpty()) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_recruitment_no_photo),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(192.dp)
+        )
+        return
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -319,20 +375,20 @@ private fun PhotoGrid(recruitment: RecruitmentDto, onPhotoClick: (Int) -> Unit) 
             Row(modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()) {
-                PhotoCell(resId = photoResIds.getOrNull(0), onClick = { onPhotoClick(0) }, modifier = Modifier
+                PhotoCell(url = displayUrls.getOrNull(0), onClick = { onPhotoClick(0) }, modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight())
-                PhotoCell(resId = photoResIds.getOrNull(1), onClick = { onPhotoClick(1) }, modifier = Modifier
+                PhotoCell(url = displayUrls.getOrNull(1), onClick = { onPhotoClick(1) }, modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight())
             }
             Row(modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()) {
-                PhotoCell(resId = photoResIds.getOrNull(2), onClick = { onPhotoClick(2) }, modifier = Modifier
+                PhotoCell(url = displayUrls.getOrNull(2), onClick = { onPhotoClick(2) }, modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight())
-                PhotoCell(resId = photoResIds.getOrNull(3), onClick = { onPhotoClick(3) }, modifier = Modifier
+                PhotoCell(url = displayUrls.getOrNull(3), onClick = { onPhotoClick(3) }, modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight())
             }
@@ -352,10 +408,10 @@ private fun PhotoGrid(recruitment: RecruitmentDto, onPhotoClick: (Int) -> Unit) 
 }
 
 @Composable
-private fun PhotoCell(resId: Int?, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    if (resId != null) {
-        Image(
-            painter = painterResource(id = resId),
+private fun PhotoCell(url: String?, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    if (url != null) {
+        AsyncImage(
+            model = url,
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = modifier.clickable(onClick = onClick)
@@ -367,10 +423,11 @@ private fun PhotoCell(resId: Int?, onClick: () -> Unit, modifier: Modifier = Mod
 
 @Composable
 private fun FullScreenPhotoViewer(
-    photoResIds: List<Int>,
+    photoUrls: List<String>,
     initialPage: Int,
     onDismiss: () -> Unit
 ) {
+    if (photoUrls.isEmpty()) return
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -380,12 +437,12 @@ private fun FullScreenPhotoViewer(
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.9f))
         ) {
-            val pagerState = rememberPagerState(initialPage = initialPage) { photoResIds.size }
+            val pagerState = rememberPagerState(initialPage = initialPage) { photoUrls.size }
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { page ->
-                ZoomableImage(resId = photoResIds[page])
+                ZoomableImage(url = photoUrls[page])
             }
 
             Icon(
@@ -403,12 +460,12 @@ private fun FullScreenPhotoViewer(
 }
 
 @Composable
-private fun ZoomableImage(resId: Int) {
-    var scale by remember { mutableStateOf(1f) }
+private fun ZoomableImage(url: String) {
+    var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
 
-    Image(
-        painter = painterResource(id = resId),
+    AsyncImage(
+        model = url,
         contentDescription = null,
         contentScale = ContentScale.Fit,
         modifier = Modifier
@@ -501,60 +558,40 @@ private fun BottomButtonBar(
     }
 }
 
-private fun formatWonRange(minWon: Long, maxWon: Long): String {
-    val min = String.format(Locale.KOREA, "%,d", minWon / 10_000)
-    val max = String.format(Locale.KOREA, "%,d", maxWon / 10_000)
-    return "${min}만 원 ~ ${max}만 원"
-}
-
 @Preview(showBackground = true, widthDp = 360)
 @Composable
 fun RecruitmentDetailScreenPreview() {
     RecruitmentDetailScreen(
         uiState = RecruitmentDetailScreenUiState.Success(
-            recruitment = RecruitmentDto(
-                id = "1",
+            recruitment = RecruitmentDetailUiModel(
+                noticeId = 1,
                 title = "강동구 청년안심주택 2025-03호",
-                company = "한국토지주택공사",
-                location = "서울 강동구 천호동 123-4",
-                rentType = "청년안심주택 (임대)",
+                status = "RECRUITING",
+                statusDisplayText = "모집중",
+                isSaved = true,
+                supplyLocation = "서울 강동구 천호동 123-4",
+                supplyType = "청년안심주택 (임대)",
                 unitSummary = "전용 24㎡ 18세대 / 전용 33㎡ 12세대",
-                depositMin = 32000000,
-                depositMax = 48000000,
-                monthlyRentMin = 280000,
-                monthlyRentMax = 410000,
-                announcementDate = "2026-07-13",
-                announcementNumber = "2026-강남-001",
-                area = 39.87,
-                // TODO: API 연동 시 ISO 8601 → 한글 날짜 포맷 변환 필요
-                applicationStartDate = "2025년 6월 9일 (월) 오전 10:00",
-                applicationEndDate = "2025년 6월 13일 (금) 오후 6:00",
-                status = RecruitmentStatus.RECRUITING,
-                competitionRate = "12.3:1",
-                isBookmarked = true,
-                tags = listOf("청년우선공급", "역세권"),
-                attachments = listOf(
-                    Attachment(fileName = "2025-03호 공고문 (PDF)", registeredDate = "2025.06.02 등록"),
-                    Attachment(fileName = "입주자 모집 안내 책자", registeredDate = "2025.06.02 등록"),
-                    Attachment(fileName = "서울주택도시공사 청약 신청 매뉴얼", registeredDate = "2025.05.28 등록")
-                ),
+                depositRangeText = "3,200만 원 ~ 4,800만 원",
+                monthlyRentRangeText = "28만 원 ~ 41만 원",
                 moveInDate = "2025년 9월",
                 ageRange = "만 19세 ~ 39세",
                 incomeStandard = "도시근로자 월평균 소득 100% 이하",
                 assetStandard = "총 자산 3억 6,100만 원 이하",
                 housingOwnership = "무주택 세대구성원",
                 residencyRequirement = "서울시 거주 또는 직장 소재",
-                winnerAnnouncementDate = "2025년 7월 4일 (금)",
-                contractPeriod = "2025년 7월 14일 ~ 7월 18일",
-                photoResIds = listOf(
-                    R.drawable.img_recruitment_1,
-                    R.drawable.img_recruitment_2,
-                    R.drawable.img_recruitment_3,
-                    R.drawable.img_recruitment_4
-                )
+                applicationStartText = "2025.06.09",
+                applicationEndText = "2025.06.13",
+                winnerAnnouncementDate = "공고문 참고",
+                contractPeriod = "공고문 참고",
+                attachments = listOf(
+                    AttachmentRow(fileName = "2025-03호 공고문 (PDF)", registeredDateText = "2025.06.02 등록"),
+                    AttachmentRow(fileName = "입주자 모집 안내 책자", registeredDateText = "2025.06.02 등록")
+                ),
+                photoUrls = emptyList()
             )
         ),
         analysisId = null,
-        onBack = {}, onNavigateToCompetition = {}, onNavigateToAnalysis = {}, onNavigateToAnalysisResult = {}, onToggleBookmark = {}
+        onBack = {}, onNavigateToAnalysis = {}, onNavigateToAnalysisResult = {}, onToggleBookmark = {}
     )
 }

@@ -122,9 +122,6 @@ fun RootNavGraph(
                 viewModel = hiltViewModel(),
                 analysisId = args.analysisId,
                 onBack = { navController.popBackStack() },
-                onNavigateToCompetition = { recruitmentId ->
-                    navController.navigate(Route.Competition(recruitmentId, analysisId = args.analysisId))
-                },
                 onNavigateToAnalysis = { navController.navigate(Route.FinancialInfo) },
                 onNavigateToAnalysisResult = { analysisId ->
                     navController.navigate(Route.AnalysisResult(analysisId = analysisId, fromRecord = true))

@@ -1,6 +1,7 @@
 package com.umc.homefit.data.api.recruitment
 
 import com.umc.homefit.data.dto.common.BaseResponse
+import com.umc.homefit.data.dto.recruitment.NoticeDetailResponse
 import com.umc.homefit.data.dto.recruitment.NoticeListResponse
 import com.umc.homefit.data.dto.recruitment.SaveNoticeResultResponse
 import com.umc.homefit.data.dto.recruitment.SavedNoticeListResponse
@@ -12,6 +13,9 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface NoticeApiService {
+
+    @GET("notices/{noticeId}")
+    suspend fun getNoticeDetail(@Path("noticeId") noticeId: Long): BaseResponse<NoticeDetailResponse>
 
     @GET("notices")
     suspend fun getNotices(
