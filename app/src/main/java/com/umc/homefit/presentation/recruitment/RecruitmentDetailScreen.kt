@@ -117,6 +117,7 @@ fun RecruitmentDetailScreen(
     modifier: Modifier = Modifier
 ) {
     val isBookmarked = (uiState as? RecruitmentDetailScreenUiState.Success)?.recruitment?.isSaved == true
+    val context = LocalContext.current
 
     AppScaffold(
         title = null,
@@ -133,7 +134,26 @@ fun RecruitmentDetailScreen(
             TopBarAction(
                 icon = painterResource(id = R.drawable.ic_top_share),
                 contentDescription = "공유",
-                onClick = { }
+                onClick = {
+                    (uiState as? RecruitmentDetailScreenUiState.Success)?.recruitment?.let { recruitment ->
+                        val shareText = buildString {
+                            appendLine(recruitment.title)
+                            appendLine("위치 | ${recruitment.supplyLocation}")
+                            appendLine("보증금 | ${recruitment.depositRangeText}")
+                            appendLine("월 임대료 | ${recruitment.monthlyRentRangeText}")
+                            appendLine("청약접수 | ${recruitment.applicationStartText} ~ ${recruitment.applicationEndText}")
+                            if (recruitment.sourceUrl.isNotBlank()) {
+                                append(recruitment.sourceUrl)
+                            }
+                        }
+                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_SUBJECT, recruitment.title)
+                            putExtra(Intent.EXTRA_TEXT, shareText)
+                        }
+                        context.startActivity(Intent.createChooser(shareIntent, "공고 공유"))
+                    }
+                }
             )
         ),
         showDivider = true,
@@ -681,6 +701,7 @@ fun RecruitmentDetailScreenPreview() {
                 statusDisplayText = "모집중",
                 targetTypeBadgeText = "청년",
                 isSaved = true,
+                sourceUrl = "https://example.com/notices/1",
                 supplyLocation = "서울 강동구 천호동 123-4",
                 supplyType = "청년안심주택 (임대)",
                 unitSummary = "전용 24㎡ 18세대 / 전용 33㎡ 12세대",

@@ -12,6 +12,7 @@ data class RecruitmentDetailUiModel(
     val status: String,
     val statusDisplayText: String,
     val isSaved: Boolean,
+    val sourceUrl: String,
     // targetType 한글 라벨(청년/신혼부부/공통), "기타"인 경우 null로 내려와 뱃지 미표시
     val targetTypeBadgeText: String?,
     // 공급 정보

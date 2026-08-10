@@ -88,6 +88,7 @@ class RecruitmentDetailScreenViewModel @Inject constructor(
             status = status,
             statusDisplayText = statusDisplayText,
             isSaved = isSaved,
+            sourceUrl = sourceUrl,
             // targetType을 한글 라벨로 매핑해 뱃지에 표기, "기타"(미분류)면 뱃지 자체를 표시하지 않음
             targetTypeBadgeText = conditions.firstOrNull()?.targetType?.toTargetTypeLabel()?.takeIf { it != "기타" },
             // 공급 정보 카드: 서버가 "공급 유형"/"입주 예정일"은 아직 내려주지 않아 공고문 참고로 대체
