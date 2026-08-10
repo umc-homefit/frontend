@@ -1,6 +1,7 @@
 package com.umc.homefit.presentation.recruitment
 
 import android.content.Intent
+import android.widget.Toast
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -126,7 +127,7 @@ fun RecruitmentDetailScreen(
                 icon = painterResource(
                     id = if (isBookmarked) R.drawable.ic_top_save_active else R.drawable.ic_top_save
                 ),
-                contentDescription = if (isBookmarked) "저장" else "저장 해제",
+                contentDescription = if (isBookmarked) "찜 해제" else "찜하기",
                 onClick = onToggleBookmark
             ),
             TopBarAction(
@@ -238,6 +239,8 @@ private fun RecruitmentDetailContent(
                                 onClick = {
                                     runCatching {
                                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(attachment.fileUrl)))
+                                    }.onFailure {
+                                        Toast.makeText(context, "파일을 열 수 없습니다.", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             )
