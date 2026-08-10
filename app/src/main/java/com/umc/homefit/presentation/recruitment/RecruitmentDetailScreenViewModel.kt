@@ -149,7 +149,16 @@ class RecruitmentDetailScreenViewModel @Inject constructor(
         }
     }
 
-    private fun formatWon(won: Long): String = String.format(Locale.KOREA, "%,d만 원", won / 10_000)
+    private fun formatWon(won: Long): String {
+        val manwon = won / 10_000
+        val eok = manwon / 10_000
+        val remainingManwon = manwon % 10_000
+        return when {
+            eok == 0L -> String.format(Locale.KOREA, "%,d만 원", manwon)
+            remainingManwon == 0L -> "${eok}억 원"
+            else -> String.format(Locale.KOREA, "%d억 %,d만 원", eok, remainingManwon)
+        }
+    }
 
     private fun formatWonRange(minWon: Long?, maxWon: Long?): String {
         val minText = minWon?.let { formatWon(it) }
