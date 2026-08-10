@@ -14,7 +14,8 @@ data class AnalysisResultData(
     val expectedMonthlyRent: String,
     val criteriaStatus: List<CriteriaItem>,
     val inputInfoRows: List<InfoRowItem> = emptyList(),
-    val criteriaInfoRows: List<InfoRowItem> = emptyList()
+    val criteriaInfoRows: List<InfoRowItem> = emptyList(),
+    val shareText: String
 )
 
 data class CriteriaItem(

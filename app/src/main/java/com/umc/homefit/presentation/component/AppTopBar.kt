@@ -1,5 +1,6 @@
 ﻿package com.umc.homefit.presentation.component
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -78,7 +80,7 @@ fun AppTopBar(
                 onClick = action.onClick,
                 modifier = Modifier.size(48.dp)
             ) {
-                Icon(
+                Image(
                     painter = action.icon,
                     contentDescription = action.contentDescription,
                     modifier = Modifier
@@ -87,7 +89,7 @@ fun AppTopBar(
                             scaleX = action.iconScale
                             scaleY = action.iconScale
                         },
-                    tint = Color(0xFFD2D9E2)
+                    contentScale = ContentScale.FillBounds
                 )
             }
         }

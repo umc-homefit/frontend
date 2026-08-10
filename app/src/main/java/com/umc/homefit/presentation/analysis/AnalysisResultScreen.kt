@@ -114,14 +114,9 @@ fun AnalysisResultScreen(
 
     fun onShareClick() {
         val data = (uiState as? AnalysisResultScreenUiState.Success)?.data ?: return
-        val shareText = buildString {
-            append("[HomeFit] 입주 분석 결과\n")
-            append("입주 가능성: ${data.probabilityGrade} (${data.score}점)\n")
-            append("예상 보증금 ${data.expectedDeposit} / 월세 ${data.expectedMonthlyRent}")
-        }
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT, shareText)
+            putExtra(Intent.EXTRA_TEXT, data.shareText)
         }
         context.startActivity(Intent.createChooser(intent, null))
     }
@@ -363,22 +358,20 @@ private fun SuccessContent(
                             .padding(start = 26.dp)
                     ) {
                         // percentileText는 score 기반 클라이언트 산출값이라 항상 채워짐 (0~100점 유효 범위 내)
-                        if (data.percentileText.isNotBlank()) {
-                            Surface(
-                                shape = RoundedCornerShape(200.dp),
-                                color = Color(0xFFF1F0FF)
-                            ) {
-                                Text(
-                                    text = data.percentileText,
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color(0xFF636AF5)
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(5.dp))
+                        Surface(
+                            shape = RoundedCornerShape(200.dp),
+                            color = Color(0xFFF1F0FF)
+                        ) {
+                            Text(
+                                text = data.percentileText,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color(0xFF636AF5)
+                            )
                         }
+
+                        Spacer(modifier = Modifier.height(5.dp))
 
                         Text(
                             text = data.probabilityGrade,
