@@ -5,11 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.umc.homefit.data.dto.analysis.ConditionProfileResponse
 import com.umc.homefit.data.dto.analysis.EligibilityAnalysisResultDto
-import com.umc.homefit.data.dto.recruitment.NoticeUnitSummary
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.analysis.AnalysisRepository
 import com.umc.homefit.domain.repository.analysis.ConditionProfileRepository
-import com.umc.homefit.domain.repository.recruitment.NoticeDetailRepository
 import com.umc.homefit.util.mapToHouseOption
 import com.umc.homefit.util.toPercentileText
 import com.umc.homefit.util.toWonText
@@ -26,8 +24,7 @@ import javax.inject.Inject
 class AnalysisResultScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val analysisRepository: AnalysisRepository,
-    private val conditionProfileRepository: ConditionProfileRepository,
-    private val noticeDetailRepository: NoticeDetailRepository
+    private val conditionProfileRepository: ConditionProfileRepository
 ) : ViewModel() {
 
     private val analysisId: Long = checkNotNull(savedStateHandle["analysisId"]).toString().toLong()
@@ -49,22 +46,12 @@ class AnalysisResultScreenViewModel @Inject constructor(
 
                 when (val result = analysisDeferred.await()) {
                     is NetworkResult.Success -> {
-                        // noticeId는 분석 응답에서만 나오는 값이라 분석 결과를 받은 뒤에 요청 시작
-                        val noticeDetailDeferred = async {
-                            noticeDetailRepository.getNoticeDetail(result.data.noticeId)
-                        }
-
-                        // "입력 정보"/"산정 기준" 아코디언 조회 실패는 화면 전체를 에러로 내리지 않고 빈 리스트로 대체
+                        // "입력 정보" 아코디언 조회 실패는 화면 전체를 에러로 내리지 않고 빈 리스트로 대체
                         val inputInfoRows = when (val profileResult = profileDeferred.await()) {
                             is NetworkResult.Success -> profileResult.data.toInputInfoRows()
                             is NetworkResult.Error -> emptyList()
                         }
-                        // 전용 면적은 Notice 상세 조회 성공 시에만 채워짐 (실패해도 나머지 두 줄은 항상 표시)
-                        val noticeUnits = when (val noticeResult = noticeDetailDeferred.await()) {
-                            is NetworkResult.Success -> noticeResult.data.units
-                            is NetworkResult.Error -> null
-                        }
-                        val criteriaInfoRows = result.data.toCriteriaInfoRows(noticeUnits)
+                        val criteriaInfoRows = result.data.toCriteriaInfoRows()
                         _uiState.value = AnalysisResultScreenUiState.Success(
                             data = result.data.toUiModel(
                                 inputInfoRows = inputInfoRows,
@@ -103,14 +90,12 @@ private fun EligibilityAnalysisResultDto.toUiModel(
     )
 }
 
-private fun EligibilityAnalysisResultDto.toCriteriaInfoRows(
-    noticeUnits: List<NoticeUnitSummary>?
-): List<InfoRowItem> {
+private fun EligibilityAnalysisResultDto.toCriteriaInfoRows(): List<InfoRowItem> {
     val rows = mutableListOf(
         InfoRowItem("적용 기준일", analyzedAt.toDateText()),
         InfoRowItem("공급 유형", supplyType)
     )
-    noticeUnits?.find { it.unitId == unitId }?.exclusiveAreaM2?.let { area ->
+    exclusiveAreaM2?.let { area ->
         rows.add(InfoRowItem("전용 면적", area.toAreaText()))
     }
     return rows
