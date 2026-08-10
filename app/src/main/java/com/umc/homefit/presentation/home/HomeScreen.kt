@@ -61,10 +61,11 @@ fun HomeScreenRoute(
     onGuideClick: () -> Unit = {}
 ) {
     val recommendedAnnouncements by
-    viewModel.recommendedAnnouncements.collectAsState()
+        viewModel.recommendedAnnouncements.collectAsState()
+    val userName by viewModel.userName.collectAsState()
 
     HomeScreen(
-        userName = "길동",
+        userName = userName,
         recommendedAnnouncements = recommendedAnnouncements,
         hasNotifications = true,
         onNotificationClick = onNotificationClick,
@@ -82,7 +83,7 @@ fun HomeScreenRoute(
 
 @Composable
 fun HomeScreen(
-    userName: String,
+    userName: String?,
     recommendedAnnouncements: List<RecruitmentDto>,
     hasNotifications: Boolean,
     onNotificationClick: () -> Unit,
@@ -218,7 +219,7 @@ fun HomeScreen(
 
 @Composable
 private fun HomeHeaderSection(
-    userName: String,
+    userName: String?,
     onSearchClick: () -> Unit,
     onAllAnnouncementClick: () -> Unit
 ) {
@@ -241,7 +242,11 @@ private fun HomeHeaderSection(
                     .padding(end = 92.dp)
             ) {
                 Text(
-                    text = "${userName}님을 위한 맞춤 공고",
+                    text = if (userName.isNullOrBlank()) {
+                        "맞춤 공고"
+                    } else {
+                        "${userName}님을 위한 맞춤 공고"
+                    },
                     color = Color(0xFF18191B),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
