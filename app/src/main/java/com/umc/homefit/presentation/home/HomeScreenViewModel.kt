@@ -5,25 +5,43 @@ import androidx.lifecycle.viewModelScope
 import com.umc.homefit.data.dto.recruitment.NoticeDto
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.home.HomeRepository
+import com.umc.homefit.domain.repository.mypage.MyPageRepository
 import com.umc.homefit.domain.repository.recruitment.SavedNoticeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
     private val homeRepository: HomeRepository,
-    private val savedNoticeRepository: SavedNoticeRepository
+    private val savedNoticeRepository: SavedNoticeRepository,
+    private val myPageRepository: MyPageRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeScreenUiState>(HomeScreenUiState.Loading)
     val uiState: StateFlow<HomeScreenUiState> = _uiState.asStateFlow()
 
+    private val _userName = MutableStateFlow<String?>(null)
+    val userName: StateFlow<String?> = _userName.asStateFlow()
+
     init {
+        loadUserName()
         loadFeaturedNotices()
+    }
+
+    private fun loadUserName() {
+        viewModelScope.launch {
+            when (val result = myPageRepository.getProfile()) {
+                is NetworkResult.Success -> {
+                    _userName.value = result.data.nickname
+                }
+
+                is NetworkResult.Error -> Unit
+            }
+        }
     }
 
     fun loadFeaturedNotices() {
@@ -41,6 +59,7 @@ class HomeScreenViewModel @Inject constructor(
                 is NetworkResult.Error -> {
                     _uiState.value = HomeScreenUiState.Error(closingSoonResult.message)
                 }
+
                 is NetworkResult.Success -> {
                     val closingSoonNotices = closingSoonResult.data.notices
                         .take(MAX_FEATURED_NOTICES)
@@ -58,10 +77,11 @@ class HomeScreenViewModel @Inject constructor(
                             page = FIRST_PAGE,
                             size = remainingCount
                         )
-                        ) {
-                            is NetworkResult.Error -> {
-                                updateSuccess(closingSoonNotices)
-                            }
+                    ) {
+                        is NetworkResult.Error -> {
+                            updateSuccess(closingSoonNotices)
+                        }
+
                         is NetworkResult.Success -> {
                             updateSuccess(
                                 notices = (closingSoonNotices + recruitingResult.data.notices)
@@ -108,9 +128,7 @@ class HomeScreenViewModel @Inject constructor(
     }
 
     private fun updateSuccess(notices: List<NoticeDto>) {
-        _uiState.value = HomeScreenUiState.Success(
-            notices = notices
-        )
+        _uiState.value = HomeScreenUiState.Success(notices = notices)
     }
 
     private companion object {

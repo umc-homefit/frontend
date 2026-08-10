@@ -67,9 +67,10 @@ fun HomeScreenRoute(
     onGuideClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val userName by viewModel.userName.collectAsStateWithLifecycle()
 
     HomeScreen(
-        userName = "길동",
+        userName = userName,
         uiState = uiState,
         hasNotifications = true,
         onNotificationClick = onNotificationClick,
@@ -88,7 +89,7 @@ fun HomeScreenRoute(
 
 @Composable
 fun HomeScreen(
-    userName: String,
+    userName: String?,
     uiState: HomeScreenUiState,
     hasNotifications: Boolean,
     onNotificationClick: () -> Unit,
@@ -271,7 +272,7 @@ fun HomeScreen(
 
 @Composable
 private fun HomeHeaderSection(
-    userName: String,
+    userName: String?,
     onSearchClick: () -> Unit,
     onAllAnnouncementClick: () -> Unit
 ) {
@@ -294,7 +295,11 @@ private fun HomeHeaderSection(
                     .padding(end = 92.dp)
             ) {
                 Text(
-                    text = "${userName}님을 위한 맞춤 공고",
+                    text = if (userName.isNullOrBlank()) {
+                        "맞춤 공고"
+                    } else {
+                        "${userName}님을 위한 맞춤 공고"
+                    },
                     color = Color(0xFF18191B),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
