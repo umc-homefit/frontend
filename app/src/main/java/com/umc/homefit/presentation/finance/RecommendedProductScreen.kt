@@ -30,6 +30,7 @@ import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.umc.homefit.data.dto.finance.FinanceProductCategory
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
 import com.umc.homefit.presentation.finance.component.RecommendedProductSearchBar
 import com.umc.homefit.presentation.component.AppScaffold
@@ -80,33 +82,36 @@ fun RecommendedProductScreenRoute(
         onNavigateToSearch = onNavigateToSearch,
         onNavigateToFinancialInfo = onNavigateToFinancialInfo,
         onNavigateToDetail = onNavigateToDetail,
-        onSortSelected = viewModel::loadRecommendedProducts,
+        onFilterChanged = { sort, category, keyword ->
+            viewModel.loadRecommendedProducts(
+                sort = sort,
+                category = category,
+                keyword = keyword
+            )
+        },
         modifier = modifier
     )
 }
 
 private data class ProductFilterOption(
     val label: String,
-    val keyword: String?
+    val category: FinanceProductCategory?
 )
 
 private val productFilterOptions = listOf(
     ProductFilterOption(
         label = "전체",
-        keyword = null
+        category = null
     ),
     ProductFilterOption(
         label = "주택담보대출",
-        keyword = "주택"
+        category = FinanceProductCategory.MORTGAGE_LOAN
     ),
     ProductFilterOption(
         label = "전세대출",
-        keyword = "전세"
-    ),
-    ProductFilterOption(
-        label = "청약저축",
-        keyword = "청약"
+        category = FinanceProductCategory.JEONSE_LOAN
     )
+    // TODO: 서버 /loan-products/match의 productCategory가 SUBSCRIPTION_SAVINGS를 지원하면 "청약저축" 칩 복원
 )
 
 @Composable
@@ -227,7 +232,7 @@ fun RecommendedProductScreen(
     onNavigateToDetail: (Long) -> Unit,
     onNavigateToSearch: () -> Unit,
     onNavigateToFinancialInfo: () -> Unit,
-    onSortSelected: (String) -> Unit,
+    onFilterChanged: (sort: String, category: String?, keyword: String?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     AppScaffold(
@@ -241,7 +246,7 @@ fun RecommendedProductScreen(
             onNavigateToDetail = onNavigateToDetail,
             onNavigateToSearch = onNavigateToSearch,
             onNavigateToFinancialInfo = onNavigateToFinancialInfo,
-            onSortSelected = onSortSelected,
+            onFilterChanged = onFilterChanged,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -257,11 +262,11 @@ private fun RecommendedProductContent(
     onNavigateToDetail: (Long) -> Unit,
     onNavigateToSearch: () -> Unit,
     onNavigateToFinancialInfo: () -> Unit,
-    onSortSelected: (String) -> Unit,
+    onFilterChanged: (sort: String, category: String?, keyword: String?) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var selectedKeyword by remember {
-        mutableStateOf<String?>(null)
+    var selectedCategory by remember {
+        mutableStateOf<FinanceProductCategory?>(null)
     }
 
     var selectedSort by remember {
@@ -270,6 +275,22 @@ private fun RecommendedProductContent(
 
     var expanded by remember {
         mutableStateOf(false)
+    }
+
+    var isInitialized by remember {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(searchQuery) {
+        if (isInitialized) {
+            onFilterChanged(
+                selectedSort.apiValue,
+                selectedCategory?.name,
+                searchQuery.ifBlank { null }
+            )
+        } else {
+            isInitialized = true
+        }
     }
 
     Column(
@@ -303,9 +324,14 @@ private fun RecommendedProductContent(
             ) { option ->
                 ProductFilterChip(
                     label = option.label,
-                    selected = selectedKeyword == option.keyword,
+                    selected = selectedCategory == option.category,
                     onClick = {
-                        selectedKeyword = option.keyword
+                        selectedCategory = option.category
+                        onFilterChanged(
+                            selectedSort.apiValue,
+                            option.category?.name,
+                            searchQuery.ifBlank { null }
+                        )
                     }
                 )
             }
@@ -322,24 +348,7 @@ private fun RecommendedProductContent(
             }
 
             is RecommendedProductScreenUiState.Success -> {
-                val filteredProducts =
-                    uiState.products.filter { product ->
-                        val matchesCategory =
-                            selectedKeyword == null ||
-                                productMatchesKeyword(
-                                    product = product,
-                                    keyword = selectedKeyword.orEmpty()
-                                )
-
-                        val matchesSearch =
-                            searchQuery.isBlank() ||
-                                productMatchesKeyword(
-                                    product = product,
-                                    keyword = searchQuery
-                                )
-
-                        matchesCategory && matchesSearch
-                    }
+                val filteredProducts = uiState.products
 
                 if (filteredProducts.isEmpty()) {
                     Box(
@@ -361,7 +370,11 @@ private fun RecommendedProductContent(
                         },
                         onSortSelected = { sort ->
                             selectedSort = sort
-                            onSortSelected(sort.apiValue)
+                            onFilterChanged(
+                                sort.apiValue,
+                                selectedCategory?.name,
+                                searchQuery.ifBlank { null }
+                            )
                         }
                     )
 
@@ -451,38 +464,6 @@ private fun ProductFilterChip(
     }
 }
 
-private fun productMatchesKeyword(
-    product: FinanceRecommendedProductUiModel,
-    keyword: String
-): Boolean {
-    return product.title.contains(
-        other = keyword,
-        ignoreCase = true
-    ) ||
-        product.productType.contains(
-            other = keyword,
-            ignoreCase = true
-        ) ||
-        product.interestRate.contains(
-            other = keyword,
-            ignoreCase = true
-        ) ||
-        product.amountDescription.contains(
-            other = keyword,
-            ignoreCase = true
-        ) ||
-        product.targetDescription.contains(
-            other = keyword,
-            ignoreCase = true
-        ) ||
-        product.tags.any { tag ->
-            tag.contains(
-                other = keyword,
-                ignoreCase = true
-            )
-        }
-}
-
 @Preview(
     showBackground = true,
     widthDp = 390,
@@ -508,6 +489,6 @@ private fun RecommendedProductScreenPreview() {
         onNavigateToSearch = {},
         onNavigateToFinancialInfo = {},
         onNavigateToDetail = {},
-        onSortSelected = {}
+        onFilterChanged = { _, _, _ -> }
     )
 }

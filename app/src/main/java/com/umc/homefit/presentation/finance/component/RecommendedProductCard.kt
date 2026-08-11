@@ -135,7 +135,7 @@ fun RecommendedProductCard(
                         modifier = Modifier.padding(top = 6.dp),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        product.tags.take(2).forEach { tag ->
+                        product.tags.take(3).forEach { tag ->
                             ProductTag(
                                 text = tag
                             )
