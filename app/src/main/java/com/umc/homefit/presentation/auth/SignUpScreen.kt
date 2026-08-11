@@ -496,7 +496,8 @@ private fun PasswordConfirmStep(
                         Text(
                             text = "비밀번호가 일치합니다",
                             color = Color(0x8019A141),
-                            fontSize = 12.sp
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 } else {
@@ -511,7 +512,8 @@ private fun PasswordConfirmStep(
                         Text(
                             text = "비밀번호가 일치하지 않습니다",
                             color = Color(0x80FF5659),
-                            fontSize = 12.sp
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
@@ -529,7 +531,8 @@ private fun PasswordConfirmStep(
                     Text(
                         text = errorMessage,
                         color = Color(0x80FF5659),
-                        fontSize = 12.sp
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
