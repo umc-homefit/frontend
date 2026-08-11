@@ -10,24 +10,20 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 /**
  * 화면이 다시 보여질 때(ON_RESUME)마다 [onResume]을 호출해 최신 상태로 갱신한다.
  *
- * Lifecycle.addObserver()는 이미 RESUMED 상태인 라이프사이클에 옵저버를 등록하면
- * ON_CREATE/ON_START/ON_RESUME을 즉시 재생(replay)한다. 그래서 화면에 처음 진입할 때도
- * ON_RESUME이 한 번 발생하는데, 이때는 ViewModel의 init{} 로드와 중복 호출되므로 무시하고
- * 그 이후의 "진짜" 복귀(다른 화면 갔다가 돌아오는 경우)에만 [onResume]을 호출한다.
+ * 이 컴포저블을 감싸고 있는 상위 화면이 다른 화면으로 이동했다가 돌아올 때
+ * 완전히 재구성(dispose 후 재생성)되는 경우가 있어서(예: 다른 최상위 화면으로 이동했다가
+ * 복귀하는 경우), "최초 진입"과 "진짜 복귀"를 구분하는 방식은 신뢰할 수 없다.
+ * 그래서 ON_RESUME마다 항상 [onResume]을 호출한다. 최초 진입 시 ViewModel의 init{}과
+ * 중복 호출될 수 있지만, 약간의 추가 네트워크 호출일 뿐 기능적으로는 문제없다.
  */
 @Composable
 fun RefreshOnResume(onResume: () -> Unit) {
     val currentOnResume = rememberUpdatedState(onResume)
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
-        var isFirstResume = true
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                if (isFirstResume) {
-                    isFirstResume = false
-                } else {
-                    currentOnResume.value()
-                }
+                currentOnResume.value()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
