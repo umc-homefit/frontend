@@ -67,8 +67,6 @@ private fun EligibilityAnalysisResultDto.toUiModel(): AnalysisResultData {
                 resultStatus = condition.resultStatus
             )
         },
-        // "입력 정보"는 분석 시점의 스냅샷만 사용한다(현재 금융입력정보로 대체하지 않음).
-        // 스냅샷을 남기기 전(구) 분석 이력은 snapshot이 null이라 안내 문구로 대체.
         inputInfoRows = snapshot?.toInputInfoRows() ?: emptyList(),
         inputInfoUnavailableMessage = if (snapshot == null) "분석 당시 입력 정보를 사용할 수 없습니다" else null,
         criteriaInfoRows = toCriteriaInfoRows(),

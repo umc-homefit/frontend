@@ -157,7 +157,7 @@ private fun RecordListContent(
         return
     }
 
-    // 기록 있는 경우 — 같은 날짜끼리 묶어서 날짜 캡션은 한 번만 보여줌
+    // 기록 있는 경우
     val groupedRecords = records.groupBy { it.date }.toList()
 
     LazyColumn(

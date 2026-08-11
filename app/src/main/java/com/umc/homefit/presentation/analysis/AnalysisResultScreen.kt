@@ -357,7 +357,6 @@ private fun SuccessContent(
                             .align(Alignment.CenterStart)
                             .padding(start = 26.dp)
                     ) {
-                        // percentileText는 score 기반 클라이언트 산출값이라 항상 채워짐 (0~100점 유효 범위 내)
                         Surface(
                             shape = RoundedCornerShape(200.dp),
                             color = Color(0xFFF1F0FF)
@@ -578,7 +577,6 @@ private fun SuccessContent(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // 분석 시점 스냅샷 기반. 스냅샷이 없는(구) 분석 이력은 안내 문구로 대체
                     if (data.inputInfoUnavailableMessage != null) {
                         Text(
                             text = data.inputInfoUnavailableMessage,
