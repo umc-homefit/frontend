@@ -1,8 +1,5 @@
 ﻿package com.umc.homefit.presentation.mypage
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,20 +16,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,16 +39,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.umc.homefit.data.dto.common.NoticeStatus
 import com.umc.homefit.presentation.component.AppScaffold
 import com.umc.homefit.presentation.component.AutoDismissInfoSnackbar
-import androidx.compose.ui.draw.clip
+import com.umc.homefit.presentation.component.NoticeCard
+import com.umc.homefit.presentation.component.NoticeCardAction
+import com.umc.homefit.presentation.component.NoticeCardUiModel
 import androidx.compose.ui.text.style.TextAlign
 
-private val CardBorderColor = Color(0xFFD2D9E2)
-private val GrayChipColor = Color(0xFFF0F4F9)
-private val GrayChipTextColor = Color(0xFF6B7280)
-private val RecruitingChipColor = Color(0xFFE3F2FD)
-private val RecruitingTextColor = Color(0xFF1E88E5)
 private val MutedTextColor = Color(0xFF919AA4)
 private val SelectedTextColor = Color(0xFF4A4F55)
 
@@ -138,7 +128,7 @@ fun SavedRecruitmentScreen(
 
 @Composable
 private fun SavedRecruitmentContent(
-    items: List<SavedRecruitmentItem>,
+    items: List<NoticeCardUiModel>,
     sortOption: SortOption,
     isLoadingMore: Boolean,
     onSortOptionSelected: (SortOption) -> Unit,
@@ -147,6 +137,11 @@ private fun SavedRecruitmentContent(
     onCardClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    if (items.isEmpty()) {
+        EmptySavedRecruitmentView(modifier = modifier)
+        return
+    }
+
     val listState = rememberLazyListState()
 
     LaunchedEffect(listState, items.size) {
@@ -182,10 +177,10 @@ private fun SavedRecruitmentContent(
         }
 
         itemsIndexed(items, key = { _, item -> item.id }) { index, item ->
-            SavedRecruitmentCard(
-                item = item,
-                onRemoveClick = { onRemoveClick(item.id) },
-                onClick = { onCardClick(item.id) }
+            NoticeCard(
+                uiModel = item,
+                onClick = { onCardClick(item.id) },
+                action = NoticeCardAction.Remove(onRemove = { onRemoveClick(item.id) })
             )
             if (index != items.lastIndex) {
                 Spacer(modifier = Modifier.height(10.dp))
@@ -203,6 +198,26 @@ private fun SavedRecruitmentContent(
                     CircularProgressIndicator(modifier = Modifier.size(24.dp))
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun EmptySavedRecruitmentView(modifier: Modifier = Modifier) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "아직 관심 공고가 없어요",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                color = SelectedTextColor
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = "마음에 드는 공고를 하트를 눌러 저장해보세요",
+                fontSize = 13.sp,
+                color = MutedTextColor
+            )
         }
     }
 }
@@ -263,147 +278,12 @@ private fun SortDropdown(
     }
 }
 
-@Composable
-private fun SavedRecruitmentCard(
-    item: SavedRecruitmentItem,
-    onRemoveClick: () -> Unit,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .background(Color.White, RoundedCornerShape(4.dp))
-            .border(BorderStroke(1.dp, CardBorderColor), RoundedCornerShape(4.dp))
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
-        ) {
-            Text(
-                text = item.title,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f)
-            )
-            IconButton(
-                onClick = onRemoveClick,
-                modifier = Modifier.size(20.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = "관심 공고 해제",
-                    tint = MutedTextColor
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(6.dp))
-
-        Text(
-            text = "공고번호 | ${item.noticeNumber}",
-            fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = "전용 | ${item.exclusiveArea}   보증금 | ${item.deposit}",
-            fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = "청약접수 | ${item.applicationPeriod}",
-            fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            StatusChip(status = item.status)
-
-            if (item.competitionRate != null) {
-                Spacer(modifier = Modifier.width(6.dp))
-
-                Box(
-                    modifier = Modifier
-                        .height(24.dp)
-                        .clip(RoundedCornerShape(50))
-                        .background(GrayChipColor)
-                        .padding(horizontal = 10.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "\uD83D\uDD25경쟁률 ${item.competitionRate}",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = GrayChipTextColor
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun StatusChip(status: RecruitmentStatus) {
-    val backgroundColor = when (status) {
-        RecruitmentStatus.SCHEDULED, RecruitmentStatus.CLOSED -> GrayChipColor
-        RecruitmentStatus.RECRUITING -> RecruitingChipColor
-        RecruitmentStatus.CLOSING_SOON -> Color(0xFFFFEBEE)
-    }
-    val textColor = when (status) {
-        RecruitmentStatus.SCHEDULED, RecruitmentStatus.CLOSED -> GrayChipTextColor
-        RecruitmentStatus.RECRUITING -> RecruitingTextColor
-        RecruitmentStatus.CLOSING_SOON -> Color(0xFFE53935)
-    }
-
-    Box(
-        modifier = Modifier
-            .height(24.dp)
-            .clip(RoundedCornerShape(50))
-            .background(backgroundColor)
-            .padding(horizontal = 10.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = status.label,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium,
-            color = textColor
-        )
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 fun SavedRecruitmentScreenPreview() {
     SavedRecruitmentScreen(
         uiState = SavedRecruitmentScreenUiState.Success(
-            items = listOf(
-                SavedRecruitmentItem(
-                    id = "1",
-                    title = "강동구 고덕강일 청년안심주택",
-                    noticeNumber = "2024-강동-031",
-                    exclusiveArea = "59㎡",
-                    deposit = "3,200만원",
-                    applicationPeriod = "2026.07.05 ~ 2026.07.08",
-                    status = RecruitmentStatus.SCHEDULED,
-                    competitionRate = "12:1"
-                ),
-                SavedRecruitmentItem(
-                    id = "2",
-                    title = "강동구 청년안심주택 2025-03호",
-                    noticeNumber = "2024-강동-031",
-                    exclusiveArea = "59㎡",
-                    deposit = "3,200만원",
-                    applicationPeriod = "2026.07.05 ~ 2026.07.08",
-                    status = RecruitmentStatus.RECRUITING,
-                    competitionRate = null
-                )
-            )
+            items = emptyList()
         ),
         onBack = {}
     )
