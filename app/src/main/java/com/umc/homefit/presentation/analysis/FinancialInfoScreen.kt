@@ -199,7 +199,7 @@ fun FinancialInfoScreen(
                                     )
                                 } else {
                                     CompletionStep(
-                                        title = "재무 정보가 저장되었습니다",
+                                        title = "금융 정보가 저장되었습니다",
                                         buttonText = "확인",
                                         onButtonClick = onBack
                                     )

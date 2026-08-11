@@ -23,7 +23,6 @@ class FinanceScreenViewModel @Inject constructor(
         loadMatchedProducts()
     }
 
-    // 재무 정보 입력 화면에서 복귀했을 때 등, 화면 재진입 시 최신 상태로 갱신
     fun refresh() = loadMatchedProducts(showLoading = false)
 
     fun loadMatchedProducts(showLoading: Boolean = true) {

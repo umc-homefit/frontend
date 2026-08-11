@@ -306,7 +306,14 @@ private fun RecruitmentDetailContent(
         BottomButtonBar(
             analysisId = analysisId,
             onCompetitionClick = { selectedTab = 1 },
-            onAnalysisClick = { onNavigateToAnalysis(recruitment.noticeId.toString(), recruitment.primaryUnitId) },
+            onAnalysisClick = {
+                val unitId = recruitment.primaryUnitId
+                if (unitId != null) {
+                    onNavigateToAnalysis(recruitment.noticeId.toString(), unitId)
+                } else {
+                    Toast.makeText(context, "이 공고는 아직 분석할 수 없습니다", Toast.LENGTH_SHORT).show()
+                }
+            },
             onAnalysisResultClick = onNavigateToAnalysisResult
         )
     }
