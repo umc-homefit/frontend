@@ -1,12 +1,12 @@
 package com.umc.homefit.presentation.home
 
-import com.umc.homefit.data.dto.recruitment.NoticeDto
+import com.umc.homefit.presentation.component.NoticeCardUiModel
 
 sealed interface HomeScreenUiState {
     data object Loading : HomeScreenUiState
 
     data class Success(
-        val notices: List<NoticeDto>
+        val notices: List<NoticeCardUiModel>
     ) : HomeScreenUiState
 
     data class Error(val message: String) : HomeScreenUiState

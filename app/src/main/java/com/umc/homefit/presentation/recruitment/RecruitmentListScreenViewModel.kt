@@ -7,6 +7,7 @@ import com.umc.homefit.data.dto.recruitment.NoticeDto
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.recruitment.RecruitmentRepository
 import com.umc.homefit.domain.repository.recruitment.SavedNoticeRepository
+import com.umc.homefit.presentation.component.toNoticeCardUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -67,7 +68,7 @@ class RecruitmentListScreenViewModel @Inject constructor(
         }
         val currentState = _uiState.value
         if (currentState is RecruitmentListScreenUiState.Success) {
-            _uiState.value = currentState.copy(recruitments = recruitments)
+            _uiState.value = currentState.copy(recruitments = recruitments.map { it.toNoticeCardUiModel() })
         }
     }
 
@@ -106,7 +107,7 @@ class RecruitmentListScreenViewModel @Inject constructor(
             when (result) {
                 is NetworkResult.Success -> {
                     recruitments = result.data.notices
-                    _uiState.value = RecruitmentListScreenUiState.Success(recruitments)
+                    _uiState.value = RecruitmentListScreenUiState.Success(recruitments.map { it.toNoticeCardUiModel() })
                 }
                 is NetworkResult.Error -> {
                     if (showLoading) {
