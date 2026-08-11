@@ -21,7 +21,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +51,17 @@ fun FinanceScreenRoute(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refresh()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     FinanceScreen(
         uiState = uiState,
@@ -113,47 +128,66 @@ private fun FinanceSuccessContent(
     onNavigateToDetail: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
+    Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFFFFFFF)),
+            .background(Color(0xFFFFFFFF))
     ) {
-        item {
-            FinanceHeaderSection(data = data)
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            item {
+                FinanceHeaderSection(data = data)
+            }
+
+            item {
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .background(Color(0xFFF0F4F9))
+                )
+            }
+
+            item {
+                Text(
+                    text = "추천 상품",
+                    modifier = Modifier.padding(
+                        start = 16.dp,
+                        top = 20.dp,
+                        end = 16.dp,
+                        bottom = 14.dp
+                    ),
+                    color = Color(0xFF18191B),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            if (data.products.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 40.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "매칭된 상품이 없습니다",
+                            color = Color(0xFF919AA4)
+                        )
+                    }
+                }
+            } else {
+                item {
+                    RecommendedProductsSection(
+                        products = data.products,
+                        onProductClick = onNavigateToDetail
+                    )
+                }
+            }
         }
 
-        item {
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp)
-                    .background(Color(0xFFF0F4F9))
-            )
-        }
-
-        item {
-            Text(
-                text = "추천 상품",
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                    top = 20.dp,
-                    end = 16.dp,
-                    bottom = 14.dp
-                ),
-                color = Color(0xFF18191B),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        item {
-            RecommendedProductsSection(
-                products = data.products,
-                onProductClick = onNavigateToDetail
-            )
-        }
-
-        item {
+        // 목록 길이와 상관없이 바텀 탭 바로 위에 고정되도록 LazyColumn 바깥에 배치
+        if (data.products.isNotEmpty()) {
             RecommendedProductsButton(
                 onClick = onNavigateToRecommendedProducts,
                 modifier = Modifier
@@ -279,7 +313,7 @@ private fun FinanceSummaryItem(
         contentAlignment = Alignment.Center
     ) {
         Column(
-            horizontalAlignment = Alignment.Start,
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Text(

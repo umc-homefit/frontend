@@ -23,14 +23,19 @@ class FinanceScreenViewModel @Inject constructor(
         loadMatchedProducts()
     }
 
-    fun loadMatchedProducts() {
+    // 재무 정보 입력 화면에서 복귀했을 때 등, 화면 재진입 시 최신 상태로 갱신
+    fun refresh() = loadMatchedProducts(showLoading = false)
+
+    fun loadMatchedProducts(showLoading: Boolean = true) {
         viewModelScope.launch {
-            _uiState.value = FinanceScreenUiState.Loading
+            if (showLoading) {
+                _uiState.value = FinanceScreenUiState.Loading
+            }
             _uiState.value = when (val result = financeRepository.getMatchedLoanProducts()) {
                 is NetworkResult.Success -> FinanceScreenUiState.Success(
                     matchedCount = "${result.data.matchedCount}가지",
-                    minRate = "연 ${result.data.minRate}",
-                    maxLimitAmount = "최대 ${result.data.maxLimitAmount.toKoreanAmount()}",
+                    minRate = result.data.minRate?.let { "연 $it" } ?: "-",
+                    maxLimitAmount = result.data.maxLimitAmount?.let { "최대 ${it.toKoreanAmount()}" } ?: "-",
                     products = result.data.products
                         .filter { product -> product.isEligible }
                         .take(MAX_VISIBLE_PRODUCTS)

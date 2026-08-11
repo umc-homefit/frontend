@@ -22,13 +22,20 @@ class RecommendedProductScreenViewModel @Inject constructor(
     )
     val uiState: StateFlow<RecommendedProductScreenUiState> = _uiState.asStateFlow()
 
+    private var currentSort: String = DEFAULT_SORT
+
     init {
         loadRecommendedProducts()
     }
 
-    fun loadRecommendedProducts(sort: String = DEFAULT_SORT) {
+    fun refresh() = loadRecommendedProducts(sort = currentSort, showLoading = false)
+
+    fun loadRecommendedProducts(sort: String = DEFAULT_SORT, showLoading: Boolean = true) {
+        currentSort = sort
         viewModelScope.launch {
-            _uiState.value = RecommendedProductScreenUiState.Loading
+            if (showLoading) {
+                _uiState.value = RecommendedProductScreenUiState.Loading
+            }
             _uiState.value = when (
                 val result = financeRepository.getMatchedLoanProducts(sort = sort)
             ) {

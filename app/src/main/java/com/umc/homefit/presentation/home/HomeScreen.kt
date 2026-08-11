@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -238,9 +239,12 @@ fun HomeScreen(
                     if (uiState.notices.isEmpty()) {
                         item {
                             Text(
-                                text = "조회된 주요 공고가 없습니다.",
-                                modifier = Modifier.padding(24.dp),
-                                color = Color(0xFF9298A2)
+                                text = "조회된 주요 공고가 없습니다",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(24.dp),
+                                color = Color(0xFF9298A2),
+                                textAlign = TextAlign.Center
                             )
                         }
                     } else {
