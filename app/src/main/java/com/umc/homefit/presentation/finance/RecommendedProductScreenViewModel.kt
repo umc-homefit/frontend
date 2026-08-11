@@ -7,6 +7,7 @@ import com.umc.homefit.domain.repository.finance.FinanceRepository
 import com.umc.homefit.util.error.ErrorCode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,21 +24,41 @@ class RecommendedProductScreenViewModel @Inject constructor(
     val uiState: StateFlow<RecommendedProductScreenUiState> = _uiState.asStateFlow()
 
     private var currentSort: String = DEFAULT_SORT
+    private var currentCategory: String? = null
+    private var currentKeyword: String? = null
+    private var loadJob: Job? = null
 
     init {
         loadRecommendedProducts()
     }
 
-    fun refresh() = loadRecommendedProducts(sort = currentSort, showLoading = false)
+    fun refresh() = loadRecommendedProducts(
+        sort = currentSort,
+        category = currentCategory,
+        keyword = currentKeyword,
+        showLoading = false
+    )
 
-    fun loadRecommendedProducts(sort: String = DEFAULT_SORT, showLoading: Boolean = true) {
+    fun loadRecommendedProducts(
+        sort: String = DEFAULT_SORT,
+        category: String? = null,
+        keyword: String? = null,
+        showLoading: Boolean = true
+    ) {
         currentSort = sort
-        viewModelScope.launch {
+        currentCategory = category
+        currentKeyword = keyword
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             if (showLoading) {
                 _uiState.value = RecommendedProductScreenUiState.Loading
             }
             when (
-                val result = financeRepository.getMatchedLoanProducts(sort = sort)
+                val result = financeRepository.getMatchedLoanProducts(
+                    productCategory = category,
+                    keyword = keyword,
+                    sort = sort
+                )
             ) {
                 is NetworkResult.Success -> {
                     _uiState.value = RecommendedProductScreenUiState.Success(

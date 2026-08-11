@@ -38,6 +38,10 @@ import androidx.compose.foundation.Image
 import com.umc.homefit.presentation.component.RefreshOnResume
 import com.umc.homefit.presentation.finance.component.ConditionProfileRequiredContent
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
+import com.umc.homefit.presentation.theme.Black
+import com.umc.homefit.presentation.theme.BrightGray
+import com.umc.homefit.presentation.theme.DarkGray
+import com.umc.homefit.presentation.theme.Gray
 
 @Composable
 fun FinanceScreenRoute(
@@ -144,8 +148,8 @@ private fun FinanceSuccessContent(
                         end = 16.dp,
                         bottom = 14.dp
                     ),
-                    color = Color(0xFF18191B),
-                    fontSize = 18.sp,
+                    color = Black,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -174,7 +178,6 @@ private fun FinanceSuccessContent(
             }
         }
 
-        // 목록 길이와 상관없이 바텀 탭 바로 위에 고정되도록 LazyColumn 바깥에 배치
         if (data.products.isNotEmpty()) {
             RecommendedProductsButton(
                 onClick = onNavigateToRecommendedProducts,
@@ -239,7 +242,7 @@ private fun FinanceSummaryCard(
                 .fillMaxWidth()
                 .height(95.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(Color(0xFFF0F4F9)),
+                .background(BrightGray),
             verticalAlignment = Alignment.CenterVertically
         ) {
             FinanceSummaryItem(
@@ -306,8 +309,9 @@ private fun FinanceSummaryItem(
         ) {
             Text(
                 text = label,
-                color = Color(0xFF919AA4),
-                fontSize = 14.sp
+                color = Gray,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
             )
 
             Spacer(
@@ -316,7 +320,7 @@ private fun FinanceSummaryItem(
 
             Text(
                 text = value,
-                color = Color(0xFF4A4F55),
+                color = DarkGray,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -375,7 +379,7 @@ private fun RecommendedProductsButton(
 ) {
     Box(
         modifier = modifier
-            .height(52.dp)
+            .height(48.dp)
             .clip(RoundedCornerShape(4.dp))
             .background(
                 brush = Brush.horizontalGradient(
@@ -391,7 +395,7 @@ private fun RecommendedProductsButton(
         Text(
             text = "추천 상품 전체 보기",
             color = Color(0xFFFFFFFF),
-            fontSize = 15.sp,
+            fontSize = 16.sp,
             fontWeight = FontWeight.Bold
         )
     }

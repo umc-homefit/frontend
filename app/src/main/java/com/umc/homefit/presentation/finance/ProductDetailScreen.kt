@@ -674,7 +674,7 @@ private fun ProductDetailTag(
     Surface(
         modifier = modifier,
         color = Color(0xFFFFFFFF),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(120.dp),
         border = BorderStroke(
             width = 1.dp,
             color = Color(0xFFD8E0E8)
@@ -683,12 +683,12 @@ private fun ProductDetailTag(
         Text(
             text = text,
             modifier = Modifier.padding(
-                horizontal = 14.dp,
+                horizontal = 12.dp,
                 vertical = 5.dp
             ),
             color = Color(0xFF919AA4),
             fontSize = 14.sp,
-            lineHeight = 12.sp
+            lineHeight = 17.sp
         )
     }
 }
@@ -806,9 +806,6 @@ private fun formatWon(
         }
     }
 }
-
-private fun String.toAnnualRateText(): String =
-    if (this == "정보 없음" || startsWith("연 ")) this else "연 $this"
 
 private fun formatDecimal(
     value: Double
