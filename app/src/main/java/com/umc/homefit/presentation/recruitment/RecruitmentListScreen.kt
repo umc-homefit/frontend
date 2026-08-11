@@ -40,9 +40,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.umc.homefit.data.dto.recruitment.NoticeDto
+import com.umc.homefit.data.dto.common.NoticeStatus
+import com.umc.homefit.presentation.component.NoticeCard
+import com.umc.homefit.presentation.component.NoticeCardAction
+import com.umc.homefit.presentation.component.NoticeCardUiModel
 import com.umc.homefit.presentation.component.RefreshOnResume
-import com.umc.homefit.presentation.recruitment.component.NoticeCard
 import com.umc.homefit.presentation.recruitment.component.RecruitmentSearchBar
 import com.umc.homefit.presentation.theme.RecruitmentAccent
 import com.umc.homefit.presentation.theme.RecruitmentBorder
@@ -83,13 +85,13 @@ fun RecruitmentListScreenRoute(
     )
 }
 
-private data class StatusFilterOption(val label: String, val status: String?)
+private data class StatusFilterOption(val label: String, val status: NoticeStatus?)
 
 private val statusFilterOptions = listOf(
     StatusFilterOption("전체", null),
-    StatusFilterOption("모집중", "RECRUITING"),
-    StatusFilterOption("예정", "SCHEDULED"),
-    StatusFilterOption("마감임박", "CLOSING_SOON")
+    StatusFilterOption("모집중", NoticeStatus.RECRUITING),
+    StatusFilterOption("예정", NoticeStatus.SCHEDULED),
+    StatusFilterOption("마감임박", NoticeStatus.CLOSING_SOON)
 )
 
 @Composable
@@ -106,7 +108,7 @@ fun RecruitmentListScreen(
     var searchQuery by rememberSaveable(initialSearchQuery) {
         mutableStateOf(initialSearchQuery)
     }
-    var selectedStatus by remember { mutableStateOf<String?>(null) }
+    var selectedStatus by remember { mutableStateOf<NoticeStatus?>(null) }
 
     Column(modifier = modifier.fillMaxSize()) {
         RecruitmentSearchBar(
@@ -133,7 +135,7 @@ fun RecruitmentListScreen(
                         selected = selectedStatus == option.status,
                         onClick = {
                             selectedStatus = option.status
-                            onStatusFilterChanged(option.status)
+                            onStatusFilterChanged(option.status?.name)
                         }
                     )
                 }
@@ -179,11 +181,14 @@ fun RecruitmentListScreen(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(uiState.recruitments, key = { it.noticeId }) { recruitment ->
+                    items(uiState.recruitments, key = { it.id }) { recruitment ->
                         NoticeCard(
-                            notice = recruitment,
-                            onClick = { onNavigateToDetail(recruitment.noticeId.toString()) },
-                            onToggleBookmark = { onToggleBookmark(recruitment.noticeId) }
+                            uiModel = recruitment,
+                            onClick = { onNavigateToDetail(recruitment.id) },
+                            action = NoticeCardAction.Bookmark(
+                                isSaved = recruitment.isSaved,
+                                onToggle = { onToggleBookmark(recruitment.id.toLong()) }
+                            )
                         )
                     }
                 }
@@ -230,44 +235,25 @@ fun RecruitmentListScreenPreview() {
     RecruitmentListScreen(
         uiState = RecruitmentListScreenUiState.Success(
             recruitments = listOf(
-                NoticeDto(
-                    noticeId = 1,
+                NoticeCardUiModel(
+                    id = "1",
                     title = "2026년 행복주택 입주자 모집공고",
-                    region = "서울",
-                    district = "강남구",
-                    unitSummary = "전용 39.87㎡",
-                    depositMin = 30000000,
-                    depositMax = 30000000,
-                    monthlyRentMin = 350000,
-                    monthlyRentMax = 350000,
-                    status = "RECRUITING",
-                    statusDisplayText = "모집중",
-                    isAdditionalRecruitment = false,
-                    applicationStartAt = "2026-07-14T10:00:00+09:00",
-                    applicationEndAt = "2026-07-18T18:00:00+09:00",
-                    dDayText = "D-4",
-                    views = 100,
-                    interestedCount = 12,
-                    isSaved = true
+                    infoLine1 = null,
+                    infoLine2 = "전용 39.87㎡  보증금 3,000만원",
+                    infoLine3 = "청약접수 | 2026.07.14 ~ 2026.07.18",
+                    status = NoticeStatus.RECRUITING,
+                    statusLabel = "모집중",
+                    isSaved = true,
+                    dDayText = "D-4"
                 ),
-                NoticeDto(
-                    noticeId = 2,
+                NoticeCardUiModel(
+                    id = "2",
                     title = "청년 매입임대주택 입주자 모집공고",
-                    region = "서울",
-                    district = "마포구",
-                    unitSummary = "전용 29.5㎡",
-                    depositMin = 80000000,
-                    depositMax = 80000000,
-                    monthlyRentMin = 0,
-                    monthlyRentMax = 0,
-                    status = "SCHEDULED",
-                    statusDisplayText = "예정",
-                    isAdditionalRecruitment = false,
-                    applicationStartAt = "2026-07-20T10:00:00+09:00",
-                    applicationEndAt = "2026-07-25T18:00:00+09:00",
-                    dDayText = null,
-                    views = 40,
-                    interestedCount = 3,
+                    infoLine1 = null,
+                    infoLine2 = "전용 29.5㎡  보증금 8,000만원",
+                    infoLine3 = "청약접수 | 2026.07.20 ~ 2026.07.25",
+                    status = NoticeStatus.SCHEDULED,
+                    statusLabel = "예정",
                     isSaved = false
                 )
             )

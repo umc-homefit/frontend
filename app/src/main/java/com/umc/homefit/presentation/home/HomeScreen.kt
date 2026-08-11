@@ -1,7 +1,6 @@
 ﻿package com.umc.homefit.presentation.home
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,14 +21,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -45,13 +39,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.R
-import com.umc.homefit.data.dto.recruitment.NoticeDto
+import com.umc.homefit.presentation.component.NoticeCardUiModel
+import com.umc.homefit.data.dto.common.NoticeStatus
 import com.umc.homefit.presentation.component.TopBarAction
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.umc.homefit.presentation.component.AppScaffold
-import com.umc.homefit.presentation.recruitment.component.NoticeCard
+import com.umc.homefit.presentation.component.NoticeCard
+import com.umc.homefit.presentation.component.NoticeCardAction
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
@@ -251,16 +247,17 @@ fun HomeScreen(
                     } else {
                         items(
                             items = uiState.notices,
-                            key = NoticeDto::noticeId
+                            key = NoticeCardUiModel::id
                         ) { notice ->
                             NoticeCard(
-                                notice = notice,
+                                uiModel = notice,
                                 onClick = {
-                                    onNavigateToDetail(notice.noticeId.toString())
+                                    onNavigateToDetail(notice.id)
                                 },
-                                onToggleBookmark = {
-                                    onToggleBookmark(notice.noticeId)
-                                },
+                                action = NoticeCardAction.Bookmark(
+                                    isSaved = notice.isSaved,
+                                    onToggle = { onToggleBookmark(notice.id.toLong()) }
+                                ),
                                 modifier = Modifier.padding(
                                     horizontal = 16.dp,
                                     vertical = 6.dp
@@ -513,26 +510,16 @@ private fun HomeMenuItem(
 
 
 private val sampleNotices = listOf(
-    NoticeDto(
-        noticeId = 1,
+    NoticeCardUiModel(
+        id = "1",
         title = "강동구 청년안심주택 추가모집",
-        announcementNo = "2026-강동-003",
-        region = "서울",
-        district = "강동구",
-        unitSummary = "전용 24㎡",
-        depositMin = 32_000_000,
-        depositMax = 48_000_000,
-        monthlyRentMin = 280_000,
-        monthlyRentMax = 410_000,
-        status = "CLOSING_SOON",
-        statusDisplayText = "마감임박",
-        isAdditionalRecruitment = true,
-        applicationStartAt = "2026-07-01T10:00:00Z",
-        applicationEndAt = "2026-07-10T18:00:00Z",
-        dDayText = "D-3",
-        views = 120,
-        interestedCount = 32,
-        isSaved = false
+        infoLine1 = "공고번호 | 2026-강동-003",
+        infoLine2 = "전용 24㎡  보증금 3,200만원",
+        infoLine3 = "청약접수 | 2026.07.01 ~ 2026.07.10",
+        status = NoticeStatus.CLOSING_SOON,
+        statusLabel = "마감임박",
+        isSaved = false,
+        dDayText = "D-3"
     )
 )
 

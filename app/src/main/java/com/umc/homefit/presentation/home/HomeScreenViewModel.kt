@@ -7,6 +7,7 @@ import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.home.HomeRepository
 import com.umc.homefit.domain.repository.mypage.MyPageRepository
 import com.umc.homefit.domain.repository.recruitment.SavedNoticeRepository
+import com.umc.homefit.presentation.component.toNoticeCardUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,8 @@ class HomeScreenViewModel @Inject constructor(
 
     private val _userName = MutableStateFlow<String?>(null)
     val userName: StateFlow<String?> = _userName.asStateFlow()
+
+    private var notices: List<NoticeDto> = emptyList()
 
     init {
         loadUserName()
@@ -96,10 +99,7 @@ class HomeScreenViewModel @Inject constructor(
     }
 
     fun toggleBookmark(noticeId: Long) {
-        val currentState = _uiState.value
-        if (currentState !is HomeScreenUiState.Success) return
-
-        val notice = currentState.notices.find { it.noticeId == noticeId } ?: return
+        val notice = notices.find { it.noticeId == noticeId } ?: return
         val nextSaved = !notice.isSaved
         applySavedState(noticeId, nextSaved)
 
@@ -117,18 +117,18 @@ class HomeScreenViewModel @Inject constructor(
     }
 
     private fun applySavedState(noticeId: Long, isSaved: Boolean) {
+        notices = notices.map { notice ->
+            if (notice.noticeId == noticeId) notice.copy(isSaved = isSaved) else notice
+        }
         val currentState = _uiState.value
-        if (currentState !is HomeScreenUiState.Success) return
-
-        _uiState.value = currentState.copy(
-            notices = currentState.notices.map { notice ->
-                if (notice.noticeId == noticeId) notice.copy(isSaved = isSaved) else notice
-            }
-        )
+        if (currentState is HomeScreenUiState.Success) {
+            _uiState.value = currentState.copy(notices = notices.map { it.toNoticeCardUiModel() })
+        }
     }
 
     private fun updateSuccess(notices: List<NoticeDto>) {
-        _uiState.value = HomeScreenUiState.Success(notices = notices)
+        this.notices = notices
+        _uiState.value = HomeScreenUiState.Success(notices = notices.map { it.toNoticeCardUiModel() })
     }
 
     private companion object {
