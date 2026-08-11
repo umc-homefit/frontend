@@ -29,9 +29,23 @@ class FinancialInfoScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    // 공고 상세에서 "분석 요청하기"로 진입한 경우에만 채워짐. Finance 탭 등에서 프로필만 입력하러 온 경우 둘 다 null.
-    private val noticeId: Long? = savedStateHandle.get<Long>("noticeId")
-    private val unitId: Long? = savedStateHandle.get<Long>("unitId")
+    // noticeId/unitId 중 하나만 있는 "반쪽" 상태가 여기저기서 null 체크로 새는 걸 막기 위해
+    // 진입 시점에 한 번만 정리해서 EntryContext로 고정한다.
+    private val entryContext: EntryContext = run {
+        val id = savedStateHandle.get<Long>("noticeId")
+        val unit = savedStateHandle.get<Long>("unitId")
+        if (id != null && unit != null) {
+            EntryContext.ForAnalysis(noticeId = id, unitId = unit)
+        } else {
+            EntryContext.ProfileOnly
+        }
+    }
+
+    // 공고 상세에서 "분석 요청하기"로 진입했는지(ForAnalysis), Finance 탭 등에서 프로필만 입력하러 왔는지(ProfileOnly)
+    private sealed interface EntryContext {
+        data class ForAnalysis(val noticeId: Long, val unitId: Long) : EntryContext
+        data object ProfileOnly : EntryContext
+    }
 
     private val _uiState = MutableStateFlow<FinancialInfoScreenUiState>(
         FinancialInfoScreenUiState.Loading
@@ -129,17 +143,18 @@ class FinancialInfoScreenViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = conditionProfileRepository.updateConditionProfile(request)) {
                 is NetworkResult.Success -> {
-                    val id = noticeId
-                    val unit = unitId
-                    if (id != null && unit != null) {
-                        requestAnalysisAndComplete(draft, id, unit)
-                    } else {
-                        // 공고와 무관하게 재무 프로필만 저장하는 흐름: 분석을 만들지 않고 완료 처리
-                        _uiState.value = FinancialInfoScreenUiState.Success(
-                            draft = draft,
-                            isSubmitting = false,
-                            isSubmitted = true
-                        )
+                    when (val context = entryContext) {
+                        is EntryContext.ForAnalysis -> {
+                            requestAnalysisAndComplete(draft, context.noticeId, context.unitId)
+                        }
+                        EntryContext.ProfileOnly -> {
+                            // 공고와 무관하게 재무 프로필만 저장하는 흐름: 분석을 만들지 않고 완료 처리
+                            _uiState.value = FinancialInfoScreenUiState.Success(
+                                draft = draft,
+                                isSubmitting = false,
+                                isSubmitted = true
+                            )
+                        }
                     }
                 }
                 is NetworkResult.Error -> {
@@ -152,7 +167,18 @@ class FinancialInfoScreenViewModel @Inject constructor(
         }
     }
 
+    // 완료 화면의 "다시 시도"에서 호출. ForAnalysis로 들어온 경우에만 의미가 있음
+    fun retryAnalysisRequest() {
+        val context = entryContext as? EntryContext.ForAnalysis ?: return
+        val draft = currentDraft()
+        viewModelScope.launch {
+            requestAnalysisAndComplete(draft, context.noticeId, context.unitId)
+        }
+    }
+
     private suspend fun requestAnalysisAndComplete(draft: ConditionProfileDraft, noticeId: Long, unitId: Long) {
+        // 진행 중 표시: 이전에 실패 메시지가 남아있었다면 재시도 중에는 지워서 보여줌
+        _uiState.value = FinancialInfoScreenUiState.Success(draft = draft, isSubmitting = true)
         when (val result = analysisRepository.requestEligibilityAnalysis(noticeId, unitId)) {
             is NetworkResult.Success -> {
                 _uiState.value = FinancialInfoScreenUiState.Success(
@@ -163,10 +189,13 @@ class FinancialInfoScreenViewModel @Inject constructor(
                 )
             }
             is NetworkResult.Error -> {
-                // 재무 프로필 저장은 이미 성공했으므로 draft는 유지하고 분석 생성 실패만 안내
-                _uiState.value = FinancialInfoScreenUiState.Error(
-                    message = result.message,
-                    draft = draft
+                // 재무 프로필 저장은 이미 성공했으므로 Error 화면으로 내리지 않고,
+                // 완료 단계에서 실패 메시지 + 재시도로 안내 (뒤로가기가 먹통이 되는 문제 방지)
+                _uiState.value = FinancialInfoScreenUiState.Success(
+                    draft = draft,
+                    isSubmitting = false,
+                    isSubmitted = true,
+                    analysisFailedMessage = result.message
                 )
             }
         }

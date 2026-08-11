@@ -36,19 +36,24 @@ class RecommendedProductScreenViewModel @Inject constructor(
             if (showLoading) {
                 _uiState.value = RecommendedProductScreenUiState.Loading
             }
-            _uiState.value = when (
+            when (
                 val result = financeRepository.getMatchedLoanProducts(sort = sort)
             ) {
-                is NetworkResult.Success -> RecommendedProductScreenUiState.Success(
-                    products = result.data.products
-                        .filter { product -> product.isEligible }
-                        .map { product -> product.toFinanceRecommendedProductUiModel() }
-                )
+                is NetworkResult.Success -> {
+                    _uiState.value = RecommendedProductScreenUiState.Success(
+                        products = result.data.products
+                            .filter { product -> product.isEligible }
+                            .map { product -> product.toFinanceRecommendedProductUiModel() }
+                    )
+                }
                 is NetworkResult.Error -> {
-                    if (result.errorCode == ErrorCode.FINANCE400) {
-                        RecommendedProductScreenUiState.ConditionProfileRequired
-                    } else {
-                        RecommendedProductScreenUiState.Error(result.message)
+                    // 백그라운드 갱신(showLoading=false) 실패는 이미 화면에 떠 있는 데이터를 지우지 않도록 무시
+                    if (showLoading) {
+                        _uiState.value = if (result.errorCode == ErrorCode.FINANCE400) {
+                            RecommendedProductScreenUiState.ConditionProfileRequired
+                        } else {
+                            RecommendedProductScreenUiState.Error(result.message)
+                        }
                     }
                 }
             }

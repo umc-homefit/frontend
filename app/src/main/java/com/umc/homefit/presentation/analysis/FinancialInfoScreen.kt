@@ -80,6 +80,7 @@ fun FinancialInfoScreenRoute(
         onAssetNext = viewModel::onAssetNext,
         onDebtNext = viewModel::onDebtNext,
         onHouseNext = viewModel::onHouseNextAndSubmit,
+        onRetryAnalysis = viewModel::retryAnalysisRequest,
         modifier = modifier
     )
 }
@@ -93,6 +94,7 @@ fun FinancialInfoScreen(
     onAssetNext: (totalAssetText: String, financialAssetText: String) -> Unit,
     onDebtNext: (totalDebtText: String, monthlyRepaymentText: String) -> Unit,
     onHouseNext: (housingStatus: String) -> Unit,
+    onRetryAnalysis: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var currentStep by remember { mutableStateOf(FinancialInfoStep.INCOME) }
@@ -191,18 +193,39 @@ fun FinancialInfoScreen(
 
                             FinancialInfoStep.COMPLETE -> {
                                 val analysisId = uiState.analysisId
-                                if (analysisId != null) {
-                                    CompletionStep(
-                                        title = "입주 분석이 완료되었습니다",
-                                        buttonText = "분석 결과 확인하기",
-                                        onButtonClick = { onNavigateToResult(analysisId) }
-                                    )
-                                } else {
-                                    CompletionStep(
-                                        title = "금융 정보가 저장되었습니다",
-                                        buttonText = "확인",
-                                        onButtonClick = onBack
-                                    )
+                                val analysisFailedMessage = uiState.analysisFailedMessage
+                                when {
+                                    analysisId != null -> {
+                                        CompletionStep(
+                                            title = "입주 분석이 완료되었습니다",
+                                            buttonText = "분석 결과 확인하기",
+                                            onButtonClick = { onNavigateToResult(analysisId) }
+                                        )
+                                    }
+                                    analysisFailedMessage != null -> {
+                                        // 재무 프로필 저장은 이미 성공했으므로 재시도만 하면 됨 (재입력 불필요)
+                                        StepBaseLayout(
+                                            title = "분석 생성에 실패했습니다",
+                                            onNext = onRetryAnalysis,
+                                            isNextEnabled = true,
+                                            buttonText = "다시 시도",
+                                            bottomLinkText = "나중에 다시 시도할게요",
+                                            onBottomLinkClick = onBack
+                                        ) {
+                                            Text(
+                                                text = analysisFailedMessage,
+                                                fontSize = 14.sp,
+                                                color = Color(0xFF919AA4)
+                                            )
+                                        }
+                                    }
+                                    else -> {
+                                        CompletionStep(
+                                            title = "금융 정보가 저장되었습니다",
+                                            buttonText = "확인",
+                                            onButtonClick = onBack
+                                        )
+                                    }
                                 }
                             }
                         }
