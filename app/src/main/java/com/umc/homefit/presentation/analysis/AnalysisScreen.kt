@@ -152,7 +152,20 @@ private fun RecordListContent(
     // 기록 없는 경우
     if (records.isEmpty()) {
         Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(text = "기록이 없습니다", color = Color(0xFF919AA4), fontSize = 14.sp)
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "아직 분석 기록이 없어요",
+                    color = Color(0xFF18191B),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "관심 있는 공고에서 입주 가능성을 분석해보세요",
+                    color = Color(0xFF919AA4),
+                    fontSize = 13.sp
+                )
+            }
         }
         return
     }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -176,20 +177,39 @@ fun RecruitmentListScreen(
             }
 
             is RecruitmentListScreenUiState.Success -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(uiState.recruitments, key = { it.id }) { recruitment ->
-                        NoticeCard(
-                            uiModel = recruitment,
-                            onClick = { onNavigateToDetail(recruitment.id) },
-                            action = NoticeCardAction.Bookmark(
-                                isSaved = recruitment.isSaved,
-                                onToggle = { onToggleBookmark(recruitment.id.toLong()) }
+                if (uiState.recruitments.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "조건에 맞는 공고를 찾지 못했어요",
+                                color = Color(0xFF18191B),
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold
                             )
-                        )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "다른 검색어나 필터로 다시 찾아보세요",
+                                color = RecruitmentTextGray,
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(uiState.recruitments, key = { it.id }) { recruitment ->
+                            NoticeCard(
+                                uiModel = recruitment,
+                                onClick = { onNavigateToDetail(recruitment.id) },
+                                action = NoticeCardAction.Bookmark(
+                                    isSaved = recruitment.isSaved,
+                                    onToggle = { onToggleBookmark(recruitment.id.toLong()) }
+                                )
+                            )
+                        }
                     }
                 }
             }
