@@ -578,9 +578,17 @@ private fun SuccessContent(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // 조건 프로필 API(FinancialInfo 입력값) 기반, 6개 항목 항상 채워짐
-                    data.inputInfoRows.forEach { row ->
-                        AnalysisInfoRow(row.title, row.value)
+                    // 분석 시점 스냅샷 기반. 스냅샷이 없는(구) 분석 이력은 안내 문구로 대체
+                    if (data.inputInfoUnavailableMessage != null) {
+                        Text(
+                            text = data.inputInfoUnavailableMessage,
+                            fontSize = 13.sp,
+                            color = Color(0xFF919AA4)
+                        )
+                    } else {
+                        data.inputInfoRows.forEach { row ->
+                            AnalysisInfoRow(row.title, row.value)
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(26.dp))
