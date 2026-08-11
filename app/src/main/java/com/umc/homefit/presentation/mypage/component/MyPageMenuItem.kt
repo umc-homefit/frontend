@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.umc.homefit.R
 
 private val CardBorderColor = Color(0xFFD2D9E2)
+private val ArrowIconColor = Color(0xFF919AA4)
 
 @Composable
 fun MyPageMenuItem(
@@ -55,8 +56,8 @@ fun MyPageMenuItem(
         Icon(
             painter = painterResource(id = R.drawable.ic_mypage_arrow),
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(20.dp)
+            tint = ArrowIconColor,
+            modifier = Modifier.size(13.dp)
         )
     }
 }

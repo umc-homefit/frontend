@@ -2,9 +2,11 @@
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.umc.homefit.data.dto.common.NoticeStatus
 import com.umc.homefit.data.dto.recruitment.SavedNoticeResponse
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.recruitment.SavedNoticeRepository
+import com.umc.homefit.presentation.component.NoticeCardUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -70,7 +72,7 @@ class SavedRecruitmentScreenViewModel @Inject constructor(
                 when (val result = savedNoticeRepository.getSavedNotices(sort = "LATEST", page = page, size = PAGE_SIZE)) {
                     is NetworkResult.Success -> {
                         currentPage = page
-                        val newItems = result.data.savedNotices.map { it.toSavedRecruitmentItem() }
+                        val newItems = result.data.savedNotices.map { it.toNoticeCardUiModel() }
                         val previousItems = if (isLoadMore && current is SavedRecruitmentScreenUiState.Success) current.items else emptyList()
                         val sortOption = if (current is SavedRecruitmentScreenUiState.Success) current.sortOption else SortOption.LATEST
 
@@ -94,36 +96,32 @@ class SavedRecruitmentScreenViewModel @Inject constructor(
             }
         }
     }
-    private fun SavedNoticeResponse.toSavedRecruitmentItem(): SavedRecruitmentItem {
-        return SavedRecruitmentItem(
+    private fun SavedNoticeResponse.toNoticeCardUiModel(): NoticeCardUiModel {
+        return NoticeCardUiModel(
             id = noticeId.toString(),
             title = title,
-            noticeNumber = announcementNo ?: "-",
-            exclusiveArea = unitSummary ?: "-",
-            deposit = formatDeposit(depositMin, depositMax),
-            applicationPeriod = "${applicationStartAt?.toDateText() ?: "-"} ~ ${applicationEndAt?.toDateText() ?: "-"}",
-            status = status.toRecruitmentStatus(),
-            competitionRate = null
+            infoLine1 = announcementNo?.let { "공고번호 | $it" },
+            infoLine2 = buildAreaDepositLine(unitSummary, depositMin),
+            infoLine3 = "청약접수 | ${applicationStartAt?.toDateText() ?: "공고문 참고"} ~ ${applicationEndAt?.toDateText() ?: "공고문 참고"}",
+            status = NoticeStatus.fromApiValue(status),
+            statusLabel = statusDisplayText,
+            isSaved = true
         )
     }
 
-    private fun formatDeposit(min: Long?, max: Long?): String {
-        val minText = min?.let { "%,d만원".format(it / 10_000) }
-        val maxText = max?.let { "%,d만원".format(it / 10_000) }
-        return when {
-            min == null && max == null -> "-"
-            min == max -> minText ?: maxText ?: "-"
-            else -> listOfNotNull(minText, maxText).joinToString(" ~ ")
-        }
+    private fun buildAreaDepositLine(unitSummary: String?, depositMin: Long?): String {
+        val area = unitSummary?.removePrefix("전용")?.trim()?.takeIf { it.isNotBlank() } ?: "공고문 참고"
+        return "전용 $area  보증금 ${formatDepositToManwon(depositMin)}"
+    }
+
+    private fun formatDepositToManwon(depositInWon: Long?): String {
+        if (depositInWon == null) return "공고문 참고"
+        return "%,d만원".format(depositInWon / 10_000)
     }
 
     private fun String.toDateText(): String = take(10).replace("-", ".")
 
     private companion object {
         const val PAGE_SIZE = 10
-    }
-
-    private fun String.toRecruitmentStatus(): RecruitmentStatus {
-        return RecruitmentStatus.entries.find { it.name == this } ?: RecruitmentStatus.CLOSED
     }
 }

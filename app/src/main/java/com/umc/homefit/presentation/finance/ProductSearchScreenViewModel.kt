@@ -1,6 +1,5 @@
 ﻿package com.umc.homefit.presentation.finance
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.umc.homefit.domain.repository.finance.ProductSearchRepository

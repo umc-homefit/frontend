@@ -1,32 +1,16 @@
-﻿package com.umc.homefit.presentation.mypage
+package com.umc.homefit.presentation.mypage
+
+import com.umc.homefit.presentation.component.NoticeCardUiModel
 
 sealed interface SavedRecruitmentScreenUiState {
     object Loading : SavedRecruitmentScreenUiState
     data class Success(
-        val items: List<SavedRecruitmentItem>,
+        val items: List<NoticeCardUiModel>,
         val sortOption: SortOption = SortOption.LATEST,
         val isLoadingMore: Boolean = false,
         val hasNext: Boolean = false
     ) : SavedRecruitmentScreenUiState
     data class Error(val message: String) : SavedRecruitmentScreenUiState
-}
-
-data class SavedRecruitmentItem(
-    val id: String,
-    val title: String,
-    val noticeNumber: String,
-    val exclusiveArea: String,
-    val deposit: String,
-    val applicationPeriod: String,
-    val status: RecruitmentStatus,
-    val competitionRate: String?
-)
-
-enum class RecruitmentStatus(val label: String) {
-    SCHEDULED("예정"),
-    RECRUITING("모집중"),
-    CLOSING_SOON("마감임박"),
-    CLOSED("마감")
 }
 
 enum class SortOption(val label: String) {

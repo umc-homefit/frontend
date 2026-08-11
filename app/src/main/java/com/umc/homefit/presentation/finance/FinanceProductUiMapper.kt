@@ -11,12 +11,8 @@ internal fun LoanProductResponse.toFinanceRecommendedProductUiModel(): FinanceRe
         productId = productId,
         title = productName,
         providerLogoUrl = providerLogoUrl,
-        productType = when (providerType) {
-            FinanceProviderType.POLICY -> "정부지원"
-            FinanceProviderType.BANK -> "은행"
-            FinanceProviderType.UNKNOWN -> "기타"
-        },
-        interestRate = "금리 | $rateRange",
+        productType = providerType.toLabel(),
+        interestRate = rateRange.toAnnualRateText(),
         amountDescription = maxLimitAmount?.let { "대출한도 | 최대 ${it.toKoreanAmount()}" }
             ?: "대출한도 | 상품별 상이",
         targetDescription = maxIncome?.let { "연소득 | ${it.toKoreanAmount()} 이하" }
@@ -29,12 +25,21 @@ internal fun LoanProductResponse.toFinanceRecommendedProductUiModel(): FinanceRe
         }.distinct()
     )
 
+internal fun FinanceProviderType.toLabel(): String = when (this) {
+    FinanceProviderType.POLICY -> "정부지원"
+    FinanceProviderType.BANK -> "은행상품"
+    FinanceProviderType.UNKNOWN -> "기타"
+}
+
 private fun FinanceProductCategory.toCategoryLabel(): String = when (this) {
     FinanceProductCategory.MORTGAGE_LOAN -> "주택담보대출"
     FinanceProductCategory.JEONSE_LOAN -> "전세대출"
     FinanceProductCategory.SUBSCRIPTION_SAVINGS -> "청약저축"
     FinanceProductCategory.UNKNOWN -> "기타"
 }
+
+internal fun String.toAnnualRateText(): String =
+    if (this == "정보 없음" || startsWith("연 ")) this else "연 $this"
 
 internal fun Long.toKoreanAmount(): String {
     val eok = this / 100_000_000

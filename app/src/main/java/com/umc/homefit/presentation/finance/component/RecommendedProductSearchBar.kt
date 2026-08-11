@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -23,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -38,7 +41,14 @@ fun RecommendedProductSearchBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
+            .then(
+                if (readOnly) {
+                    Modifier.clickable { onBarClick?.invoke() }
+                } else {
+                    Modifier
+                }
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -46,46 +56,76 @@ fun RecommendedProductSearchBar(
                 .weight(1f)
                 .height(48.dp)
         ) {
-            BasicTextField(
-                value = searchQuery,
-                onValueChange = {
-                    if (!readOnly) {
-                        onSearchQueryChange(it)
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxSize(),
-                singleLine = true,
-                textStyle = TextStyle(
-                    fontSize = 14.sp,
-                    color = Color.Black
-                ),
-                decorationBox = { innerTextField ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                Color(0xFFF0F4F9),
-                                RoundedCornerShape(
-                                    topStart = 4.dp,
-                                    bottomStart = 4.dp
-                                )
+            if (readOnly) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Color(0xFFF0F4F9),
+                            RoundedCornerShape(
+                                topStart = 4.dp,
+                                bottomStart = 4.dp
                             )
-                            .padding(horizontal = 16.dp),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        if (searchQuery.isEmpty()) {
-                            Text(
-                                text = "상품명, 은행명 등으로 검색",
-                                fontSize = 14.sp,
-                                color = Color(0xFF919AA4)
-                            )
+                        )
+                        .padding(horizontal = 16.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    Text(
+                        text = searchQuery.ifEmpty { "상품명, 은행명 등으로 검색" },
+                        fontSize = 14.sp,
+                        color = if (searchQuery.isEmpty()) {
+                            Color(0xFF919AA4)
+                        } else {
+                            Color.Black
                         }
-
-                        innerTextField()
-                    }
+                    )
                 }
-            )
+            } else {
+                BasicTextField(
+                    value = searchQuery,
+                    onValueChange = onSearchQueryChange,
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 14.sp,
+                        color = Color.Black
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Search
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            onSearchClick()
+                        }
+                    ),
+                    decorationBox = { innerTextField ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    Color(0xFFF0F4F9),
+                                    RoundedCornerShape(
+                                        topStart = 4.dp,
+                                        bottomStart = 4.dp
+                                    )
+                                )
+                                .padding(horizontal = 16.dp),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            if (searchQuery.isEmpty()) {
+                                Text(
+                                    text = "상품명, 은행명 등으로 검색",
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF919AA4)
+                                )
+                            }
+
+                            innerTextField()
+                        }
+                    }
+                )
+            }
         }
 
         Box(
@@ -94,8 +134,8 @@ fun RecommendedProductSearchBar(
                 .background(
                     brush = Brush.linearGradient(
                         colors = listOf(
-                            Color(0xFF3C45F3).copy(alpha = 0.8f),
-                            Color(0xFF3C45F3).copy(alpha = 0.4f)
+                            Color(0xFF3C45F3).copy(alpha = 1f),
+                            Color(0xFF3C45F3).copy(alpha = 0.5f)
                         ),
                         start = Offset.Zero,
                         end = Offset(
