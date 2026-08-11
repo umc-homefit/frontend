@@ -80,7 +80,7 @@ fun CompetitionScreenRoute(
     viewModel: CompetitionScreenViewModel,
     analysisId: String?,
     onBack: () -> Unit,
-    onNavigateToAnalysis: (String) -> Unit,
+    onNavigateToAnalysis: (noticeId: String, unitId: Long?) -> Unit,
     onNavigateToAnalysisResult: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -102,7 +102,7 @@ fun CompetitionScreen(
     analysisId: String?,
     onBack: () -> Unit,
     onToggleBookmark: () -> Unit,
-    onNavigateToAnalysis: (String) -> Unit,
+    onNavigateToAnalysis: (noticeId: String, unitId: Long?) -> Unit,
     onNavigateToAnalysisResult: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -166,7 +166,7 @@ private fun CompetitionContent(
     competition: CompetitionDto,
     analysisId: String?,
     onNavigateBackToDetail: () -> Unit,
-    onNavigateToAnalysis: (String) -> Unit,
+    onNavigateToAnalysis: (noticeId: String, unitId: Long?) -> Unit,
     onNavigateToAnalysisResult: (String) -> Unit
 ) {
     Column(
@@ -224,7 +224,7 @@ private fun CompetitionContent(
                         AnalysisRequestButton(
                             analysisId = analysisId,
                             onClick = {
-                                analysisId?.let(onNavigateToAnalysisResult) ?: onNavigateToAnalysis(competition.noticeId)
+                                analysisId?.let(onNavigateToAnalysisResult) ?: onNavigateToAnalysis(competition.noticeId, null)
                             }
                         )
                         Spacer(modifier = Modifier.height(24.dp))
@@ -760,7 +760,7 @@ fun CompetitionScreenPreview() {
         analysisId = null,
         onBack = {},
         onToggleBookmark = {},
-        onNavigateToAnalysis = {},
+        onNavigateToAnalysis = { _, _ -> },
         onNavigateToAnalysisResult = {}
     )
 }

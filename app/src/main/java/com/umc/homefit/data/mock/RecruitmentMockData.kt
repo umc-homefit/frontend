@@ -1,7 +1,5 @@
 package com.umc.homefit.data.mock
 
-import com.umc.homefit.R
-import com.umc.homefit.data.dto.recruitment.Attachment
 import com.umc.homefit.data.dto.recruitment.RecruitmentDto
 import com.umc.homefit.data.dto.recruitment.RecruitmentStatus
 
@@ -84,50 +82,6 @@ object RecruitmentMockData {
                 status = RecruitmentStatus.RECRUITING,
                 competitionRate = "5.1:1",
                 isBookmarked = false
-            )
-        )
-    }
-
-    fun getRecruitmentDetail(id: String): RecruitmentDto {
-        return RecruitmentDto(
-            id = id,
-            title = "강동구 청년안심주택 2025-03호",
-            company = "한국토지주택공사",
-            location = "서울 강동구 천호동 123-4",
-            rentType = "청년안심주택 (임대)",
-            unitSummary = "전용 24㎡ 18세대 / 전용 33㎡ 12세대",
-            depositMin = 32000000,
-            depositMax = 48000000,
-            monthlyRentMin = 280000,
-            monthlyRentMax = 410000,
-            announcementDate = "2026-07-13",
-            announcementNumber = "2026-강남-001",
-            area = 39.87,
-            // TODO: API 연동 시 ISO 8601 → 한글 날짜 포맷 변환 필요
-            applicationStartDate = "2025년 6월 9일 (월) 오전 10:00",
-            applicationEndDate = "2025년 6월 13일 (금) 오후 6:00",
-            status = RecruitmentStatus.RECRUITING,
-            competitionRate = "12.3:1",
-            isBookmarked = true,
-            tags = listOf("청년우선공급", "역세권"),
-            attachments = listOf(
-                Attachment(fileName = "2025-03호 공고문 (PDF)", registeredDate = "2025.06.02 등록"),
-                Attachment(fileName = "입주자 모집 안내 책자", registeredDate = "2025.06.02 등록"),
-                Attachment(fileName = "서울주택도시공사 청약 신청 매뉴얼", registeredDate = "2025.05.28 등록")
-            ),
-            moveInDate = "2025년 9월",
-            ageRange = "만 19세 ~ 39세",
-            incomeStandard = "도시근로자 월평균 소득 100% 이하",
-            assetStandard = "총 자산 3억 6,100만 원 이하",
-            housingOwnership = "무주택 세대구성원",
-            residencyRequirement = "서울시 거주 또는 직장 소재",
-            winnerAnnouncementDate = "2025년 7월 4일 (금)",
-            contractPeriod = "2025년 7월 14일 ~ 7월 18일",
-            photoResIds = listOf(
-                R.drawable.img_recruitment_1,
-                R.drawable.img_recruitment_2,
-                R.drawable.img_recruitment_3,
-                R.drawable.img_recruitment_4
             )
         )
     }

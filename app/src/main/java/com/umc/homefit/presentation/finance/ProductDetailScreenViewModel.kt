@@ -2,17 +2,20 @@
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.umc.homefit.data.mock.ProductDetailMockData
+import com.umc.homefit.data.dto.finance.LoanProductDetailResponse
+import com.umc.homefit.data.remote.NetworkResult
+import com.umc.homefit.domain.repository.finance.FinanceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class ProductDetailScreenViewModel @Inject constructor() : ViewModel() {
+class ProductDetailScreenViewModel @Inject constructor(
+    private val financeRepository: FinanceRepository
+) : ViewModel() {
 
     private val _uiState =
         MutableStateFlow<ProductDetailScreenUiState>(
@@ -41,19 +44,30 @@ class ProductDetailScreenViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             _uiState.value = ProductDetailScreenUiState.Loading
 
-            // API 응답을 기다리는 상황을 재현하기 위한 임시 지연
-            delay(500)
+            _uiState.value = when (
+                val detailResult = financeRepository.getLoanProductDetail(productId)
+            ) {
+                is NetworkResult.Success -> {
+                    when (
+                        val documentsResult =
+                            financeRepository.getLoanProductDocuments(productId)
+                    ) {
+                        is NetworkResult.Success -> ProductDetailScreenUiState.Success(
+                            product = detailResult.data.toProductDetailData(
+                                requiredDocuments = documentsResult.data.map { document ->
+                                    document.documentName
+                                }
+                            )
+                        )
 
-            val product =
-                ProductDetailMockData.getProductDetail(productId)
+                        is NetworkResult.Error -> ProductDetailScreenUiState.Error(
+                            message = documentsResult.message
+                        )
+                    }
+                }
 
-            _uiState.value = if (product != null) {
-                ProductDetailScreenUiState.Success(
-                    product = product
-                )
-            } else {
-                ProductDetailScreenUiState.Error(
-                    message = "해당 금융상품을 찾을 수 없습니다."
+                is NetworkResult.Error -> ProductDetailScreenUiState.Error(
+                    message = detailResult.message
                 )
             }
         }
@@ -68,3 +82,34 @@ class ProductDetailScreenViewModel @Inject constructor() : ViewModel() {
         )
     }
 }
+
+private fun LoanProductDetailResponse.toProductDetailData(
+    requiredDocuments: List<String>
+): ProductDetailData =
+    ProductDetailData(
+        productId = productId,
+        productName = productName,
+        providerType = providerType.toLabel(),
+        productCategory = productCategory?.name ?: "UNKNOWN",
+        providerName = providerName,
+        providerLogoUrl = providerLogoUrl,
+        rateRange = rateRange ?: "정보 없음",
+        maxIncome = maxIncome,
+        firstTimeBuyerOnly = firstTimeBuyerOnly == true,
+        incomeTaxDeductible = incomeTaxDeductible == true,
+        minAge = minAge,
+        maxAge = maxAge,
+        requireNoHouse = requireNoHouse == true,
+        maxLimitAmount = maxLimitAmount,
+        ltvRatio = ltvRatio,
+        dtiRatio = dtiRatio,
+        loanTermMinYears = loanTermMinYears,
+        loanTermMaxYears = loanTermMaxYears,
+        preferentialRateDiscount = preferentialRateDiscount,
+        firstTimeBuyerRateDiscount = firstTimeBuyerRateDiscount,
+        minMonthlyDeposit = minMonthlyDeposit,
+        maxMonthlyDeposit = maxMonthlyDeposit,
+        officialUrl = officialUrl,
+        description = description,
+        requiredDocuments = requiredDocuments
+    )

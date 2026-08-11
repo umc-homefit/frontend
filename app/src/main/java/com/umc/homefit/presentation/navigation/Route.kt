@@ -28,7 +28,7 @@ sealed interface Route {
     data class Competition(val recruitmentId: String, val analysisId: String? = null) : Route
 
     @Serializable
-    data object FinancialInfo : Route
+    data class FinancialInfo(val noticeId: Long? = null, val unitId: Long? = null) : Route
 
     @Serializable
     data class FinancialInfoEdit(val step: com.umc.homefit.presentation.analysis.FinancialInfoStep) : Route

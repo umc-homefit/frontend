@@ -35,8 +35,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Image
+import com.umc.homefit.presentation.component.RefreshOnResume
 import com.umc.homefit.presentation.finance.component.ConditionProfileRequiredContent
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
+import com.umc.homefit.presentation.theme.Black
+import com.umc.homefit.presentation.theme.BrightGray
+import com.umc.homefit.presentation.theme.DarkGray
+import com.umc.homefit.presentation.theme.Gray
 
 @Composable
 fun FinanceScreenRoute(
@@ -47,6 +52,8 @@ fun FinanceScreenRoute(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    RefreshOnResume(onResume = viewModel::refresh)
 
     FinanceScreen(
         uiState = uiState,
@@ -113,47 +120,65 @@ private fun FinanceSuccessContent(
     onNavigateToDetail: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
+    Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFFFFFFF)),
+            .background(Color(0xFFFFFFFF))
     ) {
-        item {
-            FinanceHeaderSection(data = data)
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            item {
+                FinanceHeaderSection(data = data)
+            }
+
+            item {
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .background(Color(0xFFF0F4F9))
+                )
+            }
+
+            item {
+                Text(
+                    text = "추천 상품",
+                    modifier = Modifier.padding(
+                        start = 16.dp,
+                        top = 20.dp,
+                        end = 16.dp,
+                        bottom = 14.dp
+                    ),
+                    color = Black,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            if (data.products.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 40.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "매칭된 상품이 없습니다",
+                            color = Color(0xFF919AA4)
+                        )
+                    }
+                }
+            } else {
+                item {
+                    RecommendedProductsSection(
+                        products = data.products,
+                        onProductClick = onNavigateToDetail
+                    )
+                }
+            }
         }
 
-        item {
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp)
-                    .background(Color(0xFFF0F4F9))
-            )
-        }
-
-        item {
-            Text(
-                text = "추천 상품",
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                    top = 20.dp,
-                    end = 16.dp,
-                    bottom = 14.dp
-                ),
-                color = Color(0xFF18191B),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        item {
-            RecommendedProductsSection(
-                products = data.products,
-                onProductClick = onNavigateToDetail
-            )
-        }
-
-        item {
+        if (data.products.isNotEmpty()) {
             RecommendedProductsButton(
                 onClick = onNavigateToRecommendedProducts,
                 modifier = Modifier
@@ -217,7 +242,7 @@ private fun FinanceSummaryCard(
                 .fillMaxWidth()
                 .height(95.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(Color(0xFFF0F4F9)),
+                .background(BrightGray),
             verticalAlignment = Alignment.CenterVertically
         ) {
             FinanceSummaryItem(
@@ -279,13 +304,14 @@ private fun FinanceSummaryItem(
         contentAlignment = Alignment.Center
     ) {
         Column(
-            horizontalAlignment = Alignment.Start,
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = label,
-                color = Color(0xFF919AA4),
-                fontSize = 14.sp
+                color = Gray,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
             )
 
             Spacer(
@@ -294,7 +320,7 @@ private fun FinanceSummaryItem(
 
             Text(
                 text = value,
-                color = Color(0xFF4A4F55),
+                color = DarkGray,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -353,7 +379,7 @@ private fun RecommendedProductsButton(
 ) {
     Box(
         modifier = modifier
-            .height(52.dp)
+            .height(48.dp)
             .clip(RoundedCornerShape(4.dp))
             .background(
                 brush = Brush.horizontalGradient(
@@ -369,7 +395,7 @@ private fun RecommendedProductsButton(
         Text(
             text = "추천 상품 전체 보기",
             color = Color(0xFFFFFFFF),
-            fontSize = 15.sp,
+            fontSize = 16.sp,
             fontWeight = FontWeight.Bold
         )
     }

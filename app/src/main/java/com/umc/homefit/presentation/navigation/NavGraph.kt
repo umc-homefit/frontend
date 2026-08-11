@@ -41,6 +41,7 @@ import com.umc.homefit.presentation.component.AppScaffold
 
 private const val FILTER_RESULT_KEY = "filter_result"
 private const val NAVIGATE_TO_TAB_KEY = "navigate_to_tab"
+private const val PRODUCT_SEARCH_RESULT_KEY = "product_search_result"
 
 @Composable
 fun RootNavGraph(
@@ -122,10 +123,9 @@ fun RootNavGraph(
                 viewModel = hiltViewModel(),
                 analysisId = args.analysisId,
                 onBack = { navController.popBackStack() },
-                onNavigateToCompetition = { recruitmentId ->
-                    navController.navigate(Route.Competition(recruitmentId, analysisId = args.analysisId))
+                onNavigateToAnalysis = { noticeId, unitId ->
+                    navController.navigate(Route.FinancialInfo(noticeId = noticeId.toLongOrNull(), unitId = unitId))
                 },
-                onNavigateToAnalysis = { navController.navigate(Route.FinancialInfo) },
                 onNavigateToAnalysisResult = { analysisId ->
                     navController.navigate(Route.AnalysisResult(analysisId = analysisId, fromRecord = true))
                 }
@@ -138,7 +138,9 @@ fun RootNavGraph(
                 viewModel = hiltViewModel(),
                 analysisId = args.analysisId,
                 onBack = { navController.popBackStack() },
-                onNavigateToAnalysis = { navController.navigate(Route.FinancialInfo) },
+                onNavigateToAnalysis = { noticeId, unitId ->
+                    navController.navigate(Route.FinancialInfo(noticeId = noticeId.toLongOrNull(), unitId = unitId))
+                },
                 onNavigateToAnalysisResult = { analysisId ->
                     navController.navigate(Route.AnalysisResult(analysisId = analysisId, fromRecord = true))
                 }
@@ -221,7 +223,7 @@ fun RootNavGraph(
                 viewModel = hiltViewModel(),
                 onBack = { navController.popBackStack() },
                 onSearchComplete = { keyword ->
-                    navController.previousBackStackEntry?.savedStateHandle?.set("productSearchQuery", keyword)
+                    navController.previousBackStackEntry?.savedStateHandle?.set(PRODUCT_SEARCH_RESULT_KEY, keyword)
                     navController.popBackStack()
                 }
             )
@@ -230,7 +232,8 @@ fun RootNavGraph(
         composable<Route.SavedRecruitment> {
             SavedRecruitmentScreenRoute(
                 viewModel = hiltViewModel(),
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onNavigateToDetail = { recruitmentId -> navController.navigate(Route.RecruitmentDetail(recruitmentId)) }
             )
         }
 
@@ -264,6 +267,12 @@ fun MainScreen(
     val requestedTab = rootBackStackEntry
         ?.savedStateHandle
         ?.getStateFlow<String?>(NAVIGATE_TO_TAB_KEY, null)
+        ?.collectAsState()
+        ?.value
+
+    val productSearchResult = rootBackStackEntry
+        ?.savedStateHandle
+        ?.getStateFlow<String?>(PRODUCT_SEARCH_RESULT_KEY, null)
         ?.collectAsState()
         ?.value
 
@@ -417,21 +426,17 @@ fun MainScreen(
                 FinanceScreenRoute(
                     viewModel = hiltViewModel(),
                     onNavigateToRecommendedProducts = { tabNavController.navigate(TabRoute.RecommendedProduct) },
-                    onNavigateToFinancialInfo = { rootNavController.navigate(Route.FinancialInfo) },
+                    onNavigateToFinancialInfo = { rootNavController.navigate(Route.FinancialInfo()) },
                     onNavigateToDetail = { productId -> rootNavController.navigate(Route.ProductDetail(productId = productId)) }
                 )
             }
 
-            composable<TabRoute.RecommendedProduct> { backStackEntry ->
-                val searchQuery by backStackEntry.savedStateHandle
-                    .getStateFlow(key = "productSearchQuery", initialValue = "")
-                    .collectAsState()
-
+            composable<TabRoute.RecommendedProduct> {
                 RecommendedProductScreenRoute(
                     viewModel = hiltViewModel(),
-                    searchQuery = searchQuery,
+                    searchQuery = productSearchResult.orEmpty(),
                     onNavigateToSearch = { rootNavController.navigate(Route.ProductSearch) },
-                    onNavigateToFinancialInfo = { rootNavController.navigate(Route.FinancialInfo) },
+                    onNavigateToFinancialInfo = { rootNavController.navigate(Route.FinancialInfo()) },
                     onNavigateToDetail = { productId -> rootNavController.navigate(Route.ProductDetail(productId = productId)) }
                 )
             }

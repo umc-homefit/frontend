@@ -21,7 +21,6 @@ data class RecruitmentDto(
     val announcementDate: String,
     val announcementNumber: String,
     val area: Double,
-    // TODO: API 연동 시 ISO 8601 → 한글 날짜 포맷 변환 필요
     val applicationStartDate: String,
     val applicationEndDate: String,
     val status: RecruitmentStatus,
@@ -38,7 +37,6 @@ data class RecruitmentDto(
     val winnerAnnouncementDate: String = "공고문 참고",
     val contractPeriod: String = "공고문 참고",
     val unitSummary: String = "공고문 참고",
-    // TODO: API 연동 시 photoResIds(로컬) → imageUrls(네트워크, Coil AsyncImage) 로 교체
     val photoResIds: List<Int> = emptyList()
 )
 

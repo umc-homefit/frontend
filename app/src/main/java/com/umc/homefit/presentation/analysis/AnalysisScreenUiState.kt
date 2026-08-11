@@ -1,9 +1,11 @@
-﻿package com.umc.homefit.presentation.analysis
+package com.umc.homefit.presentation.analysis
+
+import com.umc.homefit.presentation.component.NoticeCardUiModel
 
 sealed interface AnalysisScreenUiState {
     data object Loading : AnalysisScreenUiState
     data class Success(
-        val records: List<RecordItem> = emptyList(),
+        val records: List<RecordListItem> = emptyList(),
         val sections: List<FinanceInfoSection> = emptyList()
     ) : AnalysisScreenUiState
     data class Error(val message: String) : AnalysisScreenUiState
@@ -14,14 +16,9 @@ enum class AnalysisTab(val title: String) {
     RECORD("기록")
 }
 
-data class RecordItem(
+data class RecordListItem(
+    val date: String,
     val noticeId: String,
     val analysisId: String,
-    val date: String,
-    val title: String,
-    val complexInfo: String,
-    val areaInfo: String,
-    val applyPeriod: String,
-    val statusLabel: String,
-    val competitionRate: String?
+    val card: NoticeCardUiModel
 )

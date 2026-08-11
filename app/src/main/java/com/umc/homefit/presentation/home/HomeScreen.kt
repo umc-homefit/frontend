@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,14 +39,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.R
+import com.umc.homefit.presentation.component.NoticeCardUiModel
+import com.umc.homefit.data.dto.common.NoticeStatus
 import com.umc.homefit.presentation.component.TopBarAction
 import androidx.compose.foundation.layout.offset
-import androidx.compose.runtime.collectAsState
-import com.umc.homefit.data.dto.recruitment.RecruitmentDto
-import com.umc.homefit.data.dto.recruitment.RecruitmentStatus
-import com.umc.homefit.presentation.recruitment.component.RecruitmentCard
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.umc.homefit.presentation.component.AppScaffold
+import com.umc.homefit.presentation.component.NoticeCard
+import com.umc.homefit.presentation.component.NoticeCardAction
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
@@ -60,12 +63,12 @@ fun HomeScreenRoute(
     onFinanceClick: () -> Unit = {},
     onGuideClick: () -> Unit = {}
 ) {
-    val recommendedAnnouncements by
-    viewModel.recommendedAnnouncements.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val userName by viewModel.userName.collectAsStateWithLifecycle()
 
     HomeScreen(
-        userName = "길동",
-        recommendedAnnouncements = recommendedAnnouncements,
+        userName = userName,
+        uiState = uiState,
         hasNotifications = true,
         onNotificationClick = onNotificationClick,
         onSearchClick = onSearchClick,
@@ -76,20 +79,22 @@ fun HomeScreenRoute(
         onGuideClick = onGuideClick,
         onNavigateToDetail = onNavigateToDetail,
         onToggleBookmark = viewModel::toggleBookmark,
+        onRetry = viewModel::loadFeaturedNotices,
         modifier = modifier
     )
 }
 
 @Composable
 fun HomeScreen(
-    userName: String,
-    recommendedAnnouncements: List<RecruitmentDto>,
+    userName: String?,
+    uiState: HomeScreenUiState,
     hasNotifications: Boolean,
     onNotificationClick: () -> Unit,
     onSearchClick: () -> Unit,
     onAllAnnouncementClick: () -> Unit,
     onFavoriteClick: () -> Unit,
-    onToggleBookmark: (String) -> Unit,
+    onToggleBookmark: (Long) -> Unit,
+    onRetry: () -> Unit,
     onAnalysisClick: () -> Unit,
     onFinanceClick: () -> Unit,
     onGuideClick: () -> Unit,
@@ -179,7 +184,7 @@ fun HomeScreen(
 
             item {
                 Text(
-                    text = "추천 공고",
+                    text = "주요 공고",
                     modifier = Modifier.padding(
                         start = 16.dp,
                         top = 20.dp,
@@ -192,25 +197,75 @@ fun HomeScreen(
                 )
             }
 
-            items(
-                items = recommendedAnnouncements,
-                key = { recruitment ->
-                    recruitment.id
+            when (uiState) {
+                HomeScreenUiState.Loading -> item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(160.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
-            ) { recruitment ->
-                RecruitmentCard(
-                    recruitment = recruitment,
-                    onClick = {
-                        onNavigateToDetail(recruitment.id)
-                    },
-                    onToggleBookmark = {
-                        onToggleBookmark(recruitment.id)
-                    },
-                    modifier = Modifier.padding(
-                        horizontal = 16.dp,
-                        vertical = 6.dp
-                    )
-                )
+
+                is HomeScreenUiState.Error -> item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = uiState.message,
+                            color = Color(0xFF9298A2),
+                            fontSize = 14.sp
+                        )
+                        Text(
+                            text = "다시 시도",
+                            modifier = Modifier
+                                .padding(top = 12.dp)
+                                .clickable(onClick = onRetry),
+                            color = Color(0xFF3C45F3),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                is HomeScreenUiState.Success -> {
+                    if (uiState.notices.isEmpty()) {
+                        item {
+                            Text(
+                                text = "조회된 주요 공고가 없습니다",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(24.dp),
+                                color = Color(0xFF9298A2),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    } else {
+                        items(
+                            items = uiState.notices,
+                            key = NoticeCardUiModel::id
+                        ) { notice ->
+                            NoticeCard(
+                                uiModel = notice,
+                                onClick = {
+                                    onNavigateToDetail(notice.id)
+                                },
+                                action = NoticeCardAction.Bookmark(
+                                    isSaved = notice.isSaved,
+                                    onToggle = { onToggleBookmark(notice.id.toLong()) }
+                                ),
+                                modifier = Modifier.padding(
+                                    horizontal = 16.dp,
+                                    vertical = 6.dp
+                                )
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -218,7 +273,7 @@ fun HomeScreen(
 
 @Composable
 private fun HomeHeaderSection(
-    userName: String,
+    userName: String?,
     onSearchClick: () -> Unit,
     onAllAnnouncementClick: () -> Unit
 ) {
@@ -241,7 +296,11 @@ private fun HomeHeaderSection(
                     .padding(end = 92.dp)
             ) {
                 Text(
-                    text = "${userName}님을 위한 맞춤 공고",
+                    text = if (userName.isNullOrBlank()) {
+                        "맞춤 공고"
+                    } else {
+                        "${userName}님을 위한 맞춤 공고"
+                    },
                     color = Color(0xFF18191B),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
@@ -450,82 +509,17 @@ private fun HomeMenuItem(
 }
 
 
-val sampleAnnouncements = listOf(
-    RecruitmentDto(
+private val sampleNotices = listOf(
+    NoticeCardUiModel(
         id = "1",
-        title = "강동구 고덕강일 청년안심주택",
-        company = "서울주택도시공사",
-        location = "서울특별시 강동구",
-        rentType = "전세",
-        depositMin = 32_000_000L,
-        depositMax = 32_000_000L,
-        monthlyRentMin = 0L,
-        monthlyRentMax = 0L,
-        announcementDate = "2024-07-01",
-        announcementNumber = "2024-강동-031",
-        area = 59.0,
-        applicationStartDate = "2024-07-10",
-        applicationEndDate = "2024-07-20",
-        status = RecruitmentStatus.RECRUITING,
-        competitionRate = "12:1",
-        isBookmarked = true
-    ),
-    RecruitmentDto(
-        id = "2",
-        title = "강동구 고덕강일 청년안심주택",
-        company = "서울주택도시공사",
-        location = "서울특별시 강동구",
-        rentType = "전세",
-        depositMin = 32_000_000L,
-        depositMax = 32_000_000L,
-        monthlyRentMin = 0L,
-        monthlyRentMax = 0L,
-        announcementDate = "2024-07-01",
-        announcementNumber = "2024-강동-031",
-        area = 59.0,
-        applicationStartDate = "2024-07-10",
-        applicationEndDate = "2024-07-20",
-        status = RecruitmentStatus.CLOSING_SOON,
-        competitionRate = "12:1",
-        isBookmarked = false
-    ),
-    RecruitmentDto(
-        id = "3",
-        title = "강동구 고덕강일 청년안심주택",
-        company = "서울주택도시공사",
-        location = "서울특별시 강동구",
-        rentType = "전세",
-        depositMin = 32_000_000L,
-        depositMax = 32_000_000L,
-        monthlyRentMin = 0L,
-        monthlyRentMax = 0L,
-        announcementDate = "2024-07-01",
-        announcementNumber = "2024-강동-031",
-        area = 59.0,
-        applicationStartDate = "2024-07-10",
-        applicationEndDate = "2024-07-20",
-        status = RecruitmentStatus.CLOSING_SOON,
-        competitionRate = "12:1",
-        isBookmarked = false
-    ),
-    RecruitmentDto(
-        id = "4",
-        title = "강동구 고덕강일 청년안심주택",
-        company = "서울주택도시공사",
-        location = "서울특별시 강동구",
-        rentType = "전세",
-        depositMin = 32_000_000L,
-        depositMax = 32_000_000L,
-        monthlyRentMin = 0L,
-        monthlyRentMax = 0L,
-        announcementDate = "2024-07-01",
-        announcementNumber = "2024-강동-031",
-        area = 59.0,
-        applicationStartDate = "2024-07-10",
-        applicationEndDate = "2024-07-20",
-        status = RecruitmentStatus.RECRUITING,
-        competitionRate = "12:1",
-        isBookmarked = false
+        title = "강동구 청년안심주택 추가모집",
+        infoLine1 = "공고번호 | 2026-강동-003",
+        infoLine2 = "전용 24㎡  보증금 3,200만원",
+        infoLine3 = "청약접수 | 2026.07.01 ~ 2026.07.10",
+        status = NoticeStatus.CLOSING_SOON,
+        statusLabel = "마감임박",
+        isSaved = false,
+        dDayText = "D-3"
     )
 )
 
@@ -538,13 +532,14 @@ val sampleAnnouncements = listOf(
 private fun HomeScreenPreview() {
     HomeScreen(
         userName = "길동",
-        recommendedAnnouncements = sampleAnnouncements,
+        uiState = HomeScreenUiState.Success(sampleNotices),
         hasNotifications = true,
         onNotificationClick = {},
         onSearchClick = {},
         onAllAnnouncementClick = {},
         onFavoriteClick = {},
         onToggleBookmark = {},
+        onRetry = {},
         onAnalysisClick = {},
         onFinanceClick = {},
         onGuideClick = {},

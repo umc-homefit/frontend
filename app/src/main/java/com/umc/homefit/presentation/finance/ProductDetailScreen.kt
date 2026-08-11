@@ -52,7 +52,6 @@ import com.umc.homefit.R
 import com.umc.homefit.presentation.component.TopBarAction
 import java.text.NumberFormat
 import java.util.Locale
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.LocalTextStyle
@@ -63,6 +62,7 @@ import com.umc.homefit.presentation.finance.component.HelpTerm
 import com.umc.homefit.presentation.finance.component.TermsHelpDialog
 import androidx.compose.runtime.setValue
 import com.umc.homefit.presentation.component.AppScaffold
+import coil.compose.AsyncImage
 
 @Composable
 fun ProductDetailScreenRoute(
@@ -294,20 +294,24 @@ private fun ProductDetailScreen(
                     DetailInformationBox {
                         DetailValueRow(
                             label = "기본 금리",
-                            value = product.rateRange,
+                            value = product.rateRange.toAnnualRateText(),
                             valueColor = Color(0xFF3C45F3),
                             valueFontWeight = FontWeight.Bold
                         )
 
-                        product.preferentialRateDiscount
-                            ?.let { discount ->
-                                DetailValueRow(
-                                    label = "우대 금리",
-                                    value = "최대 ${
-                                        formatDecimal(discount)
-                                    }%p 할인"
-                                )
-                            }
+                        DetailValueRow(
+                            label = "우대 금리",
+                            value = product.preferentialRateDiscount?.let { discount ->
+                                "최대 ${formatDecimal(discount)}%p 할인"
+                            } ?: "정보 없음"
+                        )
+
+                        DetailValueRow(
+                            label = "생애최초 우대",
+                            value = product.firstTimeBuyerRateDiscount?.let { discount ->
+                                "${formatDecimal(discount)}%p 추가할인"
+                            } ?: "정보 없음"
+                        )
 
                         Text(
                             text = "*금리는 신청일 및 심사 결과에 따라 변동될 수 있습니다",
@@ -328,42 +332,31 @@ private fun ProductDetailScreen(
                     }
                 ) {
                     DetailInformationBox {
-                        product.maxLimitAmount?.let { amount ->
-                            DetailValueRow(
-                                label = "최대 대출 한도",
-                                value = formatWon(amount)
-                            )
-                        }
+                        DetailValueRow(
+                            label = "최대 대출 한도",
+                            value = product.maxLimitAmount?.let { amount ->
+                                "최대 ${formatWon(amount)}"
+                            } ?: "정보 없음"
+                        )
 
-                        product.ltvRatio?.let { ratio ->
-                            DetailValueRow(
-                                label = "LTV 한도",
-                                value = "담보가치의 $ratio%"
-                            )
-                        }
+                        DetailValueRow(
+                            label = "LTV 한도",
+                            value = product.ltvRatio?.let { ratio ->
+                                "담보가치의 $ratio%"
+                            } ?: "정보 없음"
+                        )
 
-                        product.dtiRatio?.let { ratio ->
-                            DetailValueRow(
-                                label = "DTI 한도",
-                                value = "소득의 $ratio% 이하"
-                            )
-                        }
+                        DetailValueRow(
+                            label = "DTI 한도",
+                            value = product.dtiRatio?.let { ratio ->
+                                "소득의 $ratio% 이하"
+                            } ?: "정보 없음"
+                        )
 
-                        loanTermText(product)?.let { term ->
-                            DetailValueRow(
-                                label = "대출 기간",
-                                value = term
-                            )
-                        }
-
-                        product.maxIncome?.let { income ->
-                            DetailValueRow(
-                                label = "소득 조건",
-                                value = "연소득 ${
-                                    formatWon(income)
-                                } 이하"
-                            )
-                        }
+                        DetailValueRow(
+                            label = "대출 기간",
+                            value = loanTermText(product) ?: "정보 없음"
+                        )
 
                         Text(
                             text = "*한도는 소득, 담보 가치, 신용도에 따라 달라질 수 있습니다",
@@ -375,15 +368,13 @@ private fun ProductDetailScreen(
                 }
             }
 
-            if (product.requiredDocuments.isNotEmpty()) {
-                item {
-                    ProductDetailSection(
-                        title = "필요 서류 안내"
-                    ) {
-                        RequiredDocumentsBox(
-                            documents = product.requiredDocuments
-                        )
-                    }
+            item {
+                ProductDetailSection(
+                    title = "필요 서류 안내"
+                ) {
+                    RequiredDocumentsBox(
+                        documents = product.requiredDocuments
+                    )
                 }
             }
         }
@@ -421,11 +412,12 @@ private fun ProductDetailHeader(
             ),
         verticalAlignment = Alignment.Top
     ) {
-        Image(
-            painter = painterResource(
-                id = product.iconRes
-            ),
+        AsyncImage(
+            model = product.providerLogoUrl,
             contentDescription = product.productName,
+            placeholder = painterResource(R.drawable.ic_mypage_bank),
+            error = painterResource(R.drawable.ic_mypage_bank),
+            fallback = painterResource(R.drawable.ic_mypage_bank),
             modifier = Modifier
                 .offset(y = 6.dp)
                 .size(58.dp)
@@ -459,16 +451,14 @@ private fun ProductDetailHeader(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 ProductDetailTag(
-                    text = providerTypeLabel(
-                        providerType = product.providerType
-                    )
+                    text = product.providerType
                 )
 
-                ProductDetailTag(
-                    text = categoryLabel(
-                        category = product.productCategory
+                if (product.requireNoHouse) {
+                    ProductDetailTag(
+                        text = "무주택자"
                     )
-                )
+                }
 
                 if (product.firstTimeBuyerOnly) {
                     ProductDetailTag(
@@ -626,31 +616,40 @@ private fun RequiredDocumentsBox(
             modifier = Modifier.height(8.dp)
         )
 
-        documents.forEach { document ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 5.dp),
-                verticalAlignment = Alignment.Top
-            ) {
-                Text(
-                    text = "•",
-                    color = Color(0xFFA9B6C5),
-                    fontSize = 11.sp,
-                    lineHeight = 16.sp
-                )
+        if (documents.isEmpty()) {
+            Text(
+                text = "정보 없음",
+                color = Color(0xFF919AA4),
+                fontSize = 13.sp,
+                lineHeight = 16.sp
+            )
+        } else {
+            documents.forEach { document ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 5.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Text(
+                        text = "•",
+                        color = Color(0xFFA9B6C5),
+                        fontSize = 11.sp,
+                        lineHeight = 16.sp
+                    )
 
-                Spacer(
-                    modifier = Modifier.width(8.dp)
-                )
+                    Spacer(
+                        modifier = Modifier.width(8.dp)
+                    )
 
-                Text(
-                    text = document,
-                    modifier = Modifier.weight(1f),
-                    color = Color(0xFF919AA4),
-                    fontSize = 13.sp,
-                    lineHeight = 16.sp
-                )
+                    Text(
+                        text = document,
+                        modifier = Modifier.weight(1f),
+                        color = Color(0xFF919AA4),
+                        fontSize = 13.sp,
+                        lineHeight = 16.sp
+                    )
+                }
             }
         }
 
@@ -659,7 +658,7 @@ private fun RequiredDocumentsBox(
         )
 
         Text(
-            text = "*서류는 신청 시점에 따라 추가될 수 있으니 기관에 확인하세요",
+            text = "*서류는 신청 시점에 따라 변경될 수 있으니 은행에 확인하세요",
             color = Color(0xFFC7D0DA),
             fontSize = 13.sp,
             lineHeight = 15.sp
@@ -675,7 +674,7 @@ private fun ProductDetailTag(
     Surface(
         modifier = modifier,
         color = Color(0xFFFFFFFF),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(120.dp),
         border = BorderStroke(
             width = 1.dp,
             color = Color(0xFFD8E0E8)
@@ -684,12 +683,12 @@ private fun ProductDetailTag(
         Text(
             text = text,
             modifier = Modifier.padding(
-                horizontal = 14.dp,
+                horizontal = 12.dp,
                 vertical = 5.dp
             ),
             color = Color(0xFF919AA4),
             fontSize = 14.sp,
-            lineHeight = 12.sp
+            lineHeight = 17.sp
         )
     }
 }
@@ -779,29 +778,6 @@ private fun ProductDetailBottomBar(
     }
 }
 
-private fun providerTypeLabel(
-    providerType: String
-): String {
-    return when (providerType) {
-        "POLICY" -> "정부지원"
-        "BANK" -> "은행상품"
-        "SAVINGS_BANK" -> "저축은행"
-        else -> providerType
-    }
-}
-
-private fun categoryLabel(
-    category: String
-): String {
-    return when (category) {
-        "JEONSE_LOAN" -> "전세대출"
-        "MORTGAGE_LOAN" -> "무주택자"
-        "CREDIT_LOAN" -> "신용대출"
-        "SAVINGS" -> "예·적금"
-        else -> category
-    }
-}
-
 private fun formatWon(
     amount: Long
 ): String {
@@ -811,18 +787,18 @@ private fun formatWon(
     return when {
         amount >= hundredMillion &&
             amount % hundredMillion == 0L -> {
-            "${amount / hundredMillion}억원"
+            "${amount / hundredMillion}억 원"
         }
 
         amount >= hundredMillion -> {
             val billionValue =
                 amount.toDouble() / hundredMillion.toDouble()
 
-            "${formatDecimal(billionValue)}억원"
+            "${formatDecimal(billionValue)}억 원"
         }
 
         amount >= tenThousand -> {
-            "${NumberFormat.getNumberInstance(Locale.KOREA).format(amount / tenThousand)}만원"
+            "${NumberFormat.getNumberInstance(Locale.KOREA).format(amount / tenThousand)}만 원"
         }
 
         else -> {
