@@ -313,7 +313,7 @@ private fun RecommendedProductContent(
                     end = 16.dp,
                     bottom = 16.dp
                 ),
-            horizontalArrangement = Arrangement.spacedBy(17.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(
                 items = productFilterOptions,

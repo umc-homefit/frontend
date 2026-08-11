@@ -3,7 +3,6 @@
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,16 +19,11 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,19 +34,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.umc.homefit.data.dto.recruitment.NoticeDto
 import com.umc.homefit.presentation.component.RefreshOnResume
 import com.umc.homefit.presentation.recruitment.component.NoticeCard
+import com.umc.homefit.presentation.recruitment.component.RecruitmentSearchBar
 import com.umc.homefit.presentation.theme.RecruitmentAccent
 import com.umc.homefit.presentation.theme.RecruitmentBorder
 import com.umc.homefit.presentation.theme.RecruitmentTextGray
-import com.umc.homefit.presentation.theme.SearchFieldBackground
 import com.umc.homefit.R
 
 @Composable
@@ -115,91 +109,23 @@ fun RecruitmentListScreen(
     var selectedStatus by remember { mutableStateOf<String?>(null) }
 
     Column(modifier = modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(52.dp)
-            ) {
-                TextField(
-                    value = searchQuery,
-                    onValueChange = {},
-                    modifier = Modifier.fillMaxSize(),
-                    readOnly = true,
-                    placeholder = {
-                        Text(
-                            text = "공고명, 지하철역명, 단지명 등으로 검색"
-                        )
-                    },
-                    singleLine = true,
-                    shape = RoundedCornerShape(
-                        topStart = 4.dp,
-                        bottomStart = 4.dp
-                    ),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = SearchFieldBackground,
-                        unfocusedContainerColor = SearchFieldBackground,
-                        disabledContainerColor = SearchFieldBackground,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-                        focusedPlaceholderColor = RecruitmentTextGray,
-                        unfocusedPlaceholderColor = RecruitmentTextGray
-                    )
-                )
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clickable(onClick = onNavigateToSearch)
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .size(52.dp)
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(
-                                RecruitmentAccent.copy(alpha = 0.8f),
-                                RecruitmentAccent.copy(alpha = 0.4f)
-                            ),
-                            start = Offset(0f, 0f),
-                            end = Offset(
-                                0f,
-                                Float.POSITIVE_INFINITY
-                            )
-                        ),
-                        shape = RoundedCornerShape(
-                            topEnd = 4.dp,
-                            bottomEnd = 4.dp
-                        )
-                    )
-                    .clickable(onClick = onNavigateToSearch),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "검색 화면으로 이동",
-                    tint = Color.White
-                )
-            }
-        }
+        RecruitmentSearchBar(
+            searchQuery = searchQuery,
+            onSearchQueryChange = {},
+            onSearch = {},
+            readOnly = true,
+            onBarClick = onNavigateToSearch
+        )
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 12.dp, start = 20.dp, end = 8.dp),
+                .padding(top = 4.dp, start = 16.dp, end = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             LazyRow(
                 modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(17.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(statusFilterOptions) { option ->
                     StatusFilterChip(
@@ -218,7 +144,7 @@ fun RecruitmentListScreen(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(37.dp)
                         .border(width = 1.5.dp, color = RecruitmentBorder, shape = CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
@@ -250,7 +176,7 @@ fun RecruitmentListScreen(
             is RecruitmentListScreenUiState.Success -> {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(uiState.recruitments, key = { it.noticeId }) { recruitment ->
@@ -283,15 +209,17 @@ private fun StatusFilterChip(
 
     Surface(
         onClick = onClick,
-        shape = RoundedCornerShape(50),
+        shape = RoundedCornerShape(120.dp),
         color = Color.White,
         border = BorderStroke(1.dp, borderColor)
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelLarge,
+            fontSize = 14.sp,
+            lineHeight = 17.sp,
+            fontWeight = FontWeight.Medium,
             color = textColor,
-            modifier = Modifier.padding(horizontal = 13.dp, vertical = 5.dp)
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp)
         )
     }
 }
