@@ -122,7 +122,9 @@ fun RootNavGraph(
                 viewModel = hiltViewModel(),
                 analysisId = args.analysisId,
                 onBack = { navController.popBackStack() },
-                onNavigateToAnalysis = { navController.navigate(Route.FinancialInfo) },
+                onNavigateToAnalysis = { noticeId, unitId ->
+                    navController.navigate(Route.FinancialInfo(noticeId = noticeId.toLongOrNull(), unitId = unitId))
+                },
                 onNavigateToAnalysisResult = { analysisId ->
                     navController.navigate(Route.AnalysisResult(analysisId = analysisId, fromRecord = true))
                 }
@@ -135,7 +137,9 @@ fun RootNavGraph(
                 viewModel = hiltViewModel(),
                 analysisId = args.analysisId,
                 onBack = { navController.popBackStack() },
-                onNavigateToAnalysis = { navController.navigate(Route.FinancialInfo) },
+                onNavigateToAnalysis = { noticeId, unitId ->
+                    navController.navigate(Route.FinancialInfo(noticeId = noticeId.toLongOrNull(), unitId = unitId))
+                },
                 onNavigateToAnalysisResult = { analysisId ->
                     navController.navigate(Route.AnalysisResult(analysisId = analysisId, fromRecord = true))
                 }
@@ -415,7 +419,7 @@ fun MainScreen(
                 FinanceScreenRoute(
                     viewModel = hiltViewModel(),
                     onNavigateToRecommendedProducts = { tabNavController.navigate(TabRoute.RecommendedProduct) },
-                    onNavigateToFinancialInfo = { rootNavController.navigate(Route.FinancialInfo) },
+                    onNavigateToFinancialInfo = { rootNavController.navigate(Route.FinancialInfo()) },
                     onNavigateToDetail = { productId -> rootNavController.navigate(Route.ProductDetail(productId = productId)) }
                 )
             }
@@ -429,7 +433,7 @@ fun MainScreen(
                     viewModel = hiltViewModel(),
                     searchQuery = searchQuery,
                     onNavigateToSearch = { rootNavController.navigate(Route.ProductSearch) },
-                    onNavigateToFinancialInfo = { rootNavController.navigate(Route.FinancialInfo) },
+                    onNavigateToFinancialInfo = { rootNavController.navigate(Route.FinancialInfo()) },
                     onNavigateToDetail = { productId -> rootNavController.navigate(Route.ProductDetail(productId = productId)) }
                 )
             }

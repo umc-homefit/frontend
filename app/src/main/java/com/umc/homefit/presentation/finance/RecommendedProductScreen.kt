@@ -44,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
 import com.umc.homefit.presentation.finance.component.RecommendedProductSearchBar
 import com.umc.homefit.presentation.component.AppScaffold
+import com.umc.homefit.presentation.component.RefreshOnResume
 import com.umc.homefit.presentation.finance.component.ConditionProfileRequiredContent
 
 private val ProductAccent = Color(0xFF3C45F3)
@@ -70,6 +71,8 @@ fun RecommendedProductScreenRoute(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    RefreshOnResume(onResume = viewModel::refresh)
 
     RecommendedProductScreen(
         uiState = uiState,
@@ -344,7 +347,7 @@ private fun RecommendedProductContent(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "조건에 맞는 금융 상품이 없습니다.",
+                            text = "조건에 맞는 금융 상품이 없습니다",
                             color = ProductTextGray
                         )
                     }

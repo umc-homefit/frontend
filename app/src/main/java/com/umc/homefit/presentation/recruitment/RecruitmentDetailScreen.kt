@@ -91,7 +91,7 @@ fun RecruitmentDetailScreenRoute(
     viewModel: RecruitmentDetailScreenViewModel,
     analysisId: String?,
     onBack: () -> Unit,
-    onNavigateToAnalysis: (String) -> Unit,
+    onNavigateToAnalysis: (noticeId: String, unitId: Long?) -> Unit,
     onNavigateToAnalysisResult: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -113,7 +113,7 @@ fun RecruitmentDetailScreen(
     uiState: RecruitmentDetailScreenUiState,
     analysisId: String?,
     onBack: () -> Unit,
-    onNavigateToAnalysis: (String) -> Unit,
+    onNavigateToAnalysis: (noticeId: String, unitId: Long?) -> Unit,
     onNavigateToAnalysisResult: (String) -> Unit,
     onToggleBookmark: () -> Unit,
     onRetry: () -> Unit,
@@ -217,7 +217,7 @@ private fun RecruitmentErrorView(message: String, onRetry: () -> Unit) {
 private fun RecruitmentDetailContent(
     recruitment: RecruitmentDetailUiModel,
     analysisId: String?,
-    onNavigateToAnalysis: (String) -> Unit,
+    onNavigateToAnalysis: (noticeId: String, unitId: Long?) -> Unit,
     onNavigateToAnalysisResult: (String) -> Unit
 ) {
     var showFullScreenViewer by remember { mutableStateOf(false) }
@@ -306,7 +306,14 @@ private fun RecruitmentDetailContent(
         BottomButtonBar(
             analysisId = analysisId,
             onCompetitionClick = { selectedTab = 1 },
-            onAnalysisClick = { onNavigateToAnalysis(recruitment.noticeId.toString()) },
+            onAnalysisClick = {
+                val unitId = recruitment.primaryUnitId
+                if (unitId != null) {
+                    onNavigateToAnalysis(recruitment.noticeId.toString(), unitId)
+                } else {
+                    Toast.makeText(context, "이 공고는 아직 분석할 수 없습니다", Toast.LENGTH_SHORT).show()
+                }
+            },
             onAnalysisResultClick = onNavigateToAnalysisResult
         )
     }
@@ -731,6 +738,7 @@ fun RecruitmentDetailScreenPreview() {
                 supplyLocation = "서울 강동구 천호동 123-4",
                 supplyType = "청년안심주택 (임대)",
                 unitSummary = "전용 24㎡ 18세대 / 전용 33㎡ 12세대",
+                primaryUnitId = 1L,
                 depositRangeText = "3,200만 원 ~ 4,800만 원",
                 monthlyRentRangeText = "28만 원 ~ 41만 원",
                 moveInDate = "2025년 9월",
@@ -752,6 +760,6 @@ fun RecruitmentDetailScreenPreview() {
             )
         ),
         analysisId = null,
-        onBack = {}, onNavigateToAnalysis = {}, onNavigateToAnalysisResult = {}, onToggleBookmark = {}, onRetry = {}
+        onBack = {}, onNavigateToAnalysis = { _, _ -> }, onNavigateToAnalysisResult = {}, onToggleBookmark = {}, onRetry = {}
     )
 }

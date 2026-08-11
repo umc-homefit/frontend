@@ -35,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Image
+import com.umc.homefit.presentation.component.RefreshOnResume
 import com.umc.homefit.presentation.finance.component.ConditionProfileRequiredContent
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
 
@@ -47,6 +48,8 @@ fun FinanceScreenRoute(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    RefreshOnResume(onResume = viewModel::refresh)
 
     FinanceScreen(
         uiState = uiState,
@@ -113,47 +116,66 @@ private fun FinanceSuccessContent(
     onNavigateToDetail: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
+    Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFFFFFFF)),
+            .background(Color(0xFFFFFFFF))
     ) {
-        item {
-            FinanceHeaderSection(data = data)
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            item {
+                FinanceHeaderSection(data = data)
+            }
+
+            item {
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .background(Color(0xFFF0F4F9))
+                )
+            }
+
+            item {
+                Text(
+                    text = "추천 상품",
+                    modifier = Modifier.padding(
+                        start = 16.dp,
+                        top = 20.dp,
+                        end = 16.dp,
+                        bottom = 14.dp
+                    ),
+                    color = Color(0xFF18191B),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            if (data.products.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 40.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "매칭된 상품이 없습니다",
+                            color = Color(0xFF919AA4)
+                        )
+                    }
+                }
+            } else {
+                item {
+                    RecommendedProductsSection(
+                        products = data.products,
+                        onProductClick = onNavigateToDetail
+                    )
+                }
+            }
         }
 
-        item {
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp)
-                    .background(Color(0xFFF0F4F9))
-            )
-        }
-
-        item {
-            Text(
-                text = "추천 상품",
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                    top = 20.dp,
-                    end = 16.dp,
-                    bottom = 14.dp
-                ),
-                color = Color(0xFF18191B),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        item {
-            RecommendedProductsSection(
-                products = data.products,
-                onProductClick = onNavigateToDetail
-            )
-        }
-
-        item {
+        // 목록 길이와 상관없이 바텀 탭 바로 위에 고정되도록 LazyColumn 바깥에 배치
+        if (data.products.isNotEmpty()) {
             RecommendedProductsButton(
                 onClick = onNavigateToRecommendedProducts,
                 modifier = Modifier
@@ -279,7 +301,7 @@ private fun FinanceSummaryItem(
         contentAlignment = Alignment.Center
     ) {
         Column(
-            horizontalAlignment = Alignment.Start,
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Text(

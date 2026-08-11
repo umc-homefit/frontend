@@ -20,8 +20,8 @@ enum class FinanceProductCategory {
 @Serializable
 data class LoanProductsMatchResponse(
     val matchedCount: Int,
-    val minRate: String,
-    val maxLimitAmount: Long,
+    val minRate: String? = null,
+    val maxLimitAmount: Long? = null,
     val products: List<LoanProductResponse>
 )
 
