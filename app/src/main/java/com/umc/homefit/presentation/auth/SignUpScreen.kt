@@ -1,5 +1,6 @@
 ﻿package com.umc.homefit.presentation.auth
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -102,17 +103,26 @@ fun SignUpScreen(
         }
     }
 
+    BackHandler(enabled = currentStep != SignUpStep.COMPLETE) {
+        handleBackClick()
+    }
+
+    BackHandler(enabled = currentStep == SignUpStep.COMPLETE) {
+        onNavigateToHome()
+    }
+
     val progress = when (currentStep) {
-        SignUpStep.EMAIL -> 0f
-        SignUpStep.PASSWORD -> 0.5f
-        SignUpStep.PASSWORD_CONFIRM -> 1.0f
-        SignUpStep.COMPLETE -> 1.0f
+        SignUpStep.EMAIL -> 1f / 3f
+        SignUpStep.PASSWORD -> 2f / 3f
+        SignUpStep.PASSWORD_CONFIRM -> 1f
+        SignUpStep.COMPLETE -> 1f
     }
 
     AppScaffold(
-        title = "회원가입",
+        title = if (currentStep != SignUpStep.COMPLETE) "회원가입" else null,
+        titleContent = if (currentStep == SignUpStep.COMPLETE) { {} } else null,
         showBackButton = true,
-        onBackClick = handleBackClick,
+        onBackClick = if (currentStep == SignUpStep.COMPLETE) onNavigateToHome else handleBackClick,
         showDivider = true,
         modifier = modifier
     ) { innerPadding ->
@@ -129,7 +139,8 @@ fun SignUpScreen(
                             .fillMaxWidth()
                             .height(3.dp),
                         color = Color(0xFF3C45F3),
-                        trackColor = Color(0xFFF0F4F9)
+                        trackColor = Color(0xFFF0F4F9),
+                        drawStopIndicator = {}
                     )
                 }
 
@@ -247,7 +258,23 @@ private fun EmailStep(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            if (isValidFormat) {
+            if (serverErrorMessage != null) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_signup_wrong),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = serverErrorMessage,
+                        color = Color(0x80FF5659),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            } else if (isValidFormat) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_signup_correct),
@@ -259,7 +286,8 @@ private fun EmailStep(
                     Text(
                         text = "올바른 이메일 형식입니다",
                         color = Color(0x8019A141),
-                        fontSize = 12.sp
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             } else if (email.isNotEmpty()) {
@@ -274,25 +302,8 @@ private fun EmailStep(
                     Text(
                         text = "이메일 형식이 맞지 않습니다",
                         color = Color(0x80FF5659),
-                        fontSize = 12.sp
-                    )
-                }
-            }
-
-            if (serverErrorMessage != null) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_signup_wrong),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = serverErrorMessage,
-                        color = Color(0x80FF5659),
-                        fontSize = 12.sp
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
@@ -307,7 +318,7 @@ private fun PasswordStep(
 ) {
     var password by rememberSaveable { mutableStateOf("") }
     val passwordRegex = remember {
-        Regex("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#\$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?])(?!.*\\s).{8,}$")
+        Regex("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?])(?!.*\\s).{8,}$")
     }
     val isValidFormat = passwordRegex.matches(password)
 
@@ -367,7 +378,8 @@ private fun PasswordStep(
                     Text(
                         text = "8자 이상 · 영문·숫자·특수문자 포함",
                         color = Color(0xFF919AA4),
-                        fontSize = 12.sp
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
                 isValidFormat -> {
@@ -382,7 +394,8 @@ private fun PasswordStep(
                         Text(
                             text = "올바른 비밀번호 형식입니다",
                             color = Color(0x8019A141),
-                            fontSize = 12.sp
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
@@ -398,7 +411,8 @@ private fun PasswordStep(
                         Text(
                             text = "비밀번호 형식이 맞지 않습니다",
                             color = Color(0x80FF5659),
-                            fontSize = 12.sp
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }

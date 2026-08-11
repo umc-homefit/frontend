@@ -85,20 +85,25 @@ fun LoginFlowScreen(
         }
     }
 
+    BackHandler(enabled = uiState.step != LoginStep.COMPLETE) {
+        handleBackClick()
+    }
+
     BackHandler(enabled = uiState.step == LoginStep.COMPLETE) {
         onNavigateToHome()
     }
 
     val progress = when (uiState.step) {
-        LoginStep.EMAIL -> 0f
-        LoginStep.PASSWORD -> 0.5f
+        LoginStep.EMAIL -> 0.5f
+        LoginStep.PASSWORD -> 1f
         LoginStep.COMPLETE -> 1f
     }
 
     AppScaffold(
-        title = "로그인",
-        showBackButton = uiState.step != LoginStep.COMPLETE,
-        onBackClick = handleBackClick,
+        title = if (uiState.step != LoginStep.COMPLETE) "로그인" else null,
+        titleContent = if (uiState.step == LoginStep.COMPLETE) { {} } else null,
+        showBackButton = true,
+        onBackClick = if (uiState.step == LoginStep.COMPLETE) onNavigateToHome else handleBackClick,
         showDivider = true,
         modifier = modifier
     ) { innerPadding ->
@@ -115,7 +120,8 @@ fun LoginFlowScreen(
                             .fillMaxWidth()
                             .height(3.dp),
                         color = RecruitmentAccent,
-                        trackColor = SearchFieldBackground
+                        trackColor = SearchFieldBackground,
+                        drawStopIndicator = {}
                     )
                 }
 
@@ -215,6 +221,8 @@ private fun EmailStep(
                 )
             )
 
+            Spacer(modifier = Modifier.height(4.dp))
+
             if (isValidFormat) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -227,7 +235,8 @@ private fun EmailStep(
                     Text(
                         text = "올바른 이메일 형식입니다",
                         color = ValidationSuccessText,
-                        fontSize = 12.sp
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             } else {
@@ -242,7 +251,8 @@ private fun EmailStep(
                     Text(
                         text = "이메일 형식이 맞지 않습니다",
                         color = ValidationErrorText,
-                        fontSize = 12.sp
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
@@ -315,7 +325,8 @@ private fun PasswordStep(
             Text(
                 text = errorMessage ?: "비밀번호를 입력해주세요",
                 color = if (errorMessage != null) ValidationErrorText else RecruitmentTextGray,
-                fontSize = 12.sp
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium
             )
         }
     }
