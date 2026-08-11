@@ -38,12 +38,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.umc.homefit.data.dto.finance.FinanceProductCategory
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
+import com.umc.homefit.presentation.theme.HomeFitTheme
 import com.umc.homefit.presentation.finance.component.RecommendedProductSearchBar
 import com.umc.homefit.presentation.component.AppScaffold
 import com.umc.homefit.presentation.component.RefreshOnResume
@@ -126,10 +129,8 @@ private fun ProductListHeader(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                start = 20.dp,
-                end = 20.dp,
-                top = 25.dp,
-                bottom = 3.dp
+                start = 16.dp,
+                end = 16.dp
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -137,7 +138,9 @@ private fun ProductListHeader(
         Text(
             text = "총 ${totalCount}개 상품",
             color = ProductTextGray,
-            style = MaterialTheme.typography.bodyMedium
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            lineHeight = 17.sp
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -174,15 +177,15 @@ private fun ProductListHeader(
                     .width(140.dp)
                     .background(
                         color = Color(0xFFFFFFFF),
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(4.dp)
                     )
                     .border(
                         width = 1.dp,
                         color = Color(0xFFD2D9E2),
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(4.dp)
                     ),
                 containerColor = Color(0xFFFFFFFF),
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(4.dp),
                 shadowElevation = 0.dp,
                 tonalElevation = 0.dp
             ) {
@@ -191,30 +194,25 @@ private fun ProductListHeader(
 
                     DropdownMenuItem(
                         text = {
-                            Box(
-                                modifier = Modifier.fillMaxWidth(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = sort.label,
-                                    textAlign = TextAlign.Center,
-                                    color = if (isSelected) {
-                                        Color(0xFF4A4F55)
-                                    } else {
-                                        ProductTextGray
-                                    },
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
+                            Text(
+                                text = sort.label,
+                                textAlign = TextAlign.Center,
+                                color = if (isSelected) {
+                                    Color(0xFF4A4F55)
+                                } else {
+                                    ProductTextGray
+                                },
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         },
                         onClick = {
                             onSortSelected(sort)
                             onExpandedChange(false)
                         },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(44.dp),
-                        contentPadding = PaddingValues(horizontal = 8.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                         colors = MenuDefaults.itemColors(
                             textColor = ProductTextGray
                         )
@@ -310,9 +308,10 @@ private fun RecommendedProductContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    top = 12.dp,
-                    start = 20.dp,
-                    end = 20.dp
+                    top = 4.dp,
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = 16.dp
                 ),
             horizontalArrangement = Arrangement.spacedBy(17.dp)
         ) {
@@ -381,7 +380,7 @@ private fun RecommendedProductContent(
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(
-                            horizontal = 20.dp,
+                            horizontal = 16.dp,
                             vertical = 16.dp
                         ),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -445,7 +444,7 @@ private fun ProductFilterChip(
 
     Surface(
         onClick = onClick,
-        shape = RoundedCornerShape(50),
+        shape = RoundedCornerShape(120.dp),
         color = Color.White,
         border = BorderStroke(
             width = 1.dp,
@@ -454,10 +453,12 @@ private fun ProductFilterChip(
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelLarge,
+            fontSize = 14.sp,
+            lineHeight = 17.sp,
+            fontWeight = FontWeight.Medium,
             color = textColor,
             modifier = Modifier.padding(
-                horizontal = 13.dp,
+                horizontal = 12.dp,
                 vertical = 5.dp
             )
         )
@@ -471,24 +472,26 @@ private fun ProductFilterChip(
 )
 @Composable
 private fun RecommendedProductScreenPreview() {
-    RecommendedProductScreen(
-        uiState = RecommendedProductScreenUiState.Success(
-            products = listOf(
-                FinanceRecommendedProductUiModel(
-                    productId = 1,
-                    title = "디딤돌 대출",
-                    productType = "정부지원",
-                    interestRate = "금리 | 2.15% ~ 3.00%",
-                    amountDescription = "대출한도 | 최대 2억 5,000만 원",
-                    targetDescription = "연소득 | 6,000만 원 이하",
-                    tags = listOf("무주택자", "생애최초")
+    HomeFitTheme {
+        RecommendedProductScreen(
+            uiState = RecommendedProductScreenUiState.Success(
+                products = listOf(
+                    FinanceRecommendedProductUiModel(
+                        productId = 1,
+                        title = "디딤돌 대출",
+                        productType = "정부지원",
+                        interestRate = "연 2.15% ~ 3.00%",
+                        amountDescription = "대출한도 | 최대 2억 5,000만 원",
+                        targetDescription = "연소득 | 6,000만 원 이하",
+                        tags = listOf("무주택자", "생애최초")
+                    )
                 )
-            )
-        ),
-        searchQuery = "",
-        onNavigateToSearch = {},
-        onNavigateToFinancialInfo = {},
-        onNavigateToDetail = {},
-        onFilterChanged = { _, _, _ -> }
-    )
+            ),
+            searchQuery = "",
+            onNavigateToSearch = {},
+            onNavigateToFinancialInfo = {},
+            onNavigateToDetail = {},
+            onFilterChanged = { _, _, _ -> }
+        )
+    }
 }

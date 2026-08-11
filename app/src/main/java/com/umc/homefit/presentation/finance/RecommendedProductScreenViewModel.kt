@@ -7,6 +7,7 @@ import com.umc.homefit.domain.repository.finance.FinanceRepository
 import com.umc.homefit.util.error.ErrorCode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,6 +26,7 @@ class RecommendedProductScreenViewModel @Inject constructor(
     private var currentSort: String = DEFAULT_SORT
     private var currentCategory: String? = null
     private var currentKeyword: String? = null
+    private var loadJob: Job? = null
 
     init {
         loadRecommendedProducts()
@@ -46,7 +48,8 @@ class RecommendedProductScreenViewModel @Inject constructor(
         currentSort = sort
         currentCategory = category
         currentKeyword = keyword
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             if (showLoading) {
                 _uiState.value = RecommendedProductScreenUiState.Loading
             }

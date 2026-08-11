@@ -41,6 +41,7 @@ import com.umc.homefit.presentation.component.AppScaffold
 
 private const val FILTER_RESULT_KEY = "filter_result"
 private const val NAVIGATE_TO_TAB_KEY = "navigate_to_tab"
+private const val PRODUCT_SEARCH_RESULT_KEY = "product_search_result"
 
 @Composable
 fun RootNavGraph(
@@ -222,7 +223,7 @@ fun RootNavGraph(
                 viewModel = hiltViewModel(),
                 onBack = { navController.popBackStack() },
                 onSearchComplete = { keyword ->
-                    navController.previousBackStackEntry?.savedStateHandle?.set("productSearchQuery", keyword)
+                    navController.previousBackStackEntry?.savedStateHandle?.set(PRODUCT_SEARCH_RESULT_KEY, keyword)
                     navController.popBackStack()
                 }
             )
@@ -266,6 +267,12 @@ fun MainScreen(
     val requestedTab = rootBackStackEntry
         ?.savedStateHandle
         ?.getStateFlow<String?>(NAVIGATE_TO_TAB_KEY, null)
+        ?.collectAsState()
+        ?.value
+
+    val productSearchResult = rootBackStackEntry
+        ?.savedStateHandle
+        ?.getStateFlow<String?>(PRODUCT_SEARCH_RESULT_KEY, null)
         ?.collectAsState()
         ?.value
 
@@ -424,14 +431,10 @@ fun MainScreen(
                 )
             }
 
-            composable<TabRoute.RecommendedProduct> { backStackEntry ->
-                val searchQuery by backStackEntry.savedStateHandle
-                    .getStateFlow(key = "productSearchQuery", initialValue = "")
-                    .collectAsState()
-
+            composable<TabRoute.RecommendedProduct> {
                 RecommendedProductScreenRoute(
                     viewModel = hiltViewModel(),
-                    searchQuery = searchQuery,
+                    searchQuery = productSearchResult.orEmpty(),
                     onNavigateToSearch = { rootNavController.navigate(Route.ProductSearch) },
                     onNavigateToFinancialInfo = { rootNavController.navigate(Route.FinancialInfo()) },
                     onNavigateToDetail = { productId -> rootNavController.navigate(Route.ProductDetail(productId = productId)) }

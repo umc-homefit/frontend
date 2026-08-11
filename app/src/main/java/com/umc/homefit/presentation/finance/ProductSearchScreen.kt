@@ -168,7 +168,7 @@ private fun ProductSearchContent(
             color = Color(0xFF161616)
         )
 
-        Spacer(modifier = Modifier.height(17.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         if (recentSearches.isEmpty()) {
             Text(
