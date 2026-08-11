@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -47,7 +46,6 @@ import com.umc.homefit.presentation.theme.TextBlack
 
 /**
  * 공고 카드 3종(공고 목록/관심공고관리/분석 기록)이 공유하는 UI 모델.
- * 각 화면의 ViewModel이 자신의 DTO를 이 모델로 매핑해서 넘긴다 — 여기엔 domain/data 계층 매핑을 두지 않는다.
  */
 data class NoticeCardUiModel(
     val id: String,
@@ -62,7 +60,6 @@ data class NoticeCardUiModel(
     val competitionRate: String? = null
 )
 
-/** 카드 우측 상단 아이콘 슬롯. 카드 자체는 어떤 아이콘이 그려지는지 모르고 이 액션만 그린다. */
 sealed interface NoticeCardAction {
     data object None : NoticeCardAction
     data class Bookmark(val isSaved: Boolean, val onToggle: () -> Unit) : NoticeCardAction
@@ -91,6 +88,7 @@ fun NoticeCard(
                 Text(
                     text = uiModel.title,
                     fontSize = 16.sp,
+                    lineHeight = 19.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextBlack,
                     modifier = Modifier.weight(1f)
@@ -103,10 +101,28 @@ fun NoticeCard(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 uiModel.infoLine1?.let {
-                    Text(text = it, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = RecruitmentTextGray)
+                    Text(
+                        text = it,
+                        fontSize = 12.sp,
+                        lineHeight = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = RecruitmentTextGray
+                    )
                 }
-                Text(text = uiModel.infoLine2, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = RecruitmentTextGray)
-                Text(text = uiModel.infoLine3, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = RecruitmentTextGray)
+                Text(
+                    text = uiModel.infoLine2,
+                    fontSize = 12.sp,
+                    lineHeight = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = RecruitmentTextGray
+                )
+                Text(
+                    text = uiModel.infoLine3,
+                    fontSize = 12.sp,
+                    lineHeight = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = RecruitmentTextGray
+                )
             }
 
             Row(
@@ -154,43 +170,45 @@ private fun NoticeCardActionIcon(action: NoticeCardAction) {
 private fun StatusBadge(status: NoticeStatus, label: String) {
     val (background, text) = when (status) {
         NoticeStatus.RECRUITING -> StatusRecruitingBackground to StatusRecruitingText
-        // TODO: 디자이너 확인 후 CLOSED 전용 색상 토큰으로 교체 (현재는 예정과 같은 톤으로 통일하기로 결정됨)
         NoticeStatus.SCHEDULED, NoticeStatus.CLOSED -> StatusScheduledBackground to StatusScheduledText
         NoticeStatus.CLOSING_SOON -> StatusClosingSoonBackground to StatusClosingSoonText
     }
-    Surface(color = background, shape = RoundedCornerShape(percent = 50)) {
+    Surface(color = background, shape = RoundedCornerShape(200.dp)) {
         Text(
             text = label,
             fontSize = 12.sp,
+            lineHeight = 14.sp,
             fontWeight = FontWeight.Medium,
             color = text,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
         )
     }
 }
 
 @Composable
 private fun DDayBadge(text: String) {
-    Surface(color = StatusClosingSoonBackground, shape = RoundedCornerShape(percent = 50)) {
+    Surface(color = StatusClosingSoonBackground, shape = RoundedCornerShape(200.dp)) {
         Text(
             text = text,
             fontSize = 12.sp,
+            lineHeight = 14.sp,
             fontWeight = FontWeight.Medium,
             color = StatusClosingSoonText,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
         )
     }
 }
 
 @Composable
 private fun CompetitionRateBadge(rate: String) {
-    Surface(color = CompetitionRateBackground, shape = RoundedCornerShape(percent = 50)) {
+    Surface(color = CompetitionRateBackground, shape = RoundedCornerShape(200.dp)) {
         Text(
             text = "🔥경쟁률 $rate",
             fontSize = 12.sp,
+            lineHeight = 14.sp,
             fontWeight = FontWeight.Medium,
             color = CompetitionRateText,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
         )
     }
 }
