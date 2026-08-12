@@ -26,7 +26,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,6 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.umc.homefit.presentation.component.AppScaffold
 import com.umc.homefit.presentation.component.NoticeCard
 import com.umc.homefit.presentation.component.NoticeCardAction
+import com.umc.homefit.presentation.component.RefreshOnResume
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
@@ -68,9 +68,7 @@ fun HomeScreenRoute(
     val userName by viewModel.userName.collectAsStateWithLifecycle()
     val hasUnreadNotifications by viewModel.hasUnreadNotifications.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        viewModel.loadNotificationStatus()
-    }
+    RefreshOnResume(onResume = viewModel::loadNotificationStatus)
 
     HomeScreen(
         userName = userName,

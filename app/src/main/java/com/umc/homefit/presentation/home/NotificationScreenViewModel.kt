@@ -49,6 +49,25 @@ class NotificationScreenViewModel @Inject constructor(
             }
         }
     }
+
+    fun markNotificationAsRead(notificationId: Long) {
+        viewModelScope.launch {
+            when (notificationRepository.markNotificationAsRead(notificationId)) {
+                is NetworkResult.Success -> {
+                    val currentState = _uiState.value
+                    if (currentState is NotificationScreenUiState.Success) {
+                        _uiState.value = currentState.copy(
+                            notifications = currentState.notifications.filterNot {
+                                it.id == notificationId
+                            }
+                        )
+                    }
+                }
+
+                is NetworkResult.Error -> Unit
+            }
+        }
+    }
 }
 
 private fun NotificationResponse.toUiModel(): NotificationUiModel {

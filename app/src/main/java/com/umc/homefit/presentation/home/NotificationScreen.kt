@@ -54,7 +54,10 @@ fun NotificationScreenRoute(
         uiState = uiState,
         onBack = onBack,
         onSettingsClick = onSettingsClick,
-        onNotificationClick = onNotificationClick,
+        onNotificationClick = { notification ->
+            viewModel.markNotificationAsRead(notification.id)
+            notification.noticeId?.let(onNotificationClick)
+        },
         modifier = modifier
     )
 }
@@ -64,7 +67,7 @@ fun NotificationScreen(
     uiState: NotificationScreenUiState,
     onBack: () -> Unit,
     onSettingsClick: () -> Unit,
-    onNotificationClick: (Long) -> Unit,
+    onNotificationClick: (NotificationUiModel) -> Unit,
     modifier: Modifier = Modifier
 ) {
     AppScaffold(
@@ -149,7 +152,7 @@ private fun NotificationEmptyContent(
 @Composable
 private fun NotificationListContent(
     notifications: List<NotificationUiModel>,
-    onNotificationClick: (Long) -> Unit,
+    onNotificationClick: (NotificationUiModel) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -167,7 +170,7 @@ private fun NotificationListContent(
             NotificationListItem(
                 notification = notification,
                 onClick = {
-                    notification.noticeId?.let(onNotificationClick)
+                    onNotificationClick(notification)
                 }
             )
 
@@ -204,10 +207,7 @@ private fun NotificationListItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(
-                enabled = notification.noticeId != null,
-                onClick = onClick
-            )
+            .clickable(onClick = onClick)
             .padding(
                 horizontal = 8.dp,
                 vertical = 30.dp
