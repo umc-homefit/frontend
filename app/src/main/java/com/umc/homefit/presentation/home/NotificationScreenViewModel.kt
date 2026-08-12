@@ -58,6 +58,7 @@ private fun NotificationResponse.toUiModel(): NotificationUiModel {
 
     return NotificationUiModel(
         id = notificationId,
+        noticeId = noticeId,
         type = notificationType,
         title = title,
         message = content,

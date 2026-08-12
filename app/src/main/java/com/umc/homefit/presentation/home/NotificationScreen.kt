@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -167,7 +168,7 @@ private fun NotificationListContent(
             NotificationListItem(
                 notification = notification,
                 onClick = {
-                    onNotificationClick(notification.id)
+                    notification.noticeId?.let(onNotificationClick)
                 }
             )
 
@@ -204,7 +205,10 @@ private fun NotificationListItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(
+                enabled = notification.noticeId != null,
+                onClick = onClick
+            )
             .padding(
                 horizontal = 8.dp,
                 vertical = 30.dp
@@ -308,4 +312,46 @@ private fun notificationTypeIconRes(
         NotificationType.UNKNOWN ->
             R.drawable.ic_noti_idea
     }
+}
+
+@Preview(
+    showBackground = true,
+    widthDp = 390,
+    heightDp = 844
+)
+@Composable
+private fun NotificationScreenPreview() {
+    NotificationScreen(
+        uiState = NotificationScreenUiState.Success(
+            notifications = listOf(
+                NotificationUiModel(
+                    id = 101L,
+                    noticeId = 1L,
+                    type = NotificationType.NEW_NOTICE,
+                    title = "새로운 청약 공고가 등록되었습니다.",
+                    message = "강남구에 새로운 행복주택 공고가 올라왔어요. 지금 확인해보세요!",
+                    timeText = "방금"
+                ),
+                NotificationUiModel(
+                    id = 100L,
+                    noticeId = 2L,
+                    type = NotificationType.CLOSING_SOON,
+                    title = "청약 마감이 임박했습니다.",
+                    message = "저장한 공고의 청약 마감이 가까워졌어요. 기간을 확인해보세요.",
+                    timeText = "10분 전"
+                ),
+                NotificationUiModel(
+                    id = 99L,
+                    noticeId = null,
+                    type = NotificationType.UNKNOWN,
+                    title = "새로운 알림이 도착했습니다.",
+                    message = "새로운 소식을 확인해보세요.",
+                    timeText = "20분 전"
+                )
+            )
+        ),
+        onBack = {},
+        onSettingsClick = {},
+        onNotificationClick = {}
+    )
 }

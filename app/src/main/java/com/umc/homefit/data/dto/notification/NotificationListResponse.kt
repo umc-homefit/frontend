@@ -12,6 +12,7 @@ data class NotificationListResponse(
 @Serializable
 data class NotificationResponse(
     val notificationId: Long,
+    val noticeId: Long? = null,
     val type: String,
     val title: String,
     val content: String,

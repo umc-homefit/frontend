@@ -15,6 +15,7 @@ sealed interface NotificationScreenUiState {
 
 data class NotificationUiModel(
     val id: Long,
+    val noticeId: Long?,
     val type: NotificationType,
     val title: String,
     val message: String,
