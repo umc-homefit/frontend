@@ -77,9 +77,11 @@ private fun String.toElapsedTimeText(
         .toMinutes()
         .coerceAtLeast(0)
 
-    return if (elapsedMinutes == 0L) {
-        "방금"
-    } else {
-        "${elapsedMinutes}분 전"
+    return when {
+        elapsedMinutes == 0L -> "방금"
+        elapsedMinutes < MINUTES_PER_HOUR -> "${elapsedMinutes}분 전"
+        else -> "${elapsedMinutes / MINUTES_PER_HOUR}시간 전"
     }
 }
+
+private const val MINUTES_PER_HOUR = 60L
