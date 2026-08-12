@@ -8,7 +8,9 @@ import com.umc.homefit.domain.repository.notification.NotificationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
+import java.time.ZoneId
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -71,6 +73,10 @@ private fun String.toElapsedTimeText(
 ): String {
     val createdInstant = runCatching {
         OffsetDateTime.parse(this).toInstant()
+    }.recoverCatching {
+        LocalDateTime.parse(this)
+            .atZone(ZoneId.systemDefault())
+            .toInstant()
     }.getOrNull() ?: return "정보 없음"
 
     val elapsedMinutes = Duration.between(createdInstant, now)
