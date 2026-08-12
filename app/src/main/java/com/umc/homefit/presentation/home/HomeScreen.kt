@@ -48,6 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.umc.homefit.presentation.component.AppScaffold
 import com.umc.homefit.presentation.component.NoticeCard
 import com.umc.homefit.presentation.component.NoticeCardAction
+import com.umc.homefit.presentation.component.RefreshOnResume
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
@@ -65,11 +66,14 @@ fun HomeScreenRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val userName by viewModel.userName.collectAsStateWithLifecycle()
+    val hasUnreadNotifications by viewModel.hasUnreadNotifications.collectAsStateWithLifecycle()
+
+    RefreshOnResume(onResume = viewModel::loadNotificationStatus)
 
     HomeScreen(
         userName = userName,
         uiState = uiState,
-        hasNotifications = true,
+        hasNotifications = hasUnreadNotifications,
         onNotificationClick = onNotificationClick,
         onSearchClick = onSearchClick,
         onAllAnnouncementClick = onAllAnnouncementClick,
