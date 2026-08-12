@@ -162,10 +162,20 @@ private fun FinanceSuccessContent(
                             .padding(vertical = 40.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "매칭된 상품이 없습니다",
-                            color = Color(0xFF919AA4)
-                        )
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "매칭된 추천 상품이 아직 없어요",
+                                color = Black,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "새로운 상품이 등록되면 알려드릴게요",
+                                color = Color(0xFF919AA4),
+                                fontSize = 13.sp
+                            )
+                        }
                     }
                 }
             } else {
