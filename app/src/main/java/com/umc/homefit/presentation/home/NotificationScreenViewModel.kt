@@ -37,7 +37,7 @@ class NotificationScreenViewModel @Inject constructor(
                     notifications = result.data.notifications
                         .asSequence()
                         .filterNot { notification -> notification.isRead }
-                        .mapNotNull { notification -> notification.toUiModel() }
+                        .map { notification -> notification.toUiModel() }
                         .toList()
                 )
 
@@ -49,11 +49,11 @@ class NotificationScreenViewModel @Inject constructor(
     }
 }
 
-private fun NotificationResponse.toUiModel(): NotificationUiModel? {
+private fun NotificationResponse.toUiModel(): NotificationUiModel {
     val notificationType = when (type) {
         "NEW_NOTICE" -> NotificationType.NEW_NOTICE
         "CLOSING_SOON" -> NotificationType.CLOSING_SOON
-        else -> return null
+        else -> NotificationType.UNKNOWN
     }
 
     return NotificationUiModel(

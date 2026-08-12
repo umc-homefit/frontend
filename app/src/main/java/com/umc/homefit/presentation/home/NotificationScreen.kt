@@ -304,5 +304,8 @@ private fun notificationTypeIconRes(
 
         NotificationType.CLOSING_SOON ->
             R.drawable.ic_noti_calender
+
+        NotificationType.UNKNOWN ->
+            R.drawable.ic_noti_idea
     }
 }

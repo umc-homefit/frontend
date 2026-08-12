@@ -23,5 +23,6 @@ data class NotificationUiModel(
 
 enum class NotificationType {
     NEW_NOTICE,
-    CLOSING_SOON
+    CLOSING_SOON,
+    UNKNOWN
 }
