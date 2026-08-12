@@ -7,6 +7,7 @@ import com.umc.homefit.domain.repository.finance.FinanceRepository
 import com.umc.homefit.util.error.ErrorCode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,8 +26,10 @@ class FinanceScreenViewModel @Inject constructor(
 
     fun refresh() = loadMatchedProducts(showLoading = false)
 
+    private var loadJob: Job? = null
     fun loadMatchedProducts(showLoading: Boolean = true) {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             if (showLoading) {
                 _uiState.value = FinanceScreenUiState.Loading
             }
