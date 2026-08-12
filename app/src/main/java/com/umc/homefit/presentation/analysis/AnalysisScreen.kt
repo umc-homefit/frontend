@@ -158,23 +158,29 @@ private fun RecordListContent(
     }
 
     // 기록 있는 경우
+    val groupedRecords = records.groupBy { it.date }.toList()
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 37.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
-        items(records, key = { it.analysisId }) { record ->
+        items(groupedRecords, key = { (date, _) -> date }) { (date, recordsForDate) ->
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = record.date,
+                    text = date,
                     fontSize = 12.sp,
                     color = Color(0xFF919AA4)
                 )
                 Spacer(modifier = Modifier.height(5.dp))
-                NoticeCard(
-                    uiModel = record.card,
-                    onClick = { onRecordClick(record.noticeId, record.analysisId) }
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    recordsForDate.forEach { record ->
+                        NoticeCard(
+                            uiModel = record.card,
+                            onClick = { onRecordClick(record.noticeId, record.analysisId) }
+                        )
+                    }
+                }
             }
         }
     }
