@@ -354,10 +354,20 @@ private fun RecommendedProductContent(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "조건에 맞는 금융 상품이 없습니다",
-                            color = ProductTextGray
-                        )
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "조건에 맞는 금융 상품을 찾지 못했어요",
+                                color = Color(0xFF18191B),
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "다른 카테고리나 검색어로 다시 찾아보세요",
+                                color = ProductTextGray,
+                                fontSize = 13.sp
+                            )
+                        }
                     }
                 } else {
                     ProductListHeader(

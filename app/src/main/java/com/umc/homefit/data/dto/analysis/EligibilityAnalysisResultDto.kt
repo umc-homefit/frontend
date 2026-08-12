@@ -18,7 +18,18 @@ data class EligibilityAnalysisResultDto(
     val expectedMonthlyRentAmount: Long,
     val maintenanceFeeAmount: Long? = null,
     val supplyType: String, // MVP는 백엔드에서 항상 "청년안심주택"으로 내려옴
-    val exclusiveAreaM2: Double? = null
+    val exclusiveAreaM2: Double? = null,
+    val conditionProfileSnapshot: ConditionProfileSnapshotDto? = null
+)
+
+@Serializable
+data class ConditionProfileSnapshotDto(
+    val monthlyIncomeAmount: Long = 0,
+    val totalAssetAmount: Long = 0,
+    val totalDebtAmount: Long = 0,
+    val monthlyDebtPaymentAmount: Long = 0,
+    val cashSavings: Long = 0,
+    val housingOwnershipStatus: HousingOwnershipStatus? = null
 )
 
 @Serializable

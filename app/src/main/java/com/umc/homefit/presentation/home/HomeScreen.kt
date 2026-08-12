@@ -241,14 +241,27 @@ fun HomeScreen(
                 is HomeScreenUiState.Success -> {
                     if (uiState.notices.isEmpty()) {
                         item {
-                            Text(
-                                text = "조회된 주요 공고가 없습니다",
+                            Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(24.dp),
-                                color = Color(0xFF9298A2),
-                                textAlign = TextAlign.Center
-                            )
+                                    .padding(vertical = 32.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "지금은 접수 가능한 주요 공고가 없어요",
+                                    color = Color(0xFF18191B),
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Center
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = "새로운 공고가 올라오면 가장 먼저 보여드릴게요",
+                                    color = Color(0xFF9298A2),
+                                    fontSize = 13.sp,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
                     } else {
                         items(

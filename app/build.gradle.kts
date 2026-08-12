@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ktlint)
+    alias(libs.plugins.google.services)
 }
 
 // Read local.properties for BuildConfig BASE_URL
@@ -18,6 +19,10 @@ val localProperties = Properties().apply {
     }
 }
 val baseUrl: String = localProperties.getProperty("BASE_URL") ?: "\"https://api.homefit.com/\""
+val kakaoNativeAppKey: String =
+    localProperties.getProperty("KAKAO_NATIVE_APP_KEY")?.removeSurrounding("\"") ?: ""
+
+val googleClientId: String = localProperties.getProperty("GOOGLE_CLIENT_ID") ?: ""
 
 android {
     namespace = "com.umc.homefit"
@@ -37,6 +42,11 @@ android {
 
         // Expose BASE_URL via BuildConfig
         buildConfigField("String", "BASE_URL", baseUrl)
+
+        manifestPlaceholders["kakaoNativeAppKey"] = kakaoNativeAppKey
+        buildConfigField("String", "KAKAO_NATIVE_APP_KEY", "\"$kakaoNativeAppKey\"")
+
+        buildConfigField("String", "GOOGLE_CLIENT_ID", "\"$googleClientId\"")
     }
 
     buildTypes {
@@ -117,4 +127,8 @@ dependencies {
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
+
+    // Social Login
+    implementation(libs.kakao.sdk.user)
+    implementation(libs.play.services.auth)
 }

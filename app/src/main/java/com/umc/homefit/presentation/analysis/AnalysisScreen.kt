@@ -152,29 +152,48 @@ private fun RecordListContent(
     // 기록 없는 경우
     if (records.isEmpty()) {
         Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(text = "기록이 없습니다", color = Color(0xFF919AA4), fontSize = 14.sp)
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "아직 분석 기록이 없어요",
+                    color = Color(0xFF18191B),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "관심 있는 공고에서 입주 가능성을 분석해보세요",
+                    color = Color(0xFF919AA4),
+                    fontSize = 13.sp
+                )
+            }
         }
         return
     }
 
     // 기록 있는 경우
+    val groupedRecords = records.groupBy { it.date }.toList()
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 37.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
-        items(records, key = { it.analysisId }) { record ->
+        items(groupedRecords, key = { (date, _) -> date }) { (date, recordsForDate) ->
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = record.date,
+                    text = date,
                     fontSize = 12.sp,
                     color = Color(0xFF919AA4)
                 )
                 Spacer(modifier = Modifier.height(5.dp))
-                NoticeCard(
-                    uiModel = record.card,
-                    onClick = { onRecordClick(record.noticeId, record.analysisId) }
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    recordsForDate.forEach { record ->
+                        NoticeCard(
+                            uiModel = record.card,
+                            onClick = { onRecordClick(record.noticeId, record.analysisId) }
+                        )
+                    }
+                }
             }
         }
     }

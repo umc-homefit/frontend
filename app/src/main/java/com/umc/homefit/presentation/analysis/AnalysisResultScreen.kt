@@ -357,7 +357,6 @@ private fun SuccessContent(
                             .align(Alignment.CenterStart)
                             .padding(start = 26.dp)
                     ) {
-                        // percentileText는 score 기반 클라이언트 산출값이라 항상 채워짐 (0~100점 유효 범위 내)
                         Surface(
                             shape = RoundedCornerShape(200.dp),
                             color = Color(0xFFF1F0FF)
@@ -578,9 +577,16 @@ private fun SuccessContent(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // 조건 프로필 API(FinancialInfo 입력값) 기반, 6개 항목 항상 채워짐
-                    data.inputInfoRows.forEach { row ->
-                        AnalysisInfoRow(row.title, row.value)
+                    if (data.inputInfoUnavailableMessage != null) {
+                        Text(
+                            text = data.inputInfoUnavailableMessage,
+                            fontSize = 13.sp,
+                            color = Color(0xFF919AA4)
+                        )
+                    } else {
+                        data.inputInfoRows.forEach { row ->
+                            AnalysisInfoRow(row.title, row.value)
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(26.dp))
