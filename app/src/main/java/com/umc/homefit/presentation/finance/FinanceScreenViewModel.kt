@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.finance.FinanceRepository
 import com.umc.homefit.util.error.ErrorCode
+import com.umc.homefit.util.toWonText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Job
@@ -41,7 +42,7 @@ class FinanceScreenViewModel @Inject constructor(
                     _uiState.value = FinanceScreenUiState.Success(
                         matchedCount = "${eligibleProducts.size}가지",
                         minRate = result.data.minRate?.let { "연 $it" } ?: "-",
-                        maxLimitAmount = result.data.maxLimitAmount?.let { "최대 ${it.toKoreanAmount()}" } ?: "-",
+                        maxLimitAmount = result.data.maxLimitAmount?.let { "최대 ${it.toWonText()}" } ?: "-",
                         products = eligibleProducts
                             .take(MAX_VISIBLE_PRODUCTS)
                             .map { product -> product.toFinanceRecommendedProductUiModel() }

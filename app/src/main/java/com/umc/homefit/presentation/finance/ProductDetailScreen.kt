@@ -50,8 +50,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.umc.homefit.R
 import com.umc.homefit.presentation.component.TopBarAction
-import java.text.NumberFormat
-import java.util.Locale
+import com.umc.homefit.util.toWonText
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.LocalTextStyle
@@ -335,7 +334,7 @@ private fun ProductDetailScreen(
                         DetailValueRow(
                             label = "최대 대출 한도",
                             value = product.maxLimitAmount?.let { amount ->
-                                "최대 ${formatWon(amount)}"
+                                "최대 ${amount.toWonText()}"
                             } ?: "정보 없음"
                         )
 
@@ -774,35 +773,6 @@ private fun ProductDetailBottomBar(
                     maxLines = 1
                 )
             }
-        }
-    }
-}
-
-private fun formatWon(
-    amount: Long
-): String {
-    val hundredMillion = 100_000_000L
-    val tenThousand = 10_000L
-
-    return when {
-        amount >= hundredMillion &&
-            amount % hundredMillion == 0L -> {
-            "${amount / hundredMillion}억 원"
-        }
-
-        amount >= hundredMillion -> {
-            val billionValue =
-                amount.toDouble() / hundredMillion.toDouble()
-
-            "${formatDecimal(billionValue)}억 원"
-        }
-
-        amount >= tenThousand -> {
-            "${NumberFormat.getNumberInstance(Locale.KOREA).format(amount / tenThousand)}만 원"
-        }
-
-        else -> {
-            "${NumberFormat.getNumberInstance(Locale.KOREA).format(amount)}원"
         }
     }
 }
