@@ -2,10 +2,10 @@ package com.umc.homefit.presentation.component
 
 import com.umc.homefit.data.dto.common.NoticeStatus
 import com.umc.homefit.data.dto.recruitment.NoticeDto
+import com.umc.homefit.util.toWonText
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 /**
  * [NoticeDto] → [NoticeCardUiModel] 매핑. 공고 목록/홈 화면 "주요 공고"가 동일한 DTO를 쓰므로 공유한다.
@@ -29,14 +29,10 @@ fun NoticeDto.toNoticeCardUiModel(): NoticeCardUiModel {
 private val DISPLAY_ZONE = ZoneId.of("Asia/Seoul")
 private val DISPLAY_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd")
 
-private fun buildAreaDepositLine(unitSummary: String?, depositMin: Long?): String {
+// 목록/홈 화면 카드와 관심공고관리 카드가 동일한 형태(unitSummary + depositMin)로 요약을 표시하므로 공유한다.
+fun buildAreaDepositLine(unitSummary: String?, depositMin: Long?): String {
     val area = unitSummary?.removePrefix("전용")?.trim()?.takeIf { it.isNotBlank() } ?: "공고문 참고"
-    return "전용 $area  보증금 ${formatDepositToManwon(depositMin)}"
-}
-
-private fun formatDepositToManwon(depositInWon: Long?): String {
-    if (depositInWon == null) return "공고문 참고"
-    return String.format(Locale.KOREA, "%,d만원", depositInWon / 10_000)
+    return "전용 $area  보증금 ${depositMin?.toWonText() ?: "공고문 참고"}"
 }
 
 private fun String?.toDisplayDate(): String {
