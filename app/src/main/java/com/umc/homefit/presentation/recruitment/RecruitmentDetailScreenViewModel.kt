@@ -11,6 +11,7 @@ import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.recruitment.RecruitmentRepository
 import com.umc.homefit.domain.repository.recruitment.SavedNoticeRepository
 import com.umc.homefit.util.error.ErrorCode
+import com.umc.homefit.util.toWonText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +20,6 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 import javax.inject.Inject
 
 private const val FALLBACK_TEXT = "공고문 참고"
@@ -111,8 +111,8 @@ class RecruitmentDetailScreenViewModel @Inject constructor(
             moveInDate = FALLBACK_TEXT,
             // 자격 조건 카드: conditions가 여러 대상유형(청년/신혼부부 등)으로 나뉘어 올 경우 유형별로 병기
             ageRange = conditions.toConditionFieldText { formatAgeRange(it.minAge, it.maxAge) },
-            incomeStandard = conditions.toConditionFieldText { it.incomeLimitText ?: it.incomeLimitAmount?.let { amt -> "${formatWon(amt)} 이하" } ?: FALLBACK_TEXT },
-            assetStandard = conditions.toConditionFieldText { it.assetLimitText ?: it.assetLimitAmount?.let { amt -> "${formatWon(amt)} 이하" } ?: FALLBACK_TEXT },
+            incomeStandard = conditions.toConditionFieldText { it.incomeLimitText ?: it.incomeLimitAmount?.let { amt -> "${amt.toWonText()} 이하" } ?: FALLBACK_TEXT },
+            assetStandard = conditions.toConditionFieldText { it.assetLimitText ?: it.assetLimitAmount?.let { amt -> "${amt.toWonText()} 이하" } ?: FALLBACK_TEXT },
             housingOwnership = conditions.toConditionFieldText { it.requiresHomeless?.let { req -> if (req) "완전 무주택" else "제한 없음" } ?: FALLBACK_TEXT },
             residencyRequirement = conditions.toConditionFieldText { it.residenceRequirement ?: FALLBACK_TEXT },
             // 신청 기간 카드: "당첨자 발표"/"계약 체결"은 서버 응답에 없어 공고문 참고로 대체
@@ -129,11 +129,14 @@ class RecruitmentDetailScreenViewModel @Inject constructor(
     private fun List<NoticeUnitDto>.toUnitSummaryText(): String {
         if (isEmpty()) return FALLBACK_TEXT
         return joinToString(" / ") { unit ->
-            val area = unit.exclusiveAreaM2?.let { "전용 ${it}㎡" } ?: unit.unitName
+            val area = unit.exclusiveAreaM2?.let { "전용 ${it.toAreaText()}㎡" } ?: unit.unitName
             val count = unit.supplyCount?.let { "${it}세대" }
             listOfNotNull(area, count).joinToString(" ")
         }
     }
+
+    private fun Double.toAreaText(): String =
+        if (this % 1.0 == 0.0) "${toInt()}" else "$this"
 
     private fun List<NoticeConditionDto>.toConditionFieldText(selector: (NoticeConditionDto) -> String): String {
         return when (size) {
@@ -161,20 +164,9 @@ class RecruitmentDetailScreenViewModel @Inject constructor(
         }
     }
 
-    private fun formatWon(won: Long): String {
-        val manwon = won / 10_000
-        val eok = manwon / 10_000
-        val remainingManwon = manwon % 10_000
-        return when {
-            eok == 0L -> String.format(Locale.KOREA, "%,d만 원", manwon)
-            remainingManwon == 0L -> "${eok}억 원"
-            else -> String.format(Locale.KOREA, "%d억 %,d만 원", eok, remainingManwon)
-        }
-    }
-
     private fun formatWonRange(minWon: Long?, maxWon: Long?): String {
-        val minText = minWon?.let { formatWon(it) }
-        val maxText = maxWon?.let { formatWon(it) }
+        val minText = minWon?.toWonText()
+        val maxText = maxWon?.toWonText()
         return when {
             minText == null && maxText == null -> FALLBACK_TEXT
             minWon == maxWon -> minText ?: maxText ?: FALLBACK_TEXT
