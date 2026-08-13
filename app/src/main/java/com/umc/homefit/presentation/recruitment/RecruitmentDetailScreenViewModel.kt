@@ -11,6 +11,7 @@ import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.recruitment.RecruitmentRepository
 import com.umc.homefit.domain.repository.recruitment.SavedNoticeRepository
 import com.umc.homefit.util.error.ErrorCode
+import com.umc.homefit.util.toAreaText
 import com.umc.homefit.util.toWonText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -134,9 +135,6 @@ class RecruitmentDetailScreenViewModel @Inject constructor(
             listOfNotNull(area, count).joinToString(" ")
         }
     }
-
-    private fun Double.toAreaText(): String =
-        if (this % 1.0 == 0.0) "${toInt()}" else "$this"
 
     private fun List<NoticeConditionDto>.toConditionFieldText(selector: (NoticeConditionDto) -> String): String {
         return when (size) {

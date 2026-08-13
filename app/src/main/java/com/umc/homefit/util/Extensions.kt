@@ -21,6 +21,9 @@ fun Long.toWonText(): String {
     }
 }
 
+fun Double.toAreaText(): String =
+    if (this % 1.0 == 0.0) "${toInt()}" else "$this"
+
 fun Int.toPercentileText(): String {
     val diff = 100 - this.coerceIn(0, 100)
     val lower = (diff / 10 * 10).coerceAtMost(90)

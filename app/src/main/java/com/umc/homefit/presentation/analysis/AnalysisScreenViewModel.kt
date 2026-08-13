@@ -9,6 +9,7 @@ import com.umc.homefit.domain.repository.analysis.AnalysisRepository
 import com.umc.homefit.domain.repository.analysis.ConditionProfileRepository
 import com.umc.homefit.presentation.component.NoticeCardUiModel
 import com.umc.homefit.util.logError
+import com.umc.homefit.util.toAreaText
 import com.umc.homefit.util.toWonText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -89,7 +90,7 @@ private fun EligibilityAnalysisHistoryItemDto.toRecordListItem(): RecordListItem
 )
 
 private fun buildAreaDepositLine(exclusiveAreaM2: Double?, expectedDepositAmount: Long): String {
-    val area = exclusiveAreaM2?.let { "${it.toInt()}㎡" } ?: "공고문 참고"
+    val area = exclusiveAreaM2?.let { "${it.toAreaText()}㎡" } ?: "공고문 참고"
     return "전용 $area  보증금 ${expectedDepositAmount.toWonText()}"
 }
 
