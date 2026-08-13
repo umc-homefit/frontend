@@ -227,6 +227,13 @@ fun RootNavGraph(
             )
         }
 
+        composable<Route.InterestedRegion> {
+            InterestedRegionScreenRoute(
+                viewModel = hiltViewModel(),
+                onBack = { navController.popBackStack() }
+            )
+        }
+
         composable<Route.ProductSearch> {
             ProductSearchScreenRoute(
                 viewModel = hiltViewModel(),
@@ -399,7 +406,8 @@ fun MainScreen(
                     onAllAnnouncementClick = { tabNavController.navigateToTab(TabRoute.RecruitmentList(), clearTabResultKeys) },
                     onFavoriteClick = { rootNavController.navigate(Route.SavedRecruitment) },
                     onAnalysisClick = { tabNavController.navigateToTab(TabRoute.Analysis, clearTabResultKeys) },
-                    onFinanceClick = { tabNavController.navigateToTab(TabRoute.Finance, clearTabResultKeys) }
+                    onFinanceClick = { tabNavController.navigateToTab(TabRoute.Finance, clearTabResultKeys) },
+                    onInterestedRegionClick = { rootNavController.navigate(Route.InterestedRegion) }
                 )
             }
 

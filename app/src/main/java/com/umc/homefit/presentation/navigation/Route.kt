@@ -55,6 +55,9 @@ sealed interface Route {
     data object NotificationSetting : Route
 
     @Serializable
+    data object InterestedRegion : Route
+
+    @Serializable
     data object MyFinance : Route
 }
 
