@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 sealed interface LoginScreenUiState {
     object Idle : LoginScreenUiState
-    object Loading : LoginScreenUiState
+    data class Loading(val provider: String) : LoginScreenUiState
     object Success : LoginScreenUiState
     data class Error(val message: String) : LoginScreenUiState
 }
@@ -27,7 +27,7 @@ class LoginScreenViewModel @Inject constructor(
 
     fun socialLogin(provider: String, oauthToken: String) {
         viewModelScope.launch {
-            _uiState.value = LoginScreenUiState.Loading
+            _uiState.value = LoginScreenUiState.Loading(provider)
             when (val result = authRepository.socialLogin(provider, oauthToken)) {
                 is NetworkResult.Success -> _uiState.value = LoginScreenUiState.Success
                 is NetworkResult.Error -> _uiState.value = LoginScreenUiState.Error(result.message)
