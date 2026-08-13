@@ -44,4 +44,9 @@ class AuthRepositoryImpl @Inject constructor(
         }
         return result
     }
+
+    override suspend fun logout() {
+        safeApiCall { authApiService.logout() }
+        userPreferencesDataSource.clearAccessToken()
+    }
 }

@@ -19,6 +19,9 @@ interface AuthApiService {
     @POST("auth/social")
     suspend fun socialLogin(@Body request: SocialAuthRequest): BaseResponse<LoginResponse>
 
+    @POST("auth/logout")
+    suspend fun logout(): BaseResponse<Unit>
+
 }
 
 

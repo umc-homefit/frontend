@@ -49,7 +49,6 @@ fun FinanceScreenRoute(
     viewModel: FinanceScreenViewModel,
     onNavigateToRecommendedProducts: () -> Unit,
     onNavigateToFinancialInfo: () -> Unit,
-    onNavigateToDetail: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -60,7 +59,6 @@ fun FinanceScreenRoute(
         uiState = uiState,
         onNavigateToRecommendedProducts = onNavigateToRecommendedProducts,
         onNavigateToFinancialInfo = onNavigateToFinancialInfo,
-        onNavigateToDetail = onNavigateToDetail,
         onRetry = viewModel::retry,
         modifier = modifier
     )
@@ -71,7 +69,6 @@ fun FinanceScreen(
     uiState: FinanceScreenUiState,
     onNavigateToRecommendedProducts: () -> Unit,
     onNavigateToFinancialInfo: () -> Unit,
-    onNavigateToDetail: (Long) -> Unit,
     onRetry: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -90,7 +87,6 @@ fun FinanceScreen(
                 data = uiState,
                 onNavigateToRecommendedProducts =
                     onNavigateToRecommendedProducts,
-                onNavigateToDetail = onNavigateToDetail,
                 modifier = modifier
             )
         }
@@ -116,7 +112,6 @@ fun FinanceScreen(
 private fun FinanceSuccessContent(
     data: FinanceScreenUiState.Success,
     onNavigateToRecommendedProducts: () -> Unit,
-    onNavigateToDetail: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -180,8 +175,7 @@ private fun FinanceSuccessContent(
             } else {
                 item {
                     RecommendedProductsSection(
-                        products = data.products,
-                        onProductClick = onNavigateToDetail
+                        products = data.products
                     )
                 }
             }
@@ -340,7 +334,6 @@ private fun FinanceSummaryItem(
 @Composable
 private fun RecommendedProductsSection(
     products: List<FinanceRecommendedProductUiModel>,
-    onProductClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -350,15 +343,14 @@ private fun RecommendedProductsSection(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            products.forEach { product ->
+            products.take(2).forEach { product ->
                 RecommendedProductCard(
                     product = product,
                     modifier = Modifier.padding(
                         horizontal = 16.dp
                     ),
-                    onClick = {
-                        onProductClick(product.productId)
-                    }
+                    onClick = {},
+                    enabled = false
                 )
             }
         }
@@ -425,7 +417,6 @@ private fun FinanceScreenPreview() {
             products = emptyList()
         ),
         onNavigateToRecommendedProducts = {},
-        onNavigateToFinancialInfo = {},
-        onNavigateToDetail = {}
+        onNavigateToFinancialInfo = {}
     )
 }

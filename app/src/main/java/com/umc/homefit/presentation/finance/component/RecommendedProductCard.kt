@@ -42,14 +42,17 @@ fun RecommendedProductCard(
     product: FinanceRecommendedProductUiModel,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    iconRes: Int = R.drawable.ic_mypage_bank
+    iconRes: Int = R.drawable.ic_mypage_bank,
+    enabled: Boolean = true
 ) {
     Card(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFFFFFF)
+            containerColor = Color(0xFFFFFFFF),
+            disabledContainerColor = Color(0xFFFFFFFF)
         ),
         border = BorderStroke(
             width = 1.dp,

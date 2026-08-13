@@ -449,8 +449,7 @@ fun MainScreen(
                 FinanceScreenRoute(
                     viewModel = hiltViewModel(),
                     onNavigateToRecommendedProducts = { tabNavController.navigate(TabRoute.RecommendedProduct) },
-                    onNavigateToFinancialInfo = { rootNavController.navigate(Route.FinancialInfo()) },
-                    onNavigateToDetail = { productId -> rootNavController.navigate(Route.ProductDetail(productId = productId)) }
+                    onNavigateToFinancialInfo = { rootNavController.navigate(Route.FinancialInfo()) }
                 )
             }
 
@@ -471,7 +470,12 @@ fun MainScreen(
                     viewModel = hiltViewModel(),
                     onNavigateToSaved = { rootNavController.navigate(Route.SavedRecruitment) },
                     onNavigateToNotification = { rootNavController.navigate(Route.NotificationSetting) },
-                    onNavigateToFinance = { rootNavController.navigate(Route.MyFinance) }
+                    onNavigateToFinance = { rootNavController.navigate(Route.MyFinance) },
+                    onLogout = {
+                        rootNavController.navigate(Route.Login) {
+                            popUpTo(Route.Main) { inclusive = true }
+                        }
+                    }
                 )
             }
         }
