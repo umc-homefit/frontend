@@ -283,13 +283,21 @@ fun MainScreen(
         ?.collectAsState()
         ?.value
 
+    // 공고 필터/금융 검색어는 탭으로 "들어갈 때" 항상 여기서 정리한다(navigateToTab을 부르는
+    // 모든 경로에 공통 적용) — 바텀탭 클릭뿐 아니라 홈 화면 바로가기, 딥링크로 들어와도
+    // 예전 값이 몰래 재적용되지 않도록 진입 지점 한 곳에서 일괄 처리한다.
+    val clearTabResultKeys: () -> Unit = {
+        rootBackStackEntry?.savedStateHandle?.set<String?>(PRODUCT_SEARCH_RESULT_KEY, null)
+        rootBackStackEntry?.savedStateHandle?.set<FilterState?>(FILTER_RESULT_KEY, null)
+    }
+
     LaunchedEffect(requestedTab) {
         when (requestedTab) {
-            "recruitment" -> tabNavController.navigateToTab(TabRoute.RecruitmentList())
-            "analysis" -> tabNavController.navigateToTab(TabRoute.Analysis)
-            "finance" -> tabNavController.navigateToTab(TabRoute.Finance)
-            "recommendedProduct" -> tabNavController.navigateToTab(TabRoute.RecommendedProduct)
-            "mypage" -> tabNavController.navigateToTab(TabRoute.MyPage)
+            "recruitment" -> tabNavController.navigateToTab(TabRoute.RecruitmentList(), clearTabResultKeys)
+            "analysis" -> tabNavController.navigateToTab(TabRoute.Analysis, clearTabResultKeys)
+            "finance" -> tabNavController.navigateToTab(TabRoute.Finance, clearTabResultKeys)
+            "recommendedProduct" -> tabNavController.navigateToTab(TabRoute.RecommendedProduct, clearTabResultKeys)
+            "mypage" -> tabNavController.navigateToTab(TabRoute.MyPage, clearTabResultKeys)
         }
 
         if (requestedTab != null) {
@@ -334,26 +342,15 @@ fun MainScreen(
                         NavigationBarItem(
                             selected = isSelected,
                             onClick = {
-                                // 금융 탭을 벗어나는 경우에만 추천 상품 검색어를 초기화한다.
-                                // (금융 탭을 다시 누르는 건 같은 섹션에 머무는 것이므로 지우지 않음)
-                                if (item.route !is TabRoute.Finance) {
-                                    rootBackStackEntry?.savedStateHandle
-                                        ?.set<String?>(PRODUCT_SEARCH_RESULT_KEY, null)
-                                }
-                                // 공고 탭을 벗어나는 경우에만 적용해둔 필터를 초기화한다(검색어와 동일한 이유).
-                                if (item.route !is TabRoute.RecruitmentList) {
-                                    rootBackStackEntry?.savedStateHandle
-                                        ?.set<FilterState?>(FILTER_RESULT_KEY, null)
-                                }
-
                                 when (item.route) {
                                     TabRoute.Home -> {
+                                        clearTabResultKeys()
                                         val popped = tabNavController.popBackStack(route = TabRoute.Home, inclusive = false)
                                         if (!popped) {
-                                            tabNavController.navigateToTab(TabRoute.Home)
+                                            tabNavController.navigateToTab(TabRoute.Home, clearTabResultKeys)
                                         }
                                     }
-                                    else -> tabNavController.navigateToTab(item.route)
+                                    else -> tabNavController.navigateToTab(item.route, clearTabResultKeys)
                                 }
                             },
                             icon = {
@@ -397,10 +394,10 @@ fun MainScreen(
                     onNotificationClick = { rootNavController.navigate(Route.Notification) },
                     onNavigateToDetail = { recruitmentId -> rootNavController.navigate(Route.RecruitmentDetail(recruitmentId)) },
                     onSearchClick = { tabNavController.navigate(TabRoute.RecruitmentSearch) },
-                    onAllAnnouncementClick = { tabNavController.navigateToTab(TabRoute.RecruitmentList()) },
+                    onAllAnnouncementClick = { tabNavController.navigateToTab(TabRoute.RecruitmentList(), clearTabResultKeys) },
                     onFavoriteClick = { rootNavController.navigate(Route.SavedRecruitment) },
-                    onAnalysisClick = { tabNavController.navigateToTab(TabRoute.Analysis) },
-                    onFinanceClick = { tabNavController.navigateToTab(TabRoute.Finance) }
+                    onAnalysisClick = { tabNavController.navigateToTab(TabRoute.Analysis, clearTabResultKeys) },
+                    onFinanceClick = { tabNavController.navigateToTab(TabRoute.Finance, clearTabResultKeys) }
                 )
             }
 
@@ -425,6 +422,9 @@ fun MainScreen(
                     viewModel = hiltViewModel(),
                     onBack = { tabNavController.popBackStack() },
                     onSearchComplete = { searchQuery ->
+                        // 새로 검색을 제출하는 것도 새로운 탐색으로 보고, 걸어뒀던 지역/면적/보증금
+                        // 필터를 같이 초기화한다(공고 목록 화면이 이 지점에서 어차피 새로 만들어지는 것과 동일한 정책).
+                        rootBackStackEntry?.savedStateHandle?.set<FilterState?>(FILTER_RESULT_KEY, null)
                         tabNavController.navigate(TabRoute.RecruitmentList(searchQuery = searchQuery)) {
                             popUpTo<TabRoute.Home> { inclusive = false }
                             launchSingleTop = true
@@ -476,7 +476,12 @@ fun MainScreen(
     }
 }
 
-private fun NavHostController.navigateToTab(route: TabRoute) {
+private fun NavHostController.navigateToTab(route: TabRoute, clearTabResultKeys: () -> Unit) {
+    // 어느 경로로 호출되든(바텀탭 클릭, 홈 화면 바로가기, 딥링크) 탭을 이동하기 전에 항상 먼저 정리한다.
+    // 금융/공고 탭은 재진입 시 restoreState=false로 매번 새로 시작하므로, 남아있던 검색어/필터도
+    // 여기서 같이 지워야 다음에 그 탭에 들어갔을 때 예전 값이 몰래 재적용되지 않는다.
+    clearTabResultKeys()
+
     navigate(route) {
         popUpTo(graph.findStartDestination().id) { saveState = true }
         launchSingleTop = true

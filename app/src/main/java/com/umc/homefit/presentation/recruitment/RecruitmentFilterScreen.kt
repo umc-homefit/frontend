@@ -19,6 +19,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -77,8 +80,14 @@ fun RecruitmentFilterScreenRoute(
     val uiState by viewModel.uiState.collectAsState()
     val districts by viewModel.districts.collectAsState()
 
+    // rememberSaveable로 "이미 초기화했는지"를 기억해서, 화면 회전 등으로 컴포지션이 다시 시작돼도
+    // initialize()가 다시 호출되어 사용자가 아직 적용 안 한 슬라이더 수정값을 덮어쓰지 않게 한다.
+    var hasAppliedInitialFilter by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        viewModel.initialize(initialFilter)
+        if (!hasAppliedInitialFilter) {
+            viewModel.initialize(initialFilter)
+            hasAppliedInitialFilter = true
+        }
     }
 
     RecruitmentFilterScreen(
