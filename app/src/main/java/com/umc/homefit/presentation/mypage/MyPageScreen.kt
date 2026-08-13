@@ -3,6 +3,7 @@ package com.umc.homefit.presentation.mypage
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,7 +43,11 @@ private val SectionDividerColor = Color(0xFFF0F4F9)
 @Composable
 fun MyPageScreenRoute(
     viewModel: MyPageScreenViewModel,
-    onNavigateToSaved: () -> Unit, onNavigateToNotification: () -> Unit, onNavigateToFinance: () -> Unit, modifier: Modifier = Modifier
+    onNavigateToSaved: () -> Unit,
+    onNavigateToNotification: () -> Unit,
+    onNavigateToFinance: () -> Unit,
+    onLogout: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     MyPageScreen(
@@ -50,7 +55,7 @@ fun MyPageScreenRoute(
         onNavigateToSaved = onNavigateToSaved,
         onNavigateToNotification = onNavigateToNotification,
         onNavigateToFinance = onNavigateToFinance,
-
+        onLogout = { viewModel.logout(onComplete = onLogout) },
         modifier = modifier
     )
 }
@@ -61,7 +66,7 @@ fun MyPageScreen(
     onNavigateToSaved: () -> Unit,
     onNavigateToNotification: () -> Unit,
     onNavigateToFinance: () -> Unit,
-
+    onLogout: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -76,6 +81,7 @@ fun MyPageScreen(
                     onNavigateToSaved = onNavigateToSaved,
                     onNavigateToNotification = onNavigateToNotification,
                     onNavigateToFinance = onNavigateToFinance,
+                    onLogout = onLogout,
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -90,6 +96,7 @@ private fun MyPageContent(
     onNavigateToSaved: () -> Unit,
     onNavigateToNotification: () -> Unit,
     onNavigateToFinance: () -> Unit,
+    onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -154,6 +161,18 @@ private fun MyPageContent(
                 modifier = Modifier.size(24.dp)
             )
         }
+
+        Spacer(modifier = Modifier.height(27.dp))
+
+        Text(
+            text = "로그아웃",
+            fontSize = 14.sp,
+            color = Color(0xFF919AA4),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .clickable(onClick = onLogout)
+                .padding(vertical = 8.dp)
+        )
     }
 }
 

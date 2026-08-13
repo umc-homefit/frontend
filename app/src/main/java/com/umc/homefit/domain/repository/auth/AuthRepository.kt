@@ -7,4 +7,5 @@ interface AuthRepository {
     suspend fun login(email: String, password: String): NetworkResult<LoginResponse>
     suspend fun signup(email: String, password: String): NetworkResult<LoginResponse>
     suspend fun socialLogin(provider: String, oauthToken: String): NetworkResult<LoginResponse>
+    suspend fun logout()
 }

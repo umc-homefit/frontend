@@ -3,6 +3,7 @@
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.umc.homefit.data.remote.NetworkResult
+import com.umc.homefit.domain.repository.auth.AuthRepository
 import com.umc.homefit.domain.repository.mypage.MyPageRepository
 import com.umc.homefit.util.error.ErrorCode
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +17,8 @@ import kotlinx.coroutines.coroutineScope
 
 @HiltViewModel
 class MyPageScreenViewModel @Inject constructor(
-    private val myPageRepository: MyPageRepository
+    private val myPageRepository: MyPageRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<MyPageScreenUiState>(MyPageScreenUiState.Loading)
     val uiState: StateFlow<MyPageScreenUiState> = _uiState.asStateFlow()
@@ -64,6 +66,13 @@ class MyPageScreenViewModel @Inject constructor(
                     profileImageUrl = (profileResult as? NetworkResult.Success)?.data?.profileImageUrl
                 )
             )
+        }
+    }
+
+    fun logout(onComplete: () -> Unit) {
+        viewModelScope.launch {
+            authRepository.logout()
+            onComplete()
         }
     }
 }

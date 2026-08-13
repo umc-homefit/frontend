@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    AWS ALB 백엔드 주소가 아직 HTTPS 인증서 없이 HTTP로만 서비스되고 있어
+    해당 호스트에 한해서만 cleartext(HTTP) 트래픽을 허용한다.
+    ALB에 HTTPS 리스너가 붙으면 이 파일과 매니페스트의 networkSecurityConfig 참조는 제거할 것.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">homefit-production-alb-2018913481.ap-northeast-2.elb.amazonaws.com</domain>
+    </domain-config>
+</network-security-config>
