@@ -73,6 +73,8 @@ fun RecommendedProductScreenRoute(
     onNavigateToSearch: () -> Unit,
     onNavigateToFinancialInfo: () -> Unit,
     onNavigateToDetail: (Long) -> Unit,
+    onClearSearch: () -> Unit,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -92,6 +94,8 @@ fun RecommendedProductScreenRoute(
                 keyword = keyword
             )
         },
+        onClearSearch = onClearSearch,
+        onBack = onBack,
         modifier = modifier
     )
 }
@@ -231,12 +235,15 @@ fun RecommendedProductScreen(
     onNavigateToSearch: () -> Unit,
     onNavigateToFinancialInfo: () -> Unit,
     onFilterChanged: (sort: String, category: String?, keyword: String?) -> Unit,
+    onClearSearch: () -> Unit,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     AppScaffold(
         title = null,
         modifier = modifier,
-        showBackButton = false
+        showBackButton = true,
+        onBackClick = onBack
     ) { innerPadding ->
         RecommendedProductContent(
             uiState = uiState,
@@ -245,6 +252,7 @@ fun RecommendedProductScreen(
             onNavigateToSearch = onNavigateToSearch,
             onNavigateToFinancialInfo = onNavigateToFinancialInfo,
             onFilterChanged = onFilterChanged,
+            onClearSearch = onClearSearch,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -261,6 +269,7 @@ private fun RecommendedProductContent(
     onNavigateToSearch: () -> Unit,
     onNavigateToFinancialInfo: () -> Unit,
     onFilterChanged: (sort: String, category: String?, keyword: String?) -> Unit,
+    onClearSearch: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var selectedCategory by remember {
@@ -281,6 +290,10 @@ private fun RecommendedProductContent(
 
     LaunchedEffect(searchQuery) {
         if (isInitialized) {
+            if (searchQuery.isNotBlank()) {
+                selectedCategory = null
+                selectedSort = ProductSort.RECOMMENDED
+            }
             onFilterChanged(
                 selectedSort.apiValue,
                 selectedCategory?.name,
@@ -301,7 +314,8 @@ private fun RecommendedProductContent(
             onSearchQueryChange = {},
             onSearchClick = onNavigateToSearch,
             readOnly = true,
-            onBarClick = onNavigateToSearch
+            onBarClick = onNavigateToSearch,
+            onClear = onClearSearch
         )
 
         LazyRow(
@@ -501,7 +515,9 @@ private fun RecommendedProductScreenPreview() {
             onNavigateToSearch = {},
             onNavigateToFinancialInfo = {},
             onNavigateToDetail = {},
-            onFilterChanged = { _, _, _ -> }
+            onFilterChanged = { _, _, _ -> },
+            onClearSearch = {},
+            onBack = {}
         )
     }
 }

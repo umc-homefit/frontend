@@ -1,43 +1,25 @@
-﻿package com.umc.homefit.domain.repository.finance
+package com.umc.homefit.domain.repository.finance
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.umc.homefit.data.local.UserPreferencesDataSource
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ProductSearchRepository @Inject constructor() {
+class ProductSearchRepository @Inject constructor(
+    private val userPreferencesDataSource: UserPreferencesDataSource
+) {
+    val recentSearches: Flow<List<String>> = userPreferencesDataSource.productRecentSearches
 
-    private val _recentSearches =
-        MutableStateFlow(
-            listOf(
-                "디딤돌 대출",
-                "주택청약종합저축",
-                "국민은행"
-            )
-        )
-
-    val recentSearches =
-        _recentSearches.asStateFlow()
-
-    fun addRecentSearch(keyword: String) {
+    suspend fun addRecentSearch(keyword: String) {
         val trimmedKeyword = keyword.trim()
 
         if (trimmedKeyword.isBlank()) return
 
-        _recentSearches.value =
-            (
-                listOf(trimmedKeyword) +
-                    _recentSearches.value.filterNot {
-                        it == trimmedKeyword
-                    }
-                ).take(10)
+        userPreferencesDataSource.addProductRecentSearch(trimmedKeyword)
     }
 
-    fun deleteRecentSearch(keyword: String) {
-        _recentSearches.value =
-            _recentSearches.value.filterNot {
-                it == keyword
-            }
+    suspend fun deleteRecentSearch(keyword: String) {
+        userPreferencesDataSource.removeProductRecentSearch(keyword)
     }
 }

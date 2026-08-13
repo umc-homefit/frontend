@@ -45,6 +45,14 @@ class RecruitmentListScreenViewModel @Inject constructor(
         loadRecruitments()
     }
 
+    /**
+     * 검색창의 X 버튼용. 검색어만 지우고 상태/상세 필터는 그대로 유지한 채 재조회한다.
+     */
+    fun clearSearch() {
+        currentKeyword = null
+        loadRecruitments()
+    }
+
     fun toggleBookmark(noticeId: Long) {
         val notice = recruitments.find { it.noticeId == noticeId } ?: return
         val nextSaved = !notice.isSaved

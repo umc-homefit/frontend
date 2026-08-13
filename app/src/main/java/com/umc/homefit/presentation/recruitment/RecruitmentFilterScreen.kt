@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -68,12 +69,17 @@ private val DepositTicks = listOf(
 @Composable
 fun RecruitmentFilterScreenRoute(
     viewModel: RecruitmentFilterScreenViewModel,
+    initialFilter: FilterState,
     onApply: (FilterState) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val districts by viewModel.districts.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.initialize(initialFilter)
+    }
 
     RecruitmentFilterScreen(
         uiState = uiState,
@@ -107,7 +113,8 @@ fun RecruitmentFilterScreen(
             TopBarAction(
                 icon = painterResource(id = R.drawable.ic_filter_close),
                 contentDescription = "닫기",
-                onClick = onBack
+                onClick = onBack,
+                iconSize = 18.dp
             )
         ),
         modifier = modifier
@@ -292,11 +299,13 @@ private fun RecruitmentFilterContent(
 }
 
 private fun formatAreaLabel(minArea: Float, maxArea: Float): String {
-    return "${minArea.roundToInt()}~${maxArea.roundToInt()}㎡"
+    val maxLabel = "${maxArea.roundToInt()}㎡" + if (maxArea >= 59f) " 이상" else ""
+    return "${minArea.roundToInt()}~$maxLabel"
 }
 
 private fun formatDepositLabel(minDeposit: Float, maxDeposit: Float): String {
-    return "${formatDepositValue(minDeposit)}~${formatDepositValue(maxDeposit)}"
+    val maxLabel = formatDepositValue(maxDeposit) + if (maxDeposit >= 10000f) " 이상" else ""
+    return "${formatDepositValue(minDeposit)}~$maxLabel"
 }
 
 private fun formatDepositValue(value: Float): String {

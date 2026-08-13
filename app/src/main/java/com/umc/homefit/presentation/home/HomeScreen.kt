@@ -375,7 +375,7 @@ private fun HomeSearchBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "공고명, 지하철역명, 단지명 등으로 검색",
+            text = "공고명으로 검색",
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 12.dp),

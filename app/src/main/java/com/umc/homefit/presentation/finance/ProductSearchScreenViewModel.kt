@@ -2,6 +2,7 @@
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.umc.homefit.data.mock.ProductSearchMockData
 import com.umc.homefit.domain.repository.finance.ProductSearchRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class ProductSearchScreenViewModel @Inject constructor(
@@ -27,13 +29,7 @@ class ProductSearchScreenViewModel @Inject constructor(
             ProductSearchScreenUiState.Success(
                 searchQuery = query,
                 recentSearches = recentSearches,
-                popularSearches = listOf(
-                    "디딤돌 대출",
-                    "버팀목 전세대출",
-                    "청년 주택드림 청약통장",
-                    "주택청약종합저축",
-                    "국민은행"
-                )
+                popularSearches = ProductSearchMockData.popularSearches
             )
         }.stateIn(
             scope = viewModelScope,
@@ -50,11 +46,15 @@ class ProductSearchScreenViewModel @Inject constructor(
 
         if (trimmedKeyword.isBlank()) return
 
-        repository.addRecentSearch(trimmedKeyword)
         searchQuery.value = trimmedKeyword
+        viewModelScope.launch {
+            repository.addRecentSearch(trimmedKeyword)
+        }
     }
 
     fun deleteRecentSearch(keyword: String) {
-        repository.deleteRecentSearch(keyword)
+        viewModelScope.launch {
+            repository.deleteRecentSearch(keyword)
+        }
     }
 }

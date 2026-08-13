@@ -2,6 +2,7 @@
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.umc.homefit.data.mock.RecruitmentSearchMockData
 import com.umc.homefit.domain.repository.recruitment.RecruitmentSearchRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class RecruitmentSearchScreenViewModel @Inject constructor(
@@ -26,13 +28,7 @@ class RecruitmentSearchScreenViewModel @Inject constructor(
             RecruitmentSearchScreenUiState.Success(
                 searchQuery = query,
                 recentSearches = recentSearches,
-                popularSearches = listOf(
-                    "청년안심주택",
-                    "행복주택",
-                    "역세권",
-                    "강동구",
-                    "관악구"
-                )
+                popularSearches = RecruitmentSearchMockData.popularSearches
             )
         }.stateIn(
             scope = viewModelScope,
@@ -50,11 +46,15 @@ class RecruitmentSearchScreenViewModel @Inject constructor(
 
         if (trimmedKeyword.isBlank()) return
 
-        repository.addRecentSearch(trimmedKeyword)
         searchQuery.value = trimmedKeyword
+        viewModelScope.launch {
+            repository.addRecentSearch(trimmedKeyword)
+        }
     }
 
     fun deleteRecentSearch(keyword: String) {
-        repository.deleteRecentSearch(keyword)
+        viewModelScope.launch {
+            repository.deleteRecentSearch(keyword)
+        }
     }
 }

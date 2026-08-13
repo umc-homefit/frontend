@@ -15,15 +15,22 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -36,7 +43,8 @@ fun RecommendedProductSearchBar(
     onSearchClick: () -> Unit,
     modifier: Modifier = Modifier,
     readOnly: Boolean = false,
-    onBarClick: (() -> Unit)? = null
+    onBarClick: (() -> Unit)? = null,
+    onClear: (() -> Unit)? = null
 ) {
     Row(
         modifier = modifier
@@ -57,7 +65,7 @@ fun RecommendedProductSearchBar(
                 .height(48.dp)
         ) {
             if (readOnly) {
-                Box(
+                Row(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(
@@ -68,10 +76,11 @@ fun RecommendedProductSearchBar(
                             )
                         )
                         .padding(horizontal = 16.dp),
-                    contentAlignment = Alignment.CenterStart
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = searchQuery.ifEmpty { "상품명, 은행명 등으로 검색" },
+                        modifier = Modifier.weight(1f),
                         fontSize = 14.sp,
                         color = if (searchQuery.isEmpty()) {
                             Color(0xFF919AA4)
@@ -79,13 +88,36 @@ fun RecommendedProductSearchBar(
                             Color.Black
                         }
                     )
+
+                    if (searchQuery.isNotEmpty() && onClear != null) {
+                        IconButton(
+                            onClick = onClear,
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "검색어 지우기",
+                                tint = Color(0xFF919AA4),
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
                 }
             } else {
+                val focusRequester = remember { FocusRequester() }
+                val keyboardController = LocalSoftwareKeyboardController.current
+
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
+                    keyboardController?.show()
+                }
+
                 BasicTextField(
                     value = searchQuery,
                     onValueChange = onSearchQueryChange,
                     modifier = Modifier
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .focusRequester(focusRequester),
                     singleLine = true,
                     textStyle = TextStyle(
                         fontSize = 14.sp,
@@ -100,7 +132,7 @@ fun RecommendedProductSearchBar(
                         }
                     ),
                     decorationBox = { innerTextField ->
-                        Box(
+                        Row(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .background(
@@ -111,17 +143,36 @@ fun RecommendedProductSearchBar(
                                     )
                                 )
                                 .padding(horizontal = 16.dp),
-                            contentAlignment = Alignment.CenterStart
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            if (searchQuery.isEmpty()) {
-                                Text(
-                                    text = "상품명, 은행명 등으로 검색",
-                                    fontSize = 14.sp,
-                                    color = Color(0xFF919AA4)
-                                )
+                            Box(
+                                modifier = Modifier.weight(1f),
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+                                if (searchQuery.isEmpty()) {
+                                    Text(
+                                        text = "상품명, 은행명 등으로 검색",
+                                        fontSize = 14.sp,
+                                        color = Color(0xFF919AA4)
+                                    )
+                                }
+
+                                innerTextField()
                             }
 
-                            innerTextField()
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(
+                                    onClick = { onSearchQueryChange("") },
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "검색어 지우기",
+                                        tint = Color(0xFF919AA4),
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 )

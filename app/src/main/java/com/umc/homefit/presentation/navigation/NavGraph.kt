@@ -107,8 +107,15 @@ fun RootNavGraph(
         }
 
         composable<Route.RecruitmentFilter> {
+            val currentFilter = navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.getStateFlow<FilterState?>(FILTER_RESULT_KEY, null)
+                ?.collectAsState()
+                ?.value
+
             RecruitmentFilterScreenRoute(
                 viewModel = hiltViewModel(),
+                initialFilter = currentFilter ?: FilterState(),
                 onApply = { filterState ->
                     navController.previousBackStackEntry?.savedStateHandle?.set(FILTER_RESULT_KEY, filterState)
                     navController.popBackStack()
@@ -327,6 +334,18 @@ fun MainScreen(
                         NavigationBarItem(
                             selected = isSelected,
                             onClick = {
+                                // 금융 탭을 벗어나는 경우에만 추천 상품 검색어를 초기화한다.
+                                // (금융 탭을 다시 누르는 건 같은 섹션에 머무는 것이므로 지우지 않음)
+                                if (item.route !is TabRoute.Finance) {
+                                    rootBackStackEntry?.savedStateHandle
+                                        ?.set<String?>(PRODUCT_SEARCH_RESULT_KEY, null)
+                                }
+                                // 공고 탭을 벗어나는 경우에만 적용해둔 필터를 초기화한다(검색어와 동일한 이유).
+                                if (item.route !is TabRoute.RecruitmentList) {
+                                    rootBackStackEntry?.savedStateHandle
+                                        ?.set<FilterState?>(FILTER_RESULT_KEY, null)
+                                }
+
                                 when (item.route) {
                                     TabRoute.Home -> {
                                         val popped = tabNavController.popBackStack(route = TabRoute.Home, inclusive = false)
@@ -391,7 +410,9 @@ fun MainScreen(
                 RecruitmentListScreenRoute(
                     viewModel = hiltViewModel(),
                     filterResult = filterResult,
-                    onFilterConsumed = { rootBackStackEntry?.savedStateHandle?.remove<FilterState>(FILTER_RESULT_KEY) },
+                    // 적용된 필터 값은 지우지 않고 남겨둔다 — 필터 화면을 다시 열었을 때 이 값으로 미리 채워야 하기 때문.
+                    // (탭을 벗어날 때는 바텀탭 onClick에서 별도로 초기화한다)
+                    onFilterConsumed = {},
                     onNavigateToFilter = { rootNavController.navigate(Route.RecruitmentFilter) },
                     onNavigateToDetail = { recruitmentId -> rootNavController.navigate(Route.RecruitmentDetail(recruitmentId)) },
                     onNavigateToSearch = { tabNavController.navigate(TabRoute.RecruitmentSearch) },
@@ -437,7 +458,9 @@ fun MainScreen(
                     searchQuery = productSearchResult.orEmpty(),
                     onNavigateToSearch = { rootNavController.navigate(Route.ProductSearch) },
                     onNavigateToFinancialInfo = { rootNavController.navigate(Route.FinancialInfo()) },
-                    onNavigateToDetail = { productId -> rootNavController.navigate(Route.ProductDetail(productId = productId)) }
+                    onNavigateToDetail = { productId -> rootNavController.navigate(Route.ProductDetail(productId = productId)) },
+                    onClearSearch = { rootBackStackEntry?.savedStateHandle?.set<String?>(PRODUCT_SEARCH_RESULT_KEY, null) },
+                    onBack = { tabNavController.popBackStack() }
                 )
             }
 
@@ -457,6 +480,9 @@ private fun NavHostController.navigateToTab(route: TabRoute) {
     navigate(route) {
         popUpTo(graph.findStartDestination().id) { saveState = true }
         launchSingleTop = true
-        restoreState = route !is TabRoute.Finance
+        // 금융 탭과 공고 탭은 바텀탭으로 재진입할 때 항상 새 상태(검색어 없음)로 시작한다.
+        // restoreState = true면 이전에 저장된 백스택(이전 검색어 포함)이 새로 넘긴 인자를 무시하고
+        // 그대로 복원되기 때문에, 탭을 나갔다가 돌아왔을 때만 검색어가 초기화되도록 여기서 막는다.
+        restoreState = route !is TabRoute.Finance && route !is TabRoute.RecruitmentList
     }
 }
