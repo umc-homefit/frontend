@@ -27,6 +27,10 @@ class RecruitmentFilterScreenViewModel @Inject constructor(
         }
     }
 
+    fun initialize(filter: FilterState) {
+        _uiState.value = RecruitmentFilterScreenUiState.Success(filter)
+    }
+
     fun updateDistrict(district: String) {
         updateFilterState { it.copy(selectedDistrict = district) }
     }

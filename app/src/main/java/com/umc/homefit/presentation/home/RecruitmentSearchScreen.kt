@@ -15,10 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -196,42 +194,8 @@ private fun RecruitmentSearchContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(43.dp))
-
-        Text(
-            text = "인기 검색어",
-            modifier = Modifier.padding(horizontal = 16.dp),
-            color = Color(0xFF161616),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(33.dp))
-
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(
-                start = 16.dp,
-                end = 16.dp
-            ),
-            verticalArrangement = Arrangement.spacedBy(35.dp)
-        ) {
-            itemsIndexed(
-                items = popularSearches,
-                key = { index, keyword ->
-                    "$index-$keyword"
-                }
-            ) { index, keyword ->
-                RecruitmentPopularSearchItem(
-                    rank = index + 1,
-                    keyword = keyword,
-                    onClick = {
-                        onSearchQueryChange(keyword)
-                        onSearch(keyword)
-                    }
-                )
-            }
-        }
+        // 인기 검색어: 실제 통계가 아니라 목데이터라 노출하지 않는다.
+        // 백엔드 API가 생기면 이 자리에 popularSearches 렌더링을 다시 추가하면 된다.
     }
 }
 

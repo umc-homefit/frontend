@@ -107,8 +107,15 @@ fun RootNavGraph(
         }
 
         composable<Route.RecruitmentFilter> {
+            val currentFilter = navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.getStateFlow<FilterState?>(FILTER_RESULT_KEY, null)
+                ?.collectAsState()
+                ?.value
+
             RecruitmentFilterScreenRoute(
                 viewModel = hiltViewModel(),
+                initialFilter = currentFilter ?: FilterState(),
                 onApply = { filterState ->
                     navController.previousBackStackEntry?.savedStateHandle?.set(FILTER_RESULT_KEY, filterState)
                     navController.popBackStack()
@@ -278,13 +285,21 @@ fun MainScreen(
         ?.collectAsState()
         ?.value
 
+    // 공고 필터/금융 검색어는 탭으로 "들어갈 때" 항상 여기서 정리한다(navigateToTab을 부르는
+    // 모든 경로에 공통 적용) — 바텀탭 클릭뿐 아니라 홈 화면 바로가기, 딥링크로 들어와도
+    // 예전 값이 몰래 재적용되지 않도록 진입 지점 한 곳에서 일괄 처리한다.
+    val clearTabResultKeys: () -> Unit = {
+        rootBackStackEntry?.savedStateHandle?.set<String?>(PRODUCT_SEARCH_RESULT_KEY, null)
+        rootBackStackEntry?.savedStateHandle?.set<FilterState?>(FILTER_RESULT_KEY, null)
+    }
+
     LaunchedEffect(requestedTab) {
         when (requestedTab) {
-            "recruitment" -> tabNavController.navigateToTab(TabRoute.RecruitmentList())
-            "analysis" -> tabNavController.navigateToTab(TabRoute.Analysis)
-            "finance" -> tabNavController.navigateToTab(TabRoute.Finance)
-            "recommendedProduct" -> tabNavController.navigateToTab(TabRoute.RecommendedProduct)
-            "mypage" -> tabNavController.navigateToTab(TabRoute.MyPage)
+            "recruitment" -> tabNavController.navigateToTab(TabRoute.RecruitmentList(), clearTabResultKeys)
+            "analysis" -> tabNavController.navigateToTab(TabRoute.Analysis, clearTabResultKeys)
+            "finance" -> tabNavController.navigateToTab(TabRoute.Finance, clearTabResultKeys)
+            "recommendedProduct" -> tabNavController.navigateToTab(TabRoute.RecommendedProduct, clearTabResultKeys)
+            "mypage" -> tabNavController.navigateToTab(TabRoute.MyPage, clearTabResultKeys)
         }
 
         if (requestedTab != null) {
@@ -331,12 +346,13 @@ fun MainScreen(
                             onClick = {
                                 when (item.route) {
                                     TabRoute.Home -> {
+                                        clearTabResultKeys()
                                         val popped = tabNavController.popBackStack(route = TabRoute.Home, inclusive = false)
                                         if (!popped) {
-                                            tabNavController.navigateToTab(TabRoute.Home)
+                                            tabNavController.navigateToTab(TabRoute.Home, clearTabResultKeys)
                                         }
                                     }
-                                    else -> tabNavController.navigateToTab(item.route)
+                                    else -> tabNavController.navigateToTab(item.route, clearTabResultKeys)
                                 }
                             },
                             icon = {
@@ -380,10 +396,10 @@ fun MainScreen(
                     onNotificationClick = { rootNavController.navigate(Route.Notification) },
                     onNavigateToDetail = { recruitmentId -> rootNavController.navigate(Route.RecruitmentDetail(recruitmentId)) },
                     onSearchClick = { tabNavController.navigate(TabRoute.RecruitmentSearch) },
-                    onAllAnnouncementClick = { tabNavController.navigateToTab(TabRoute.RecruitmentList()) },
+                    onAllAnnouncementClick = { tabNavController.navigateToTab(TabRoute.RecruitmentList(), clearTabResultKeys) },
                     onFavoriteClick = { rootNavController.navigate(Route.SavedRecruitment) },
-                    onAnalysisClick = { tabNavController.navigateToTab(TabRoute.Analysis) },
-                    onFinanceClick = { tabNavController.navigateToTab(TabRoute.Finance) }
+                    onAnalysisClick = { tabNavController.navigateToTab(TabRoute.Analysis, clearTabResultKeys) },
+                    onFinanceClick = { tabNavController.navigateToTab(TabRoute.Finance, clearTabResultKeys) }
                 )
             }
 
@@ -393,7 +409,9 @@ fun MainScreen(
                 RecruitmentListScreenRoute(
                     viewModel = hiltViewModel(),
                     filterResult = filterResult,
-                    onFilterConsumed = { rootBackStackEntry?.savedStateHandle?.remove<FilterState>(FILTER_RESULT_KEY) },
+                    // 적용된 필터 값은 지우지 않고 남겨둔다 — 필터 화면을 다시 열었을 때 이 값으로 미리 채워야 하기 때문.
+                    // (탭을 벗어날 때는 바텀탭 onClick에서 별도로 초기화한다)
+                    onFilterConsumed = {},
                     onNavigateToFilter = { rootNavController.navigate(Route.RecruitmentFilter) },
                     onNavigateToDetail = { recruitmentId -> rootNavController.navigate(Route.RecruitmentDetail(recruitmentId)) },
                     onNavigateToSearch = { tabNavController.navigate(TabRoute.RecruitmentSearch) },
@@ -406,6 +424,9 @@ fun MainScreen(
                     viewModel = hiltViewModel(),
                     onBack = { tabNavController.popBackStack() },
                     onSearchComplete = { searchQuery ->
+                        // 새로 검색을 제출하는 것도 새로운 탐색으로 보고, 걸어뒀던 지역/면적/보증금
+                        // 필터를 같이 초기화한다(공고 목록 화면이 이 지점에서 어차피 새로 만들어지는 것과 동일한 정책).
+                        rootBackStackEntry?.savedStateHandle?.set<FilterState?>(FILTER_RESULT_KEY, null)
                         tabNavController.navigate(TabRoute.RecruitmentList(searchQuery = searchQuery)) {
                             popUpTo<TabRoute.Home> { inclusive = false }
                             launchSingleTop = true
@@ -439,7 +460,9 @@ fun MainScreen(
                     searchQuery = productSearchResult.orEmpty(),
                     onNavigateToSearch = { rootNavController.navigate(Route.ProductSearch) },
                     onNavigateToFinancialInfo = { rootNavController.navigate(Route.FinancialInfo()) },
-                    onNavigateToDetail = { productId -> rootNavController.navigate(Route.ProductDetail(productId = productId)) }
+                    onNavigateToDetail = { productId -> rootNavController.navigate(Route.ProductDetail(productId = productId)) },
+                    onClearSearch = { rootBackStackEntry?.savedStateHandle?.set<String?>(PRODUCT_SEARCH_RESULT_KEY, null) },
+                    onBack = { tabNavController.popBackStack() }
                 )
             }
 
@@ -455,10 +478,18 @@ fun MainScreen(
     }
 }
 
-private fun NavHostController.navigateToTab(route: TabRoute) {
+private fun NavHostController.navigateToTab(route: TabRoute, clearTabResultKeys: () -> Unit) {
+    // 어느 경로로 호출되든(바텀탭 클릭, 홈 화면 바로가기, 딥링크) 탭을 이동하기 전에 항상 먼저 정리한다.
+    // 금융/공고 탭은 재진입 시 restoreState=false로 매번 새로 시작하므로, 남아있던 검색어/필터도
+    // 여기서 같이 지워야 다음에 그 탭에 들어갔을 때 예전 값이 몰래 재적용되지 않는다.
+    clearTabResultKeys()
+
     navigate(route) {
         popUpTo(graph.findStartDestination().id) { saveState = true }
         launchSingleTop = true
-        restoreState = route !is TabRoute.Finance
+        // 금융 탭과 공고 탭은 바텀탭으로 재진입할 때 항상 새 상태(검색어 없음)로 시작한다.
+        // restoreState = true면 이전에 저장된 백스택(이전 검색어 포함)이 새로 넘긴 인자를 무시하고
+        // 그대로 복원되기 때문에, 탭을 나갔다가 돌아왔을 때만 검색어가 초기화되도록 여기서 막는다.
+        restoreState = route !is TabRoute.Finance && route !is TabRoute.RecruitmentList
     }
 }

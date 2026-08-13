@@ -1,44 +1,25 @@
-﻿package com.umc.homefit.domain.repository.recruitment
+package com.umc.homefit.domain.repository.recruitment
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import com.umc.homefit.data.local.UserPreferencesDataSource
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class RecruitmentSearchRepository @Inject constructor() {
-    private val _recentSearches =
-        MutableStateFlow(
-            listOf(
-                "청년안심주택",
-                "천호동",
-                "행복주택"
-            )
-        )
+class RecruitmentSearchRepository @Inject constructor(
+    private val userPreferencesDataSource: UserPreferencesDataSource
+) {
+    val recentSearches: Flow<List<String>> = userPreferencesDataSource.recruitmentRecentSearches
 
-    val recentSearches: StateFlow<List<String>> =
-        _recentSearches.asStateFlow()
-
-    fun addRecentSearch(keyword: String) {
+    suspend fun addRecentSearch(keyword: String) {
         val trimmedKeyword = keyword.trim()
 
         if (trimmedKeyword.isBlank()) return
 
-        _recentSearches.update { currentKeywords ->
-            listOf(trimmedKeyword) +
-                currentKeywords.filterNot {
-                    it == trimmedKeyword
-                }
-        }
+        userPreferencesDataSource.addRecruitmentRecentSearch(trimmedKeyword)
     }
 
-    fun deleteRecentSearch(keyword: String) {
-        _recentSearches.update { currentKeywords ->
-            currentKeywords.filterNot {
-                it == keyword
-            }
-        }
+    suspend fun deleteRecentSearch(keyword: String) {
+        userPreferencesDataSource.removeRecruitmentRecentSearch(keyword)
     }
 }

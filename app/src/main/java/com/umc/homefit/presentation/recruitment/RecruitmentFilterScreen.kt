@@ -16,8 +16,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -68,12 +72,23 @@ private val DepositTicks = listOf(
 @Composable
 fun RecruitmentFilterScreenRoute(
     viewModel: RecruitmentFilterScreenViewModel,
+    initialFilter: FilterState,
     onApply: (FilterState) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val districts by viewModel.districts.collectAsState()
+
+    // rememberSaveable로 "이미 초기화했는지"를 기억해서, 화면 회전 등으로 컴포지션이 다시 시작돼도
+    // initialize()가 다시 호출되어 사용자가 아직 적용 안 한 슬라이더 수정값을 덮어쓰지 않게 한다.
+    var hasAppliedInitialFilter by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        if (!hasAppliedInitialFilter) {
+            viewModel.initialize(initialFilter)
+            hasAppliedInitialFilter = true
+        }
+    }
 
     RecruitmentFilterScreen(
         uiState = uiState,
@@ -107,7 +122,8 @@ fun RecruitmentFilterScreen(
             TopBarAction(
                 icon = painterResource(id = R.drawable.ic_filter_close),
                 contentDescription = "닫기",
-                onClick = onBack
+                onClick = onBack,
+                iconSize = 18.dp
             )
         ),
         modifier = modifier
@@ -292,11 +308,13 @@ private fun RecruitmentFilterContent(
 }
 
 private fun formatAreaLabel(minArea: Float, maxArea: Float): String {
-    return "${minArea.roundToInt()}~${maxArea.roundToInt()}㎡"
+    val maxLabel = "${maxArea.roundToInt()}㎡" + if (maxArea >= 59f) " 이상" else ""
+    return "${minArea.roundToInt()}~$maxLabel"
 }
 
 private fun formatDepositLabel(minDeposit: Float, maxDeposit: Float): String {
-    return "${formatDepositValue(minDeposit)}~${formatDepositValue(maxDeposit)}"
+    val maxLabel = formatDepositValue(maxDeposit) + if (maxDeposit >= 10000f) " 이상" else ""
+    return "${formatDepositValue(minDeposit)}~$maxLabel"
 }
 
 private fun formatDepositValue(value: Float): String {

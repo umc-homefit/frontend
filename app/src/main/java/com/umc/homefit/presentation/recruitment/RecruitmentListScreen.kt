@@ -82,6 +82,7 @@ fun RecruitmentListScreenRoute(
         onNavigateToSearch = onNavigateToSearch,
         onToggleBookmark = viewModel::toggleBookmark,
         onStatusFilterChanged = viewModel::onStatusFilterChanged,
+        onClearSearch = viewModel::clearSearch,
         onRetry = viewModel::retry,
         modifier = modifier,
         initialSearchQuery = initialSearchQuery
@@ -106,6 +107,7 @@ fun RecruitmentListScreen(
     modifier: Modifier = Modifier,
     onToggleBookmark: (Long) -> Unit,
     onStatusFilterChanged: (String?) -> Unit = {},
+    onClearSearch: () -> Unit = {},
     onRetry: () -> Unit = {},
     initialSearchQuery: String = "",
 ) {
@@ -120,7 +122,11 @@ fun RecruitmentListScreen(
             onSearchQueryChange = {},
             onSearch = {},
             readOnly = true,
-            onBarClick = onNavigateToSearch
+            onBarClick = onNavigateToSearch,
+            onClear = {
+                searchQuery = ""
+                onClearSearch()
+            }
         )
 
         Row(
@@ -131,7 +137,7 @@ fun RecruitmentListScreen(
         ) {
             LazyRow(
                 modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(statusFilterOptions) { option ->
                     StatusFilterChip(
@@ -150,13 +156,13 @@ fun RecruitmentListScreen(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(37.dp)
+                        .size(27.dp)
                         .border(width = 1.5.dp, color = RecruitmentBorder, shape = CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(34.dp)
+                            .size(25.dp)
                             .background(color = Color.White, shape = CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
@@ -164,8 +170,8 @@ fun RecruitmentListScreen(
                             painter = painterResource(id = R.drawable.ic_recruitment_filter),
                             contentDescription = "필터",
                             modifier = Modifier
-                                .width(17.47.dp)
-                                .height(19.66.dp)
+                                .width(12.7.dp)
+                                .height(14.3.dp)
                         )
                     }
                 }

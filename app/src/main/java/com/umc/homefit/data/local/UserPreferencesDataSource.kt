@@ -19,7 +19,11 @@ object PreferencesKeys {
     val ACCESS_TOKEN = stringPreferencesKey("access_token")
     val SAVED_RECRUITMENT_IDS = stringPreferencesKey("saved_recruitment_ids")
     val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
+    val RECRUITMENT_RECENT_SEARCHES = stringPreferencesKey("recruitment_recent_searches")
+    val PRODUCT_RECENT_SEARCHES = stringPreferencesKey("product_recent_searches")
 }
+
+private const val RECENT_SEARCHES_LIMIT = 10
 
 class UserPreferencesDataSource(
     private val context: Context
@@ -58,6 +62,28 @@ class UserPreferencesDataSource(
             }
         }.map { preferences ->
             preferences[PreferencesKeys.NOTIFICATIONS_ENABLED] ?: true
+        }
+
+    val recruitmentRecentSearches: Flow<List<String>> = dataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }.map { preferences ->
+            preferences[PreferencesKeys.RECRUITMENT_RECENT_SEARCHES].toRecentSearchList()
+        }
+
+    val productRecentSearches: Flow<List<String>> = dataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }.map { preferences ->
+            preferences[PreferencesKeys.PRODUCT_RECENT_SEARCHES].toRecentSearchList()
         }
 
     suspend fun updateAccessToken(token: String) {
@@ -102,5 +128,46 @@ class UserPreferencesDataSource(
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.NOTIFICATIONS_ENABLED] = enabled
         }
+    }
+
+    suspend fun addRecruitmentRecentSearch(keyword: String) {
+        dataStore.edit { preferences ->
+            val current = preferences[PreferencesKeys.RECRUITMENT_RECENT_SEARCHES].toRecentSearchList()
+            preferences[PreferencesKeys.RECRUITMENT_RECENT_SEARCHES] = current.withRecentSearchAdded(keyword)
+        }
+    }
+
+    suspend fun removeRecruitmentRecentSearch(keyword: String) {
+        dataStore.edit { preferences ->
+            val current = preferences[PreferencesKeys.RECRUITMENT_RECENT_SEARCHES].toRecentSearchList()
+            preferences[PreferencesKeys.RECRUITMENT_RECENT_SEARCHES] = current.filterNot { it == keyword }.joinToString(",")
+        }
+    }
+
+    suspend fun addProductRecentSearch(keyword: String) {
+        dataStore.edit { preferences ->
+            val current = preferences[PreferencesKeys.PRODUCT_RECENT_SEARCHES].toRecentSearchList()
+            preferences[PreferencesKeys.PRODUCT_RECENT_SEARCHES] = current.withRecentSearchAdded(keyword)
+        }
+    }
+
+    suspend fun removeProductRecentSearch(keyword: String) {
+        dataStore.edit { preferences ->
+            val current = preferences[PreferencesKeys.PRODUCT_RECENT_SEARCHES].toRecentSearchList()
+            preferences[PreferencesKeys.PRODUCT_RECENT_SEARCHES] = current.filterNot { it == keyword }.joinToString(",")
+        }
+    }
+
+    private fun String?.toRecentSearchList(): List<String> {
+        return this?.split(",")?.filter { it.isNotEmpty() } ?: emptyList()
+    }
+
+    private fun List<String>.withRecentSearchAdded(keyword: String): String {
+        val trimmedKeyword = keyword.trim()
+        if (trimmedKeyword.isBlank()) return joinToString(",")
+
+        return (listOf(trimmedKeyword) + filterNot { it == trimmedKeyword })
+            .take(RECENT_SEARCHES_LIMIT)
+            .joinToString(",")
     }
 }

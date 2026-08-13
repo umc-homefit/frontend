@@ -3,16 +3,12 @@
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.text.font.FontWeight
@@ -194,6 +190,7 @@ private fun ProductSearchContent(
                         keyword = keyword,
                         onClick = {
                             onSearchQueryChange(keyword)
+                            onSearch(keyword)
                         },
                         onDeleteClick = {
                             onDeleteRecentSearch(keyword)
@@ -203,42 +200,8 @@ private fun ProductSearchContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(43.dp))
-
-        Text(
-            text = "인기 검색어",
-            modifier = Modifier.padding(horizontal = 16.dp),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF161616)
-        )
-
-        Spacer(modifier = Modifier.height(33.dp))
-
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(
-                start = 16.dp,
-                end = 16.dp,
-            ),
-            verticalArrangement = Arrangement.spacedBy(35.dp)
-        ) {
-            itemsIndexed(
-                items = popularSearches,
-                key = { index, keyword ->
-                    "$index-$keyword"
-                }
-            ) { index, keyword ->
-                PopularSearchItem(
-                    rank = index + 1,
-                    keyword = keyword,
-                    onClick = {
-                        onSearchQueryChange(keyword)
-                        onSearch(keyword)
-                    }
-                )
-            }
-        }
+        // 인기 검색어: 실제 통계가 아니라 목데이터라 노출하지 않는다.
+        // 백엔드 API가 생기면 이 자리에 popularSearches 렌더링을 다시 추가하면 된다.
     }
 }
 
