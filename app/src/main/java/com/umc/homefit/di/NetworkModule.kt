@@ -20,6 +20,7 @@ import javax.inject.Singleton
 import com.umc.homefit.data.api.mypage.MyPageApiService
 import com.umc.homefit.data.api.analysis.AnalysisApiService
 import com.umc.homefit.data.api.analysis.ConditionProfileApiService
+import com.umc.homefit.data.api.notification.AlertSettingsApiService
 import com.umc.homefit.data.api.recruitment.NoticeApiService
 
 
@@ -110,7 +111,12 @@ object NetworkModule {
     @Singleton
     fun provideConditionProfileApiService(retrofit: Retrofit): ConditionProfileApiService =
         retrofit.create(ConditionProfileApiService::class.java)
-        
+
+    @Provides
+    @Singleton
+    fun provideAlertSettingsApiService(retrofit: Retrofit): AlertSettingsApiService =
+        retrofit.create(AlertSettingsApiService::class.java)
+
     @Provides
     @Singleton
     fun provideFinanceApiService(retrofit: Retrofit): FinanceApiService =
