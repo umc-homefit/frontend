@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umc.homefit.data.dto.common.NoticeStatus
+import com.umc.homefit.presentation.component.ErrorStateView
 import com.umc.homefit.presentation.component.NoticeCard
 import com.umc.homefit.presentation.component.NoticeCardAction
 import com.umc.homefit.presentation.component.NoticeCardUiModel
@@ -81,6 +82,7 @@ fun RecruitmentListScreenRoute(
         onNavigateToSearch = onNavigateToSearch,
         onToggleBookmark = viewModel::toggleBookmark,
         onStatusFilterChanged = viewModel::onStatusFilterChanged,
+        onRetry = viewModel::retry,
         modifier = modifier,
         initialSearchQuery = initialSearchQuery
     )
@@ -104,6 +106,7 @@ fun RecruitmentListScreen(
     modifier: Modifier = Modifier,
     onToggleBookmark: (Long) -> Unit,
     onStatusFilterChanged: (String?) -> Unit = {},
+    onRetry: () -> Unit = {},
     initialSearchQuery: String = "",
 ) {
     var searchQuery by rememberSaveable(initialSearchQuery) {
@@ -215,9 +218,7 @@ fun RecruitmentListScreen(
             }
 
             is RecruitmentListScreenUiState.Error -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = "Error: ${uiState.message}")
-                }
+                ErrorStateView(message = uiState.message, onRetry = onRetry)
             }
         }
     }

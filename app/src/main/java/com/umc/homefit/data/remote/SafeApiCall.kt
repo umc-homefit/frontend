@@ -28,10 +28,12 @@ suspend fun <T> safeApiCall(apiCall: suspend () -> BaseResponse<T>): NetworkResu
         }
         NetworkResult.Error(
             errorCode = ErrorCode.from(parsed?.code ?: "UNKNOWN"),
-            message = parsed?.message ?: "서버 오류가 발생했습니다"
+            message = parsed?.message ?: "일시적인 서버 오류가 발생했어요. 잠시 후 다시 시도해주세요"
         )
     } catch (e: IOException) {
-        NetworkResult.Error(ErrorCode.UNKNOWN, "네트워크 연결을 확인해주세요")
+        // 서버/클라이언트 오류가 아니라 인터넷 연결 자체가 끊겼을 때이므로, "에러"보다는
+        // 연결 상태를 확인해보라는 안내로 문구를 구분
+        NetworkResult.Error(ErrorCode.UNKNOWN, "인터넷 연결이 원활하지 않아요. 연결 상태를 확인해주세요")
     } catch (e: SerializationException) {
         // 응답 형식이 DTO와 어긋날 때(필드 누락 등) 크래시 대신 에러로 처리
         NetworkResult.Error(ErrorCode.UNKNOWN, "응답을 처리하는 중 오류가 발생했습니다")

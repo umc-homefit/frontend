@@ -35,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Image
+import com.umc.homefit.presentation.component.ErrorStateView
 import com.umc.homefit.presentation.component.RefreshOnResume
 import com.umc.homefit.presentation.finance.component.ConditionProfileRequiredContent
 import com.umc.homefit.presentation.finance.component.RecommendedProductCard
@@ -60,6 +61,7 @@ fun FinanceScreenRoute(
         onNavigateToRecommendedProducts = onNavigateToRecommendedProducts,
         onNavigateToFinancialInfo = onNavigateToFinancialInfo,
         onNavigateToDetail = onNavigateToDetail,
+        onRetry = viewModel::retry,
         modifier = modifier
     )
 }
@@ -70,6 +72,7 @@ fun FinanceScreen(
     onNavigateToRecommendedProducts: () -> Unit,
     onNavigateToFinancialInfo: () -> Unit,
     onNavigateToDetail: (Long) -> Unit,
+    onRetry: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     when (uiState) {
@@ -100,15 +103,11 @@ fun FinanceScreen(
         }
 
         is FinanceScreenUiState.Error -> {
-            Box(
-                modifier = modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Error: ${uiState.message}",
-                    color = Color(0xFFE53935)
-                )
-            }
+            ErrorStateView(
+                message = uiState.message,
+                onRetry = onRetry,
+                modifier = modifier
+            )
         }
     }
 }
