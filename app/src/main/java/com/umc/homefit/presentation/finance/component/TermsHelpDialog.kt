@@ -82,16 +82,23 @@ fun TermsHelpDialog(
                 )
             }
 
+            // 항목이 많아지면(3개 이상) 위쪽 여백과 항목 간 간격을 줄여 다이얼로그 높이 안에 들어오게 함
+            val topPadding = if (terms.size >= 3) 100.dp else 132.dp
+            val itemSpacing = if (terms.size >= 3) 10.dp else 15.dp
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(
                         start = 24.dp,
-                        top = 132.dp,
+                        top = topPadding,
                         end = 24.dp,
                         bottom = 24.dp
                     ),
-                verticalArrangement = Arrangement.spacedBy(22.dp)
+                verticalArrangement = Arrangement.spacedBy(
+                    space = itemSpacing,
+                    alignment = Alignment.CenterVertically
+                )
             ) {
                 terms.forEach { term ->
                     TermDescription(

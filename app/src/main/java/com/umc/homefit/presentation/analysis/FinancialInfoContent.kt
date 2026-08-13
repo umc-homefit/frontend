@@ -169,13 +169,15 @@ private fun FinanceInfoCard(
                 text = section.title,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF4A4F55)
+                color = Color(0xFF4A4F55),
+                lineHeight = 17.sp
             )
             Text(
                 text = "수정",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = EditLinkColor,
+                lineHeight = 17.sp,
                 modifier = Modifier.clickable(onClick = onEditClick)
             )
         }
@@ -205,21 +207,24 @@ private fun FinanceInfoCard(
                             text = row.label,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
-                            color = LabelTextColor
+                            color = LabelTextColor,
+                            lineHeight = 14.sp
                         )
                         Text(
                             text = row.value,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
-                            color = ValueTextColor
+                            color = ValueTextColor,
+                            lineHeight = 14.sp
                         )
                     }
                 } else {
                     Text(
                         text = row.label,
-                        fontSize = 14.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
-                        color = LabelTextColor
+                        color = LabelTextColor,
+                        lineHeight = 14.sp
                     )
                 }
             }
