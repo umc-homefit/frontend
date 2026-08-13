@@ -62,7 +62,7 @@ fun HomeScreenRoute(
     onFavoriteClick: () -> Unit = {},
     onAnalysisClick: () -> Unit = {},
     onFinanceClick: () -> Unit = {},
-    onGuideClick: () -> Unit = {}
+    onInterestedRegionClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val userName by viewModel.userName.collectAsStateWithLifecycle()
@@ -80,7 +80,7 @@ fun HomeScreenRoute(
         onFavoriteClick = onFavoriteClick,
         onAnalysisClick = onAnalysisClick,
         onFinanceClick = onFinanceClick,
-        onGuideClick = onGuideClick,
+        onInterestedRegionClick = onInterestedRegionClick,
         onNavigateToDetail = onNavigateToDetail,
         onToggleBookmark = viewModel::toggleBookmark,
         onRetry = viewModel::loadFeaturedNotices,
@@ -101,7 +101,7 @@ fun HomeScreen(
     onRetry: () -> Unit,
     onAnalysisClick: () -> Unit,
     onFinanceClick: () -> Unit,
-    onGuideClick: () -> Unit,
+    onInterestedRegionClick: () -> Unit,
     onNavigateToDetail: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -173,7 +173,7 @@ fun HomeScreen(
                     onFavoriteClick = onFavoriteClick,
                     onAnalysisClick = onAnalysisClick,
                     onFinanceClick = onFinanceClick,
-                    onGuideClick = onGuideClick
+                    onInterestedRegionClick = onInterestedRegionClick
                 )
             }
 
@@ -447,7 +447,7 @@ private fun HomeMenuSection(
     onFavoriteClick: () -> Unit,
     onAnalysisClick: () -> Unit,
     onFinanceClick: () -> Unit,
-    onGuideClick: () -> Unit
+    onInterestedRegionClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -481,9 +481,9 @@ private fun HomeMenuSection(
         )
 
         HomeMenuItem(
-            iconRes = R.drawable.ic_guide,
-            label = "청약 가이드",
-            onClick = onGuideClick,
+            iconRes = R.drawable.ic_place,
+            label = "관심 지역",
+            onClick = onInterestedRegionClick,
             modifier = Modifier.weight(1f)
         )
     }
@@ -559,7 +559,7 @@ private fun HomeScreenPreview() {
         onRetry = {},
         onAnalysisClick = {},
         onFinanceClick = {},
-        onGuideClick = {},
+        onInterestedRegionClick = {},
         onNavigateToDetail = {}
     )
 }
