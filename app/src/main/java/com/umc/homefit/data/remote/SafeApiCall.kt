@@ -1,0 +1,41 @@
+﻿package com.umc.homefit.data.remote
+
+import com.umc.homefit.data.dto.common.BaseResponse
+import com.umc.homefit.data.dto.common.ErrorResponse
+import com.umc.homefit.util.error.ErrorCode
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
+import retrofit2.HttpException
+import java.io.IOException
+
+private val errorJson = Json { ignoreUnknownKeys = true }
+
+suspend fun <T> safeApiCall(apiCall: suspend () -> BaseResponse<T>): NetworkResult<T> {
+    return try {
+        val response = apiCall()
+        when {
+            response.isSuccess && response.result != null -> NetworkResult.Success(response.result)
+            response.isSuccess -> {
+                @Suppress("UNCHECKED_CAST")
+                NetworkResult.Success(Unit as T)
+            }
+            else -> NetworkResult.Error(ErrorCode.from(response.code), response.message)
+        }
+    } catch (e: HttpException) {
+        val errorBody = e.response()?.errorBody()?.string()
+        val parsed = errorBody?.let {
+            runCatching { errorJson.decodeFromString<ErrorResponse>(it) }.getOrNull()
+        }
+        NetworkResult.Error(
+            errorCode = ErrorCode.from(parsed?.code ?: "UNKNOWN"),
+            message = parsed?.message ?: "일시적인 서버 오류가 발생했어요. 잠시 후 다시 시도해주세요"
+        )
+    } catch (e: IOException) {
+        // 서버/클라이언트 오류가 아니라 인터넷 연결 자체가 끊겼을 때이므로, "에러"보다는
+        // 연결 상태를 확인해보라는 안내로 문구를 구분
+        NetworkResult.Error(ErrorCode.UNKNOWN, "인터넷 연결이 원활하지 않아요. 연결 상태를 확인해주세요")
+    } catch (e: SerializationException) {
+        // 응답 형식이 DTO와 어긋날 때(필드 누락 등) 크래시 대신 에러로 처리
+        NetworkResult.Error(ErrorCode.UNKNOWN, "응답을 처리하는 중 오류가 발생했습니다")
+    }
+}
