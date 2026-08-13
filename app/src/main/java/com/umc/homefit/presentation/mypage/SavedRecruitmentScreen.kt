@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import com.umc.homefit.data.dto.common.NoticeStatus
 import com.umc.homefit.presentation.component.AppScaffold
 import com.umc.homefit.presentation.component.AutoDismissInfoSnackbar
+import com.umc.homefit.presentation.component.ErrorStateView
 import com.umc.homefit.presentation.component.NoticeCard
 import com.umc.homefit.presentation.component.NoticeCardAction
 import com.umc.homefit.presentation.component.NoticeCardUiModel
@@ -65,6 +66,7 @@ fun SavedRecruitmentScreenRoute(
         onRemoveClick = viewModel::onRemoveClick,
         onLoadMore = viewModel::loadNextPage,
         onNavigateToDetail = onNavigateToDetail,
+        onRetry = viewModel::retry,
         modifier = modifier
     )
 }
@@ -77,7 +79,8 @@ fun SavedRecruitmentScreen(
     onSortOptionSelected: (SortOption) -> Unit = {},
     onRemoveClick: (String) -> Unit = {},
     onLoadMore: () -> Unit = {},
-    onNavigateToDetail: (String) -> Unit = {}
+    onNavigateToDetail: (String) -> Unit = {},
+    onRetry: () -> Unit = {}
 ) {
     var showRemovedMessage by remember { mutableStateOf(false) }
 
@@ -113,7 +116,7 @@ fun SavedRecruitmentScreen(
                     )
                 }
                 is SavedRecruitmentScreenUiState.Error -> {
-                    Text(text = "Error: ${uiState.message}", modifier = Modifier.align(Alignment.Center))
+                    ErrorStateView(message = uiState.message, onRetry = onRetry)
                 }
             }
 

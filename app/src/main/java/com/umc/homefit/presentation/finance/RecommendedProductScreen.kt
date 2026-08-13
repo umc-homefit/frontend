@@ -49,6 +49,7 @@ import com.umc.homefit.presentation.finance.component.RecommendedProductCard
 import com.umc.homefit.presentation.theme.HomeFitTheme
 import com.umc.homefit.presentation.finance.component.RecommendedProductSearchBar
 import com.umc.homefit.presentation.component.AppScaffold
+import com.umc.homefit.presentation.component.ErrorStateView
 import com.umc.homefit.presentation.component.RefreshOnResume
 import com.umc.homefit.presentation.finance.component.ConditionProfileRequiredContent
 
@@ -92,6 +93,7 @@ fun RecommendedProductScreenRoute(
                 keyword = keyword
             )
         },
+        onRetry = viewModel::retry,
         modifier = modifier
     )
 }
@@ -231,6 +233,7 @@ fun RecommendedProductScreen(
     onNavigateToSearch: () -> Unit,
     onNavigateToFinancialInfo: () -> Unit,
     onFilterChanged: (sort: String, category: String?, keyword: String?) -> Unit,
+    onRetry: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     AppScaffold(
@@ -245,6 +248,7 @@ fun RecommendedProductScreen(
             onNavigateToSearch = onNavigateToSearch,
             onNavigateToFinancialInfo = onNavigateToFinancialInfo,
             onFilterChanged = onFilterChanged,
+            onRetry = onRetry,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -261,6 +265,7 @@ private fun RecommendedProductContent(
     onNavigateToSearch: () -> Unit,
     onNavigateToFinancialInfo: () -> Unit,
     onFilterChanged: (sort: String, category: String?, keyword: String?) -> Unit,
+    onRetry: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedCategory by remember {
@@ -421,14 +426,7 @@ private fun RecommendedProductContent(
             }
 
             is RecommendedProductScreenUiState.Error -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Error: ${uiState.message}"
-                    )
-                }
+                ErrorStateView(message = uiState.message, onRetry = onRetry)
             }
         }
     }

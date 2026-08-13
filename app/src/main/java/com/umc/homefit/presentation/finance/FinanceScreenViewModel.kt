@@ -27,6 +27,9 @@ class FinanceScreenViewModel @Inject constructor(
 
     fun refresh() = loadMatchedProducts(showLoading = false)
 
+    /** 에러 화면의 재시도 버튼용. 로딩 화면을 다시 보여주며 재조회한다. */
+    fun retry() = loadMatchedProducts()
+
     private var loadJob: Job? = null
     fun loadMatchedProducts(showLoading: Boolean = true) {
         loadJob?.cancel()

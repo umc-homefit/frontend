@@ -39,6 +39,13 @@ class RecommendedProductScreenViewModel @Inject constructor(
         showLoading = false
     )
 
+    /** 에러 화면의 재시도 버튼용. 로딩 화면을 다시 보여주며 같은 정렬/필터/검색어로 재조회한다. */
+    fun retry() = loadRecommendedProducts(
+        sort = currentSort,
+        category = currentCategory,
+        keyword = currentKeyword
+    )
+
     fun loadRecommendedProducts(
         sort: String = DEFAULT_SORT,
         category: String? = null,

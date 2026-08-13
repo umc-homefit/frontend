@@ -49,6 +49,11 @@ class SavedRecruitmentScreenViewModel @Inject constructor(
         }
     }
 
+    /** 에러 화면의 재시도 버튼용. 로딩 화면을 다시 보여주며 첫 페이지부터 재조회한다. */
+    fun retry() {
+        loadSavedNotices(page = 0, isLoadMore = false)
+    }
+
     fun loadNextPage() {
         val current = _uiState.value
         if (current !is SavedRecruitmentScreenUiState.Success) return
