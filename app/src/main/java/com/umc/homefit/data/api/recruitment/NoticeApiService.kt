@@ -40,9 +40,9 @@ interface NoticeApiService {
         @Query("size") size: Int
     ): BaseResponse<SavedNoticeListResponse>
 
-    @DELETE("notices/{noticeId}/save")
+    @DELETE("users/me/saved-notices/{noticeId}")
     suspend fun unsaveNotice(@Path("noticeId") noticeId: Long): BaseResponse<UnsaveNoticeResultResponse>
 
-    @POST("notices/{noticeId}/save")
+    @POST("users/me/saved-notices/{noticeId}")
     suspend fun saveNotice(@Path("noticeId") noticeId: Long): BaseResponse<SaveNoticeResultResponse>
 }
