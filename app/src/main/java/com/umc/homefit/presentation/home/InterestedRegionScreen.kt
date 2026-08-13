@@ -1,4 +1,4 @@
-package com.umc.homefit.presentation.mypage
+package com.umc.homefit.presentation.home
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background

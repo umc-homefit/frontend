@@ -481,7 +481,7 @@ private fun HomeMenuSection(
         )
 
         HomeMenuItem(
-            iconRes = R.drawable.ic_place,
+            iconRes = R.drawable.ic_home_place,
             label = "관심 지역",
             onClick = onInterestedRegionClick,
             modifier = Modifier.weight(1f)

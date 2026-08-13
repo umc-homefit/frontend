@@ -1,4 +1,4 @@
-package com.umc.homefit.presentation.mypage
+package com.umc.homefit.presentation.home
 
 sealed interface InterestedRegionScreenUiState {
     object Loading : InterestedRegionScreenUiState
