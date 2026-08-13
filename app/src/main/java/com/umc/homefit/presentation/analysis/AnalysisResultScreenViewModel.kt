@@ -8,6 +8,7 @@ import com.umc.homefit.data.dto.analysis.EligibilityAnalysisResultDto
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.analysis.AnalysisRepository
 import com.umc.homefit.util.mapToHouseOption
+import com.umc.homefit.util.toAreaText
 import com.umc.homefit.util.toPercentileText
 import com.umc.homefit.util.toWonText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -84,13 +85,10 @@ private fun EligibilityAnalysisResultDto.toCriteriaInfoRows(): List<InfoRowItem>
         InfoRowItem("공급 유형", supplyType)
     )
     exclusiveAreaM2?.let { area ->
-        rows.add(InfoRowItem("전용 면적", area.toAreaText()))
+        rows.add(InfoRowItem("전용 면적", "${area.toAreaText()}㎡"))
     }
     return rows
 }
-
-private fun Double.toAreaText(): String =
-    if (this % 1.0 == 0.0) "${toInt()}㎡" else "${this}㎡"
 
 private fun ConditionProfileSnapshotDto.toInputInfoRows(): List<InfoRowItem> = listOf(
     InfoRowItem("연간 총소득", (monthlyIncomeAmount * 12).toWonText()),

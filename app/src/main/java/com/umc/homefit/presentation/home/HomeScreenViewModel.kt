@@ -6,6 +6,7 @@ import com.umc.homefit.data.dto.recruitment.NoticeDto
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.home.HomeRepository
 import com.umc.homefit.domain.repository.mypage.MyPageRepository
+import com.umc.homefit.domain.repository.notification.NotificationRepository
 import com.umc.homefit.domain.repository.recruitment.SavedNoticeRepository
 import com.umc.homefit.presentation.component.toNoticeCardUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +20,8 @@ import kotlinx.coroutines.launch
 class HomeScreenViewModel @Inject constructor(
     private val homeRepository: HomeRepository,
     private val savedNoticeRepository: SavedNoticeRepository,
-    private val myPageRepository: MyPageRepository
+    private val myPageRepository: MyPageRepository,
+    private val notificationRepository: NotificationRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeScreenUiState>(HomeScreenUiState.Loading)
@@ -27,6 +29,10 @@ class HomeScreenViewModel @Inject constructor(
 
     private val _userName = MutableStateFlow<String?>(null)
     val userName: StateFlow<String?> = _userName.asStateFlow()
+
+    private val _hasUnreadNotifications = MutableStateFlow(false)
+    val hasUnreadNotifications: StateFlow<Boolean> =
+        _hasUnreadNotifications.asStateFlow()
 
     private var notices: List<NoticeDto> = emptyList()
 
@@ -43,6 +49,21 @@ class HomeScreenViewModel @Inject constructor(
                 }
 
                 is NetworkResult.Error -> Unit
+            }
+        }
+    }
+
+    fun loadNotificationStatus() {
+        viewModelScope.launch {
+            when (val result = notificationRepository.getNotifications()) {
+                is NetworkResult.Success -> {
+                    _hasUnreadNotifications.value =
+                        result.data.notifications.any { !it.isRead }
+                }
+
+                is NetworkResult.Error -> {
+                    _hasUnreadNotifications.value = false
+                }
             }
         }
     }

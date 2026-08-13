@@ -49,6 +49,7 @@ import com.umc.homefit.presentation.finance.component.RecommendedProductCard
 import com.umc.homefit.presentation.theme.HomeFitTheme
 import com.umc.homefit.presentation.finance.component.RecommendedProductSearchBar
 import com.umc.homefit.presentation.component.AppScaffold
+import com.umc.homefit.presentation.component.ErrorStateView
 import com.umc.homefit.presentation.component.RefreshOnResume
 import com.umc.homefit.presentation.finance.component.ConditionProfileRequiredContent
 
@@ -96,6 +97,7 @@ fun RecommendedProductScreenRoute(
         },
         onClearSearch = onClearSearch,
         onBack = onBack,
+        onRetry = viewModel::retry,
         modifier = modifier
     )
 }
@@ -237,6 +239,7 @@ fun RecommendedProductScreen(
     onFilterChanged: (sort: String, category: String?, keyword: String?) -> Unit,
     onClearSearch: () -> Unit,
     onBack: () -> Unit,
+    onRetry: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     AppScaffold(
@@ -253,6 +256,7 @@ fun RecommendedProductScreen(
             onNavigateToFinancialInfo = onNavigateToFinancialInfo,
             onFilterChanged = onFilterChanged,
             onClearSearch = onClearSearch,
+            onRetry = onRetry,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -270,6 +274,7 @@ private fun RecommendedProductContent(
     onNavigateToFinancialInfo: () -> Unit,
     onFilterChanged: (sort: String, category: String?, keyword: String?) -> Unit,
     onClearSearch: () -> Unit,
+    onRetry: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedCategory by remember {
@@ -290,8 +295,6 @@ private fun RecommendedProductContent(
 
     LaunchedEffect(searchQuery) {
         if (isInitialized) {
-            // 새 검색어를 제출한 경우(공고 탭과 동일하게)에는 새로운 탐색으로 보고 카테고리/정렬도 초기화한다.
-            // X 버튼으로 검색어만 지운 경우(searchQuery가 빈 값이 됨)는 그대로 유지한다.
             if (searchQuery.isNotBlank()) {
                 selectedCategory = null
                 selectedSort = ProductSort.RECOMMENDED
@@ -303,9 +306,6 @@ private fun RecommendedProductContent(
             )
         } else {
             isInitialized = true
-            // 화면이 처음 떠 있는 시점에 이미 적용된 검색어(예: 검색 후 뒤로가기 → 재진입)가 있으면
-            // ViewModel의 초기 로드는 keyword=null이므로 여기서 한 번은 검색어를 반영해줘야
-            // 검색창 표시값과 실제 목록 결과가 어긋나지 않는다.
             if (searchQuery.isNotBlank()) {
                 onFilterChanged(
                     selectedSort.apiValue,
@@ -447,14 +447,7 @@ private fun RecommendedProductContent(
             }
 
             is RecommendedProductScreenUiState.Error -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Error: ${uiState.message}"
-                    )
-                }
+                ErrorStateView(message = uiState.message, onRetry = onRetry)
             }
         }
     }

@@ -7,6 +7,7 @@ import com.umc.homefit.data.dto.recruitment.SavedNoticeResponse
 import com.umc.homefit.data.remote.NetworkResult
 import com.umc.homefit.domain.repository.recruitment.SavedNoticeRepository
 import com.umc.homefit.presentation.component.NoticeCardUiModel
+import com.umc.homefit.presentation.component.buildAreaDepositLine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -46,6 +47,11 @@ class SavedRecruitmentScreenViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    /** 에러 화면의 재시도 버튼용. 로딩 화면을 다시 보여주며 첫 페이지부터 재조회한다. */
+    fun retry() {
+        loadSavedNotices(page = 0, isLoadMore = false)
     }
 
     fun loadNextPage() {
@@ -107,16 +113,6 @@ class SavedRecruitmentScreenViewModel @Inject constructor(
             statusLabel = statusDisplayText,
             isSaved = true
         )
-    }
-
-    private fun buildAreaDepositLine(unitSummary: String?, depositMin: Long?): String {
-        val area = unitSummary?.removePrefix("전용")?.trim()?.takeIf { it.isNotBlank() } ?: "공고문 참고"
-        return "전용 $area  보증금 ${formatDepositToManwon(depositMin)}"
-    }
-
-    private fun formatDepositToManwon(depositInWon: Long?): String {
-        if (depositInWon == null) return "공고문 참고"
-        return "%,d만원".format(depositInWon / 10_000)
     }
 
     private fun String.toDateText(): String = take(10).replace("-", ".")

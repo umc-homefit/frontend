@@ -88,6 +88,11 @@ class RecruitmentListScreenViewModel @Inject constructor(
         loadRecruitments(showLoading = false)
     }
 
+    /** 에러 화면의 재시도 버튼용. 로딩 화면을 다시 보여주며 같은 조건으로 재조회한다. */
+    fun retry() {
+        loadRecruitments()
+    }
+
     private var loadJob: Job? = null
     private fun loadRecruitments(showLoading: Boolean = true) {
         loadJob?.cancel()

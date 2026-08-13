@@ -1,4 +1,4 @@
-﻿package com.umc.homefit.presentation.component
+package com.umc.homefit.presentation.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,7 +31,7 @@ fun ErrorStateView(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎",
+            text = "에러가 발생했습니다",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.error
@@ -45,7 +45,7 @@ fun ErrorStateView(
         )
         Spacer(modifier = Modifier.height(24.dp))
         Button(onClick = onRetry) {
-            Text(text = "?ㅼ떆 ?쒕룄")
+            Text(text = "다시 시도")
         }
     }
 }

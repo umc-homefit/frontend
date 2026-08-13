@@ -214,7 +214,9 @@ fun RootNavGraph(
                 viewModel = hiltViewModel<NotificationScreenViewModel>(),
                 onBack = { navController.popBackStack() },
                 onSettingsClick = { navController.navigate(Route.NotificationSetting) },
-                onNotificationClick = { _ -> /* TODO 개별 알림 클릭 처리 */ }
+                onNotificationClick = { noticeId ->
+                    navController.navigate(Route.RecruitmentDetail(noticeId.toString()))
+                }
             )
         }
 

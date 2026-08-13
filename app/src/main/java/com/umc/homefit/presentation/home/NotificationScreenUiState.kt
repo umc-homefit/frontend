@@ -15,6 +15,7 @@ sealed interface NotificationScreenUiState {
 
 data class NotificationUiModel(
     val id: Long,
+    val noticeId: Long?,
     val type: NotificationType,
     val title: String,
     val message: String,
@@ -22,8 +23,7 @@ data class NotificationUiModel(
 )
 
 enum class NotificationType {
-    NEW_ANNOUNCEMENT,
-    ANNOUNCEMENT_CHANGED,
-    APPLICATION_SCHEDULE,
-    FINANCE_PRODUCT
+    NEW_NOTICE,
+    CLOSING_SOON,
+    UNKNOWN
 }

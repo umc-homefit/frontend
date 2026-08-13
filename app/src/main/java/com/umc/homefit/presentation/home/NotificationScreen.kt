@@ -54,7 +54,10 @@ fun NotificationScreenRoute(
         uiState = uiState,
         onBack = onBack,
         onSettingsClick = onSettingsClick,
-        onNotificationClick = onNotificationClick,
+        onNotificationClick = { notification ->
+            viewModel.markNotificationAsRead(notification.id)
+            notification.noticeId?.let(onNotificationClick)
+        },
         modifier = modifier
     )
 }
@@ -64,7 +67,7 @@ fun NotificationScreen(
     uiState: NotificationScreenUiState,
     onBack: () -> Unit,
     onSettingsClick: () -> Unit,
-    onNotificationClick: (Long) -> Unit,
+    onNotificationClick: (NotificationUiModel) -> Unit,
     modifier: Modifier = Modifier
 ) {
     AppScaffold(
@@ -149,7 +152,7 @@ private fun NotificationEmptyContent(
 @Composable
 private fun NotificationListContent(
     notifications: List<NotificationUiModel>,
-    onNotificationClick: (Long) -> Unit,
+    onNotificationClick: (NotificationUiModel) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -167,7 +170,7 @@ private fun NotificationListContent(
             NotificationListItem(
                 notification = notification,
                 onClick = {
-                    onNotificationClick(notification.id)
+                    onNotificationClick(notification)
                 }
             )
 
@@ -299,16 +302,14 @@ private fun notificationTypeIconRes(
     type: NotificationType
 ): Int {
     return when (type) {
-        NotificationType.NEW_ANNOUNCEMENT ->
+        NotificationType.NEW_NOTICE ->
             R.drawable.ic_noti_home
 
-        NotificationType.ANNOUNCEMENT_CHANGED ->
-            R.drawable.ic_noti_idea
-
-        NotificationType.APPLICATION_SCHEDULE ->
+        NotificationType.CLOSING_SOON ->
             R.drawable.ic_noti_calender
 
-        NotificationType.FINANCE_PRODUCT ->
-            R.drawable.ic_noti_card
+        NotificationType.UNKNOWN ->
+            R.drawable.ic_noti_idea
     }
 }
+
